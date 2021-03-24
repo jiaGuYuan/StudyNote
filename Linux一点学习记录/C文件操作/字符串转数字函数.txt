@@ -1,0 +1,1 @@
+ANSI C 规范定义了 atof()、atoi()、atol()、strtod()、strtol()、strtoul() 共6个可以将字符串转换为数字的函数，大家可以对比学习；使用 strtod(str, NULL) 与使用 atof() 结果相同。另外在 C99 / C++11 规范中又新增了5个函数，分别是 atoll()、strtof()、strtold()、strtoll()、strtoull()，在此不做介绍，请大家自行学习。

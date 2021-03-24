@@ -1,0 +1,78 @@
+//一个生产者、一个消费者，一个缓冲区时
+
+#include <iostream>
+#include <windows.h>
+
+HANDLE g_hEventBufferEmpty, g_hEventBufferFull;	//事件用于同步
+CRITICAL_SECTION g_csThreadCode;	//关键区用于互斥操作
+
+
+DWORD WINAPI producer(LPVOID lpPara) //生产者
+{
+	const int yield = *(int *)lpPara;
+	for (int i = 0; i < yield; i++)
+	{
+		WaitForSingleObject(g_hEventBufferEmpty, INFINITE);	//等待空闲缓冲区
+
+		//EnterCriticalSection(&g_csThreadCode); //进入临界区开始操作操作资源
+		printf("生产者向缓冲区中放产品\n");
+		//LeaveCriticalSection(&g_csThreadCode); //离开临界区
+
+		SetEvent(g_hEventBufferFull); //生成可用产品
+	}
+
+	return 0;
+}
+
+DWORD WINAPI consumer(LPVOID lpPara) //消费者
+{
+	std::cout << "   wbvf   生产者消费者问题:   1生产者 1消费者 1缓冲区\n" << std::endl;
+
+	const int yield = *(int *)lpPara;
+	
+	for (int i = 0; i < yield; i++)
+	{
+		WaitForSingleObject(g_hEventBufferFull, INFINITE);	//等待可用产品
+
+		//EnterCriticalSection(&g_csThreadCode); //进入临界区开始操作操作资源
+		printf("\t\t\t\t消费者从缓冲区中取产品\n");
+		//LeaveCriticalSection(&g_csThreadCode); //离开临界区
+
+		SetEvent(g_hEventBufferEmpty); //释放缓冲区
+	}
+
+	return 0;
+}
+
+
+int main()
+{
+	std::cout << "      生产者消费者问题:   1生产者 1消费者 1缓冲区\n" << std::endl;
+	int yield = 0; //产量
+	std::cout << "输入生产者的产量: yield = ";
+	std::cin >> yield;
+
+	InitializeCriticalSection(&g_csThreadCode);	//初始化临界区
+	g_hEventBufferEmpty = CreateEvent(NULL,	FALSE, TRUE, NULL); //创建一个自动复位事件，表示缓冲区是否为空 （触发）
+	g_hEventBufferFull = CreateEvent(NULL, FALSE, FALSE, NULL); //创建一个自动复位事件，表示缓冲区无可用产品 （未触发）
+	 
+	const int THREAD_NUM = 2;
+	HANDLE thread_handle[THREAD_NUM];
+	
+	//内核对象的安全属性为默认设置、线程空间为默认大小、线程入口为函数为producer，向线程函数传递参数&yield，不返回该线程ID号
+	thread_handle[0] = CreateThread(NULL, 0, producer, &yield, 0, NULL);
+	//内核对象的安全属性为默认设置、线程空间为默认大小、线程入口为函数为producer，向线程函数传递参数&yield，不返回该线程ID号
+	thread_handle[1] = CreateThread(NULL, 0, consumer, &yield, 0, NULL);
+	
+	WaitForMultipleObjects(THREAD_NUM, thread_handle, TRUE, INFINITE); //等待thread_handle中的所有线程结束
+	CloseHandle(thread_handle[0]); //撤消线程句柄
+	CloseHandle(thread_handle[1]);
+
+	DeleteCriticalSection(&g_csThreadCode);	//销毁临界区
+
+	CloseHandle(g_hEventBufferEmpty); //销毁事件句柄
+	CloseHandle(g_hEventBufferFull);
+
+	system("pause"); //暂停以查看显示窗口
+	return 0;
+}

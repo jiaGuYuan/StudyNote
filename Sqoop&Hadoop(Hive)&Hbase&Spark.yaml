@@ -1,0 +1,677 @@
+Hadoop:
+    为离线和大规模数据分析而设计,并不适于在线事务处理.
+    Hadoop=HDFS(文件系统,数据存储技术相关)+ Mapreduce(数据处理)
+    Hadoop的数据来源可以是任何形式, 但数据最终会转化为key/value格式.
+    hive是基于Hadoop的一个数据数据仓库工具,hive使不熟悉mapreduce的用户可以很方便地利用HQL语言在Hadoop分布式文件系中进行数据分析.
+    hive在加载数据过程中不会对数据进行任何的修改,只是将数据移动到HDFS中hive设定的目录下;
+    因此,hive不支持对数据的改写和添加,所有的数据都是在加载的时候确定的.
+        
+    MapReduce: "Map(映射)"和"Reduce(归约)", ...
+    
+    Hadoop实现了一个分布式文件系统(Hadoop Distributed File System),简称HDFS.
+    
+    https://blog.csdn.net/haboop/article/details/89786437
+    
+    HDFS shell操作:
+        hadoop fs -ls path
+        hadoop fs -mv srcpath targetpath
+        hadoop fs -put localfilepath hdfspath
+        hadoop fs -rm hdfs://host:port/path // -r参数递归删除目录
+        
+        
+    
+    hdfs:
+        扩容(添加磁盘): 
+            相关配置文件hadoop的hdfs-site.xml: 
+            <property>
+                <name>dfs.datanode.data.dir</name>
+                <value>/bigdata/hdfsWarehouse/Data</value>
+                <value>/disk2/hdfsWarehouse/Data</value> #将多个<value>设置在不同硬盘的挂载点下,hdfs即可使用多个硬盘.
+            </property>
+            注:为了避免权限问题,建议下磁盘挂载点下再建一个目录用于hdfs. (如: 磁盘2的挂载点为'/disk2/hdfsWarehouse/')
+
+        
+Hive:
+    hive会为每个数据库创建一个目录.数据库中的表以数据库的子目录形式存储; 但default没有目录. 
+    数据库所在目录位于:
+        ${hive.metastore.warehouse.dir}
+    
+    查看当前已有的数据库:
+        show databases;
+    查看当前数据库下的表:
+        show tables;
+        
+    创建数据库:
+        hive> create database if not exists myhiveDbName comment "this is my hive database" location '/myhiveDir/myhiveDbName.db/';
+        -- 如果数据库'myhiveDbName'不存在则创建它, comment为数据库增加描述信息, location指定数据库全路径名
+        -- 未指定location时,hdfs会在${hive.metastore.warehouse.dir}下创建一个目录来表示DB.
+    删除数据库:
+        hive> drop database if exists myhiveDbName;
+        
+    设置一个属性显示当前所在的数据库:
+        hive> set hive.cli.print.current.db=true;
+        查看指定配置:
+            hive> set hive.cli.print.current.db;
+        
+    创建表:
+        hive> CREATE [EXTERNAL] TABLE [IF NOT EXISTS] table_name
+                [(col_name data_type [COMMENT col_comment], ...)]  ----指定表的名称和表的具体列信息.
+                [COMMENT table_comment]  ---表的描述信息.
+                [PARTITIONED BY (col_name data_type [COMMENT col_comment], ...)]  ---表的分区信息.
+                [CLUSTERED BY (col_name, col_name, ...)   ---表的桶信息
+                [SORTED BY (col_name [ASC|DESC], ...)] INTO num_buckets BUCKETS]  -- 字段的排序方式
+                [ROW FORMAT row_format]  ---一行对应一条记录. 表的数据分割信息,格式化信息.
+                [STORED AS file_format]   ---对应的文件类型,最常见的是SEQUENCEFILE(以键值对类型格式存储的)类型
+                [LOCATION hdfs_path]  ---数据存储的文件夹地址信息.
+                
+        row_format:
+            DELIMITED [FIELDS TERMINATED BY '\t']   --记录中字段的分隔符
+                [COLLECTION ITEMS TERMINATED BY char] --STRUCT, MAP, ARRAY字段中子字段的分隔符
+                [MAP KEYS TERMINATED BY '\002'] --Key-Value分隔符
+                [LINES TERMINATED BY '\n'] --行分隔符
+
+            分隔符:
+                行分隔符,默认'\n':
+                    LINES TERMINATED BY '\n'
+                列(字段)分隔符,默认'^A'('\001'):
+                    ROW FORMAT DELIMITED FIELDS TERMINATED BY '\001'
+                数据类型STRUCT, MAP, ARRAY中字段的分隔符,默认'^B'('\002'):
+                    COLLECTION ITEMS TERMINATED BY '\002'
+                MAP类型的键值之间的分割符,默认'^C'('\003'):
+                    MAP KEYS TERMINATED BY '\003'
+        
+        file_format:
+            SEQUENCEFILE: 如果数据需要压缩可使用这个
+            TEXTFILE: 文本文件可使用这个
+            RCFILE: ...
+            INPUTFORMAT input_format_classname OUTPUTFORMAT
+
+    
+    load数据:(只是单纯的复制/移动操作,DML操作)
+        LOAD DATA [LOCAL] INPATH 'filepath' [OVERWRITE] INTO 
+            TABLE tablename [PARTITION (partcol1=val1, partcol2=val2 ...)]
+          参数说明:
+            filepath: 相对路径, 绝对路径, URI
+            LOCAL: 使用此关键字时,filepath表示本地文件系统中的路径;
+                   否则filepath表示一个URI.
+            OVERWRITE: 使用此关键字时,目标表(或者分区)中的内容会被删除,然后再将filepath指向的文件/目录中的内容添加到表/分区中
+                   
+        eg:
+        //从本地导入数据到hive的表中(实质就是将文件上传到hdfs中hive管理目录下)
+        load data local inpath '/home/hadoop/ip.txt' into table tableName;
+        
+        //从hdfs上导入数据到hive表中(实质就是将文件从原始目录移动到hive管理的目录下)
+        load data inpath 'hdfs://ns1/aa/bb/data.log' into table tableName;
+
+        //使用select语句来批量插入数据
+        insert overwrite table tab_ip_seq select * from tableName;
+        
+    分区表:
+        创建分区表:
+        create table tb_part(sNo int,sName string,sAge int,sDept string) 
+            partitioned by (part string) --,根据part进行分区
+            row format delimited
+             fields terminated by ','
+            stored as textfile;
+        加载数据到指定分区
+        load data local inpath '/home/hadoop/data_hadoop/tb_part' overwrite into table tb_part partition (part='20171210');
+        load data local inpath '/home/hadoop/data_hadoop/tb_part' overwrite into table tb_part partition (part='20171211');
+        查看分区
+        show partitions tb_part;
+        
+        总结:
+            利用分区表方式减少查询时需要扫描的数据量
+            分区字段不是表中的列, 数据文件中没有对应的列(分区字段可以是一个或多个).
+            分区仅仅是一个目录名
+            查看数据时, hive会自动添加分区列
+            支持多级分区, 多级子目录
+        
+        
+    创建带桶的数据表:
+        #设置变量
+        set hive.enforce.bucketing = true; #允许分桶
+        set mapreduce.job.reduces=4; #分桶数目
+        
+        create table if not exists tb_stud(id int,name string,age int)
+            partitioned by(clus string) --分区;根据clus进行分区
+            clustered by(id)                  --分桶, 根据id进行分桶
+                sorted by(age) into 2 buckets  --分桶;根据id进行分桶,分成2个桶.桶内按age进行排序
+            row format delimited 
+                fields terminated by ',';
+    
+    insert操作:
+        将查询结果插入Hive表:
+            INSERT OVERWRITE TABLE tablename1 [PARTITION (partcol1=val1, partcol2=val2 ...)] 
+                select_statement;
+                说明: select_statement:一条select查询语句.
+            
+            eg: insert overwrite table tb_stud partition(clus='20171218')
+                    select id,name,age from tb_stud_other where clus='20171218';
+        
+        多插入:
+            FROM from_statement 
+                INSERT OVERWRITE TABLE tablename1 [PARTITION (partcol1=val1, partcol2=val2 ...)] select_statement1 
+                [INSERT OVERWRITE TABLE tablename2 [PARTITION ...] select_statement2] ...
+
+            eg:
+            from tb_stud_other
+                insert overwrite table tb_stud partition(clus='20171213')
+                    select id,name,age  where clus='20171213'
+                insert overwrite table tb_stud partition(clus='20171214')
+                    select id,name,age  where clus='20171214';
+
+    HiveQL参考:
+        https://blog.csdn.net/qq_41518277/article/details/80902191
+        https://blog.csdn.net/qq_15300683/article/details/80455097
+        
+        
+        
+    问题:
+        Hive关联外分区表时,查询不到数据的问题:
+            场景: 我在hdfs上有一批按日期组织的数据,结构如下: hadoop fs -ls /user/hive/warehouse/profile.db/user_action
+                /user/hive/warehouse/profile.db/user_action/20180413
+                /user/hive/warehouse/profile.db/user_action/20180414
+                /user/hive/warehouse/profile.db/user_action/20180415
+                ...
+            为了方便分析,通过Hive以外表的方式与之关联:
+                CREATE EXTERNAL TABLE `user_action`(  ...   )
+                PARTITIONED BY (`dt` string)  --分区
+                ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'  --按Json格式解析
+                LOCATION '/user/hive/warehouse/profile.db/user_action/;
+             问题:
+                在Hive中使用show partitions user_action;查不到分区; select也查询不到数据.
+             原因:
+                建表时不会自动建立分区,需要手动关联分区:
+                    ALTER TABLE profile.user_action ADD PARTITION (dt='20180413') LOCATION '/user/hive/warehouse/profile.db/user_action/20180413';
+                分区较多时,可使用如下脚本批量添加分区:
+                    for path in `hdfs dfs -ls /data/logs/gateway | awk '{print $8}'`
+                    do
+                        hive --database dbname -e "alter table gateway_analysis add PARTITION(dt='${path:0-8:8}') location '$path'"
+                    done
+                    
+        正常执行sql语句时提示错误,但肉眼检查语法没有问题:
+            describe "user_action_table";
+            报错信息: FAILED: ParseException line 1:9 cannot recognize input near ''user_action'' '<EOF>'
+            解决方法: 使用反引号`XXX`: describe `user_action_table`;
+                       或不使用引号: describe user_action_table;
+            
+    便捷设置: (说明: 如果要永久生效,可将其写入"~/.hiverc"文件中. 或在"hive/conf/hive-site.xml"中进行配置)
+        显示当时使用的数据库:
+            set hive.cli.print.current.db=true;
+        在查询结果中显示列名: (进行如下两条配置将显示不包含表名前缀的字段名)
+            set hive.cli.print.header=true; #显示包含了表名前缀的字段名tableName.colName
+            set hive.resultset.use.unique.column.names=false; #不显示表名前缀
+    
+    保留关键字转义: 
+        使用反引号``进行转义.
+    常用函数:
+        collect_set()/collect_list():
+            与'group by"配合使用,对非分组字段进行聚合.
+            collect_list不去重,而collect_set去重.
+            eg: select user_id,collect_set(article_id) from user_actions group by user_id;
+                select user_id,collect_list(article_id) from user_actions group by user_id;
+        sort_array(): 对数组排序
+            eg: select user_id,sort_array(collect_list(article_id)) as contents from user_actions group by user_id;
+        explode(): 将array 拆分成多行
+            lateral view和explode()配合使用,将一行数据拆分成多行数据,在此基础上可以对拆分的数据进行聚合
+            eg: select article_id, kw from articles lateral view explode(key_words) t as kw;
+        concat(str1,str2): 连接参数产生的字符串.如有任何一个参数为NULL ,则返回值为 NULL
+            eg: select concat(user_id,article_id) from user_actions;
+        concat_ws(separator,str1,str2,…): 用指定的字符进行concat
+        
+        一个例子: 如下两张表
+            ​user_actions:
+                user_id     article_id          event_time
+                11,         101,                2018-12-01 06:01:10
+                22,         102,                2018-12-01 07:28:12
+                ...
+            articles:
+                artical_id,     artical_url,                    keywords
+                101,            http://www.itcast.cn/1.html,    [kw8,kw1]
+                102,            http://www.itcast.cn/2.html,    [kw6,kw3]
+                ...
+            将用户查看的关键字和频率合并成 key:value形式并按用户聚合,得到如下结果:
+                11      {'kw1':'4', 'kw4':'1', 'kw5':'1', 'kw8':'3', 'kw9':'1'}
+                22      {'kw1':'1', 'kw3':'1', 'kw4':'1', 'kw5':'1', 'kw6':'1', 'kw7':'2', 'kw9':'1'}
+            ```
+            # 侧视图
+            select cc.user_id, str_to_map(concat_ws(',',collect_set(cc.kw_w))) as wm
+            from (
+                    select a.user_id, concat_ws(':', b.kw, cast(count(1) as string)) as kw_w 
+                    from user_actions as a 
+                    left outer JOIN 
+                        (select article_id, kw from articles lateral view outer explode(key_words) t as kw) as b
+                    on (a.article_id = b.article_id)
+                    group by a.user_id,b.kw
+                 ) as cc 
+            group by cc.user_id;
+            ```
+            
+hdfs&hive文件映射:
+    #将toutiao.db移动到hdfs的/user/hive/warehouse/目录下; 此时hdfs与hive是未关联的
+    hdfs dfs -put toutiao.db /user/hive/warehouse/
+
+    #在hive上建立数据库与hdfs上的toutiao.db关联
+    create database if not exists toutiao comment "user,news information of 136 mysql" location '/user/hive/warehouse/toutiao.db/';
+    
+    use toutiao
+
+    #在hive上建立数据库与hdfs上toutiao.db的子目录关联 (使用LOCATION)
+    create external table user_profile(
+    user_id BIGINT comment "userID",
+    ...)
+    COMMENT "toutiao user profile"
+    row format delimited fields terminated by ','
+    LOCATION '/user/hive/warehouse/toutiao.db/user_profile';
+
+
+这个使用location建库与建表的过程, 可以理解成hive与hdfs文件建立关联(映射).
+        
+Sqoop迁移数据(从mysql到Hadoop):
+    测试Sqoop到mysql的连接:
+        sqoop list-databases --connect jdbc:mysql://192.168.19.137:3306/ --username root -P
+        
+    
+    sqoop全量导入:
+        #!/bin/bash
+        tableName_array=(table_name1 table_name2 table_name3) # 所有要导入的表名
+
+        for table_name in ${tableName_array[@]};
+        do
+            sqoop import \
+                --connect jdbc:mysql://192.168.19.137/dbName \
+                --username root \
+                --password xxxxxxxx \
+                --table $table_name \
+                --m 5 \
+                --hive-home /root/bigdata/hive \
+                --hive-import \
+                --create-hive-table  \
+                --hive-drop-import-delims \
+                --warehouse-dir /myhiveDir/myhiveDbName.db \
+                --hive-table myhiveDbName.$table_name
+        done
+        
+    sqoop增量导入:
+        测试:
+            sqoop list-databases --connect jdbc:mysql://192.168.19.137:3306/ --username root -P
+    
+        append: 即通过指定一个递增的列
+            如: --incremental append --check-column num_iid --last-value 0
+        
+        incremental: 时间戳
+            如:
+                --incremental lastmodified \
+                --check-column columnName \
+                --merge-key key \    --指定用于合并的列,可防止多次修改同一记录时,hive数据出现重复
+                --last-value '2012-02-01 11:0:00'
+                就是只导入check-column的列比'2012-02-01 11:0:00'更大的数据,按照key合并
+        
+        
+    导入最终结果两种形式:
+        i. 直接sqoop导入到hive(–incremental lastmodified模式不支持导入Hive )
+        ii. sqoop导入到hdfs,然后建立hive表关联
+            --target-dir /myhiveDir/myhiveDbName.db/
+        注意:
+            sqoop导到hdfs的分片数据默认使用','号分隔字段; 而hive默认的字段分隔符是/u0001(Ctrl+A). 
+            为了平滑迁移, 需要在创建表格时显式指定字段分割符为','.
+        
+    注意:
+        Mysql与hive类型的对应关系
+        
+        
+        
+
+spark:
+    数据组织形式:
+        RDD: Resilient Distributed Dataset 弹性分布式数据集
+            分布存在集群的executor内存中.
+            --它代表一个不可变(只能通过transformation生成新的RDD),可分区,里面的元素可并行计算的集合.
+        DataFrame
+    spark默认的路径是指向HDFS的;如果要从本地读取文件,需要使用'file://'开头的全局路径(如'file:///home/gjy/test.txt').
+    惰性计算 & Actions
+    
+    RDD 常用操作:
+        transformation: 从一个已经存在的数据集创建一个新的数据集.
+            rdd a ----->transformation ----> rdd b
+            所有的transformation操作都是惰性的(lazy),只有调用action一类的操作之后才会计算所有transformation.
+            Transformation算子:
+                map(func) -- 一进一出,对每个元素应用函数func,生成一个新的RDD 
+                filter(func) -- 对每个元素应用函数func,返回值为true的元素组成新的RDD返回.
+                flatmap(func) -- 一进多出; 先执行map操作,现进行一个flat操作
+                union -- 对两个RDD求并集
+                intersection -- 对两个RDD求交集
+                distinct -- 对RDD中的元素进行去重.
+                ...
+                针对于pairsItem--(key,value):
+                    groupByKey -- 以元组中的第0个元素作为key,进行分组,返回一个新的RDD
+                    reduceByKey -- 将key相同的键值对,按照Function进行计算
+                    sortByKey -- 以元组中的第0个元素作为key,对其进行分组
+                eg:
+                    >rdd1 = sc.parallelize(["a b c","d e f","h i j"])
+                    >rdd1.map(lambda x:x.split(" ")).collect()
+                    >[['a', 'b', 'c'], ['d', 'e', 'f'], ['h', 'i', 'j']]
+                    >rdd1.flatMap(lambda x:x.split(" ")).collect()
+                    >['a', 'b', 'c', 'd', 'e', 'f', 'h', 'i', 'j']
+                    对文件fileName实现词频统计:
+                        counts = sc.textFile(fileName) \
+                                        .flatMap(lambda line: line.split(" ")) \
+                                        .map(lambda x: (x, 1)) \
+                                        .reduceByKey(lambda a, b: a + b)
+                
+        action: 获取对数据进行运算操作之后的结果
+            collect -- 返回一个包含RDD中的所有元素的list
+            reduce -- 两两传入迭代,最后返回一个值
+            first -- 返回RDD的第一个元素
+            take(num) -- 返回RDD的前N个元素
+            count -- 返回RDD中元素的个数
+            ...
+            
+        persist 操作:
+            persist操作用于将数据缓存在内存中或到磁盘上.
+            
+        广播(共享)变量:
+            sparkContext.broadcast(要共享的数据)
+            通过将变量设置成共享可以避免同一个Worker上多个task对同一份数据的拷贝,降低内存的开销.
+    
+    DataFrame:
+        Immutable:一旦RDD,DataFrame被创建,就不能更改,只能通过transformation生成新的RDD,DataFrame
+        Lazy Evaluations:只有action才会触发Transformation的执行
+        Distributed:DataFrame和RDD一样都是分布式的
+        Dataframe和Dataset统一,dataframe只是dataset[ROW]的类型别名. 因为DataFrame是基于Row的,其提供了由列组成的详细模式信息,使得Spark SQL可以进行某些形式的执行优化.
+        
+    DataFrame vs RDD:
+        RDD: 分布式的对象的集合,Spark并不知道对象的详细模式信息
+        DataFrame:分布式的Row对象的集合,其提供了由列组成的详细模式信息,使得Spark SQL可以进行某些形式的执行优化.
+                 引入了off-heap,意味着JVM堆以外的内存, 这些内存直接受操作系统管理(而不是JVM)
+        ...
+        
+    从JSON到DataFrame:
+        指定DataFrame的schema
+        1,通过反射自动推断,适合静态数据
+            jsonDF = spark.read.json("xxx.json")
+        2,程序指定,适合程序运行中动态生成的数据
+            from pyspark.sql.types import *
+            # StructType:schema的整体结构,表示JSON的对象结构
+            # XXXStype:指的是某一列的数据类型
+            jsonSchema = StructType([
+                StructField("userid", LongType(), True),
+                StructField("basic", MapType(StringType(), StringType()), True),
+                StructField("Sanwei" , ArrayType(DoubleType())),
+            ])
+            jsonDF = spark.read.schema(jsonSchema).json('data/nest.json')
+    
+    
+    pyspark:
+        pyspark配置: https://blog.csdn.net/qq_36653505/article/details/85561882
+            方法1: 在配置文件中设置环境变量和添加搜索路径:
+            ~/.bash_profile:
+                # 为pyspark而配置
+                export SPARK_HOME="/root/bigdata/spark"
+                export PYSPARK_PYTHON="/miniconda2/envs/reco_sys/bin/python"
+                export HIVE_CONF_DIR=$HIVE_HOME/conf #需要使用hive则设置
+                export PYSPARK_DRIVER_PYTHON=$PYSPARK_PYTHON #否则使用jupyter时会遇到"key not found: _PYSPARK_DRIVER_CONN_INFO_PATH"报错.
+                
+                # 添加与pyspark相关的包搜索路径(为了避免找不到pyspark和py4j模块')
+                export PYTHONPATH=$PYTHONPATH:$SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip 
+                
+            
+            方法2: 在py脚本中设置环境变量和添加搜索路径:
+                # pyspark不是python import默认搜索路径下,需要手动添加到搜索路径(sys.path)
+                SPARK_HOME = "/root/bigdata/spark/"
+                sys.path.append(os.path.join(SPARK_HOME, "python/")) 
+                sys.path.append(os.path.join(SPARK_HOME, "python/lib/py4j-0.10.7-src.zip"))
+
+                # 设置pyspark相关的环境变量.当存在多个版本时,不指定很可能会导致出错
+                os.environ['SPARK_HOME'] = SPARK_HOME
+                os.environ["PYSPARK_PYTHON"] = "/miniconda2/envs/reco_sys/bin/python"
+                os.environ["PYSPARK_DRIVER_PYTHON"] = os.path.join(SPARK_HOME, "python/")
+
+        问题:
+            1.spark只能访问hive的default数据库: 
+                参考:https://www.cnblogs.com/tudousiya/p/11387823.html
+                现象:spark-sql> show databases;
+                     只查询到default, 查询不到其他的数据库;而hive中是有其它数据库的.
+                原因: spark没有正常连接到hive的元数据库.
+                修改方法:
+                修改(或新建)spark/conf中hive-site.xml文件(可从hive/conf中拷贝)
+                添加以下:
+                <configuration>
+                  <property>
+                    <name>hive.metastore.uris</name>
+                    <value>thrift://localhost:9083</value>
+                  </property>
+                </configuration>
+            
+            2.spark查询具有Json格式的表时提示错误: 'ClassNotFoundException: org.apache.hive.hcatalog.data.JsonSerDe'
+                表定义:
+                    create external table user_action(...)...
+                    ROW FORMAT SERDE 'org.apache.hive.hcatalog.data.JsonSerDe'  --指定了Json解析库
+                    LOCATION '/user/hive/warehouse/profile.db/user_action';
+                现象: 直接在hive中使用'select * from user_action limit 2'查询时,可以正常查到数据.
+                    但在spark中执行同样的语句ClassNotFoundException错误.
+                分析:
+                    使用find命令查找包是否存在:'find / -name "*hcatalog*"'
+                       搜索到结果'/root/bigdata/apache-hive-2.3.4-bin/lib/hive-hcatalog-core-2.3.4.jar'
+                       这个路径在hive的配置文件'hive-env.sh'中是设置的("export HIVE_AUX_JARS_PATH=/root/bigdata/hive/lib),
+                       并且考虑到在hive中可以正常查询; 因此怀疑是spark缺少相应的包
+                解决方法:
+                    在spark的jars目录创建一个到hive-hcatalog-core-2.3.4.jar包有软连接,使spark可以找到该包.
+                    ln -s /root/bigdata/apache-hive-2.3.4-bin/lib/hive-hcatalog-core-2.3.4.jar /root/bigdata/spark/jars/hive-hcatalog-core-2.3.4.jar
+                    
+                测试: pyspark进入pyspark shell执行sql查询:
+                   spark.sql("use profile")
+                   spark.sql("select actionTime, param.articleId, param.action from user_action where dt>='2019-04-12'").show()
+                   --注: param是user_action表一个json格式的字段. 可以直接使用param.xxx的方式访问json内部格式
+                       
+            3. yarn方式运行pyspark时报错:
+                以yarn方式运行pyspark: pyspark --master yarn --deploy-mode client
+                报错信息:
+                    WARN yarn.Client: Neither spark.yarn.jars nor spark.yarn.archive is set, falling back to uploading libraries under SPARK_HOME. --这会导致每次运行时从本地上传包,
+                解决方法: 
+                    将spark/jars中的jar包全部放到hdfs的指定目录中,并将这个目录设置为spark.yarn.jars的值
+                    1. hdfs dfs -put /root/bigdata/spark/jars/* /hadoop/spark_jars
+                    2.在配置文件"spark/conf/spark-defaults.conf"中加入:
+                    spark.yarn.jars=hdfs://hadoop-master:9000/hadoop/spark_jars/*   
+                    #主机端口可以在HBase的Web端查看"http://hadoop-master:16010/master-status"
+            
+            3.spark读取本地文件(只在master主机在存有该文件,slave上没有存该文件),在执行df.count()时出现报错("data.csv"有2G):
+                df = spark.read.csv("file:///home/data/data.csv", header=True)
+                df_count = df.count() 
+                报错信息:
+                     org.apache.spark.SparkException: Job aborted due to stage failure: ...
+                     (TID 2764, 192.168.19.139, executor 0)...java.io.FileNotFoundException: File file:/home/data/data.csv does not exist
+                     --192.168.19.139是一台hdfs的slave机器.
+                其它现象:
+                    使用同样的方式读取一个较小的文件(20M)时,程序(有时)正常 --有时程序可以正常运行,有时会出现报错.
+                    将"data.csv"文件在spark分布式环境的多台主机的相同路程均保存一个副本,以上代码可以正常执行.
+                
+                可能原因:
+                    "data.csv"文件太大,单台虚拟机的内存太小,无法加载所有数据.且slave主机上没有该文件,spark无法以分布式的方式进行加载.
+                    当文件较小,且刚好分发到spark的master加载该文件时--正常.当分发到spark的slave上加载该文件时-- slave上没有该到文件,出错.
+                    分布式加载的好处,在一台主机上无法加载整个本地文件时,spark可能会查找其他主机的本地文件系统是否也存在该文件,如果存在它会在每台主机上加载部分文件(这样整个文件就能全部载入内存了) ---以上为猜测,待查证.
+
+                解决方法:三种
+                    0. 只在Master上的存有文件的话, 可以将spark配置的"master"设置为"local". -- SparkContext(SparkConf().setMaster("local[2]"))
+                    1. 将文件拷贝到其他主机的本地文件系统的相同路径
+                    2. 将文件上传到HDFS(推荐)
+                    
+                PS: spark执行节点是多个主机的,通过spark读取本地文件时,如果不是所有节点都有这个文件的话就会出现这个问题.
+                    所以spark读取文件尽量放在hdfs上,这样不管分发到哪个节点执行都能读取到这个文件
+HBase:
+    HBase是一个分布式的,面向列的开源数据库.不同于一般的关系数据库,HBase适合非结构化数据存储.
+    只有Bytes一种数据类型,只支持Row-key索引.
+    
+    基于行的数据库(Row-based),其索引对应了一条记录(多个不同字段).--结构化,稠密
+    基于列的数据库(Column-based),其索引对应了多条记录的同一个字段.--非结构化,稀疏
+    行数据库--是面对记录的, 列数据库--是面对字段的.
+    HBase的数据模型:
+        行(Row): 每一行都是以一个行键(Row-Key)来进行唯一标识的
+        列(Column): 
+            HBase的列由'Column family'和'Column qualifier'组成, 由冒号':'进行行间隔, 如'family: qualifie'
+        列族(ColumnFamily):
+            列的集合.列族在表定义时需要指定,而列在插入数据时动态指定.
+            列中的数据都是以二进制形式存在,没有数据类型.
+            在物理存储结构上,每个表中的每个列族单独以一个文件存储.一个表可以有多个列簇(对应多个文件).
+        列修饰符(Column Qualifier):
+            列族中的数据通过列标识来进行映射;可以理解为一个键值对(key-value),列修饰符(Column Qualifier)就是key,对应关系型数据库的列
+        
+        列属性:
+            时间戳(TimeStamp):
+                列的一个属性,是一个64位整数.由行键和列确定的单元格,可以存储多个数据,
+                每个数据含有时间戳属性,数据具有版本特性.
+                可根据版本(VERSIONS)或时间戳来指定查询历史版本数据,如果都不指定,则默认返回最新版本的数据.
+            TTL, VERSION:
+            
+            
+    进入Hbase shell:
+        > hbase shell
+
+    环境配置文件hbase-env.sh:
+        export HBASE_MANAGES_ZK=true  --使用hbase自带的zk就是true,使用外部zk就是false
+    登陆HBase自带的zookeeper:
+        hbase zkcli
+        
+    报错处理:
+        1. hbase list报错 ERROR: org.apache.hadoop.hbase.PleaseHoldException: Master is initializing
+            可能情况:
+              1. 时间不一致: ntpdate 0.cn.pool.ntp.org 使用这个命令进行时间同步
+              2. 旧的元数据信息残留.清除掉 zookeeper 空间中的 /hbase
+                    cd $HBASE_HOME/bin 
+                    ./hbase zkcli (登录到hbase自带的zookeeper. 使用外部的zookeeper时使用zkCli.sh)
+                    ls /
+                    rmr /hbase
+                    ls /
+        
+    
+        
+    基本操作:
+        建表:
+            # 创建一个名为'user'的表, 并设置两个列族'basic'和'expand'--为列族'basic'指定了一些属性值
+            create 'user', {NAME=>'basic', TTL=>9999, VERSIONS=>5}, 'expand'
+        删表:
+            hbase删除表之前需要先将表设置为disabled状态:
+                disable 'user' #失活
+                drop 'user'    #删表
+        添加记录:
+            put 'user', 'rowkey_userId10', 'basic:userName', 'Tom'          #1
+            put 'user', 'rowkey_userId10', 'basic:birthday', '1994-04-12'
+            put 'user', 'rowkey_userId10', 'expand:favorite','movie|song'   #2
+            put 'user', 'rowkey_userId10', 'basic:userName', 'Jack'         #因为user表的basic列簇设置了VERSIONS=>5,所以这次插入并不会覆盖1
+            put 'user', 'rowkey_userId10', 'expand:favorite','reading'      #因为user表的expand列簇未设置VERSIONS(默认为1),所以这次插入会覆盖2
+            
+        
+        scan查询:
+            查询表中的所有数据(只显示最新版本):
+                scan 'user'
+                要查看多个版本时:
+                     scan 'user', {VERSIONS=>10}
+                     
+            scan查询中添加限制条件:
+                scan 'user', {COLUMNS => ['basic'], LIMIT => 10, STARTROW => 'rowkey_userId10'} 
+                scan 'user', {COLUMNS=>'basic', VERSIONS=>10}
+            scan查询添加过滤器:
+                ROWPREFIXFILTER: Rowkey前缀过滤器
+                    scan 'user', {ROWPREFIXFILTER=>'rowkey_userId10'}
+                    
+        查询某个rowkey的数据:
+            get 'user', 'rowkey_userId10'
+        
+        查询某个列簇的数据:
+            get 'user', 'rowkey_userId10','basic'
+        指定显示多个版本:
+            get 'user', 'rowkey_userId10', {COLUMN=>'basic:userName',VERSIONS=>5}
+        
+        通过时间戳查询:
+            通过TIMERANGE 指定时间范围:
+                scan 'user', {COLUMNS =>'basic', TIMERANGE=>[1558323139732, 1558323139866]}
+                get 'user', 'rowkey_10', {COLUMN=>'basic:userName', VERSIONS=>2, TIMERANGE=>[1558323904130, 1558323918954]}
+            通过时间戳过滤器 指定具体时间戳的值:
+                scan 'user', {FILTER => 'TimestampsFilter(1558323139732, 1558323139866)'}
+                get 'user', 'rowkey_userId10', {COLUMN=>'basic:userName',VERSIONS=>2, FILTER=>'TimestampsFilter(1558323904130, 1558323918954)'}
+        
+        修改版本数量:
+            alter 'user', NAME=>'basic',VERSIONS=>10
+            
+        删除表中的数据:
+            delete 'user', 'rowkey_userId10', 'basic:userName'
+        清空数据:
+            truncate 'user'
+        操作列簇:
+            alter 'user', NAME=>'basic', VERSIONS=>10
+            alter 'user', 'delete'=>'expand'
+    
+    使用HappyBase操作Hbase:
+        准备:
+            启动hbase thrift server : hbase-daemon.sh start thrift
+            安装happybase
+        基本流程:
+            connection = happybase.Connection('192.168.19.137', autoconnect=False)
+            connection.open()
+            #
+            connection.tables() # 查看有哪些表
+            connection.create_table('users',{'cf1': dict()}) # 建表
+            table = connection.table('mytable') # 获取表对应
+            table.scan()           # 全表查询
+            table.row('row_key')   # 查询一行
+            table.rows([row_keys]) # 查询多行
+            table.put(row_key, {'cf:cq':'value'})  # 插入数据
+            table.delete('rk_01',['cf1:username']) # 删除数据
+            #
+            connection.close()
+
+
+
+flume:
+    问题:
+        无法被kill掉:
+            是我在supervisor中配置了flume.--哈哈
+        
+        
+        
+kafka:
+    以守护进程的方式开启zookeeper:
+        $KAFKA_HOME/bin/zookeeper-server-start.sh -daemon $KAFKA_HOME/config/zookeeper.properties
+    测试:
+        开启kafka:
+            $KAFKA_HOME/bin/kafka-server-start.sh /root/bigdata/kafka/config/server.properties
+        开启消息生产者:
+            $KAFKA_HOME/bin/kafka-console-producer.sh --broker-list 192.168.19.137:9092 --sync --topic topicName
+        开启消费者:
+            $KAFKA_HOME/bin/kafka-console-consumer.sh --bootstrap-server 192.168.19.137:9092 --topic topicName
+    
+    
+    kafka同一个主题对接多个消费者时,需要为不同的消费者设置不同的group.id(默认有一个defualt group):
+        # 1,创建conf
+        conf = SparkConf()
+        conf.setAll((
+                    ("spark.app.name", "TestSpark"),  # 设置启动的spark的app名称,没有提供,将随机产生一个名称
+                    ("spark.master", "yarn"),
+                    ("spark.executor.instances", 4)
+                    ))
+        # 建立spark session以及spark streaming context
+        sc = SparkContext(conf=conf)
+        # 创建Streaming Context
+        stream_c = StreamingContext(sc, 60)
+        
+        # kafka同一个主题对接多个消费者时,需要为不同的消费者设置不同的group.id(默认有一个defualt group)
+        kafkaParams1 = {"metadata.broker.list": "192.168.19.137:9092", "group.id": 'group_1'}
+        kafkaStream1 = KafkaUtils.createDirectStream(stream_c, ['kafka-topicX'], kafkaParams1)
+        # 使用defualt group
+        kafkaParams2 = {"metadata.broker.list": "192.168.19.137:9092"}
+        kafkaStream2 = KafkaUtils.createDirectStream(stream_c, ['kafka-topicX'], kafkaParams2)
+    
+    注意: spark version>2.2.2的话,pyspark中的kafka对应模块已被遗弃
+        # 如果是使用jupyter或ipython中,利用spark streaming链接kafka的话,必须加上下面语句
+        # 同时注意:spark version>2.2.2的话,pyspark中的kafka对应模块已被遗弃,因此这里暂时只能用2.2.2版本的spark
+        os.environ["PYSPARK_SUBMIT_ARGS"] = "--packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.2.2 pyspark-shell"
+    
+    
+     
+yarn:
+    查看应用状态:
+        yarn application -status application_1436784252938_0013
+    kill一个正在运行的应用:
+        yarn application -kill application_1436784252938_0013
+
+        

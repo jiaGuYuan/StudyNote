@@ -1,0 +1,32 @@
+如果你想要在派生类中重载基类的某个成员函数，并保持基类中的其他版本可见；你需要在派生类中使用using 将基类的名称引入。
+
+如
+class Base
+{
+  public:
+         void func();
+         void func(char); 
+         void func(int);
+         void func(float);
+         void func(char *);
+}
+
+class Derived1 :public Base
+{
+   public:
+          void func(int, int);//这里我们虽然只是想重载基类的func函数，但确定遮掩了基类所有的同名函数
+}
+
+在Derived1中因为有一个与Base中func同名的名称存在，所以Base中所有名为func的函数将在Derived1中被遮掩。也就是说无法通过Derived1来访问Base中的func成员函数。
+名称的遮掩不考滤变量类型（或函数声明形式）。
+如果希望在Derived Class中可以访问Base class的func函数。需要使用using.
+
+class Derived2 :public Base
+{
+   public:
+          using Base::func; //这里将引入Base 中的所有名为func的函数。
+          void func(int, int); //这里重载了func函数
+          void func(char); //这里重写了基类的func(char)函数
+}
+在Derived2中因为使用了using Base::func，所以在Derived2中便可以访问Base的func函数。
+但是因为Base中的func(char)函数在子类中被重写了，所以要想访问Base中的func(char)时需要显式的指明基类Base::func(cahr)。

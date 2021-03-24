@@ -1,0 +1,32 @@
+﻿#使用$(wildcard *.c)来获取工作目录下的所有.c文件的列表
+#SOURCES:=$(wildcard *.c)
+SOURCES=./libevent_timer.c 
+OBJECTS:=$(SOURCES:.c=.o)
+INCLUDE=
+LIB=event
+#这里dependence是所有.d文件的列表.即把串sources串里的.c换成.d
+DEPENDENCE:=$(OBJECTS:.c=.d)
+
+#所用的编译工具
+CC=gcc
+
+#当$(objects)列表里所有文件都生成后，便可调用这里的 $(CC) $^ -o $@ 命令生成最终目标all了
+#把all定义成第1个规则，使得可以把make all命令简写成make
+ALL: $(OBJECTS)
+	$(CC) $^ -o $@ -l$(LIB)
+
+#这段是make的模式规则，指示如何由.cpp文件生成.o，即对每个.cpp文件，调用gcc -c XX.cpp -o XX.o命令生成对应的.o文件。
+#如果不写这段也可以，因为make的隐含规则可以起到同样的效果
+%.o: %.cpp
+	$(CC) -I$(INCLUDE) -c $< -o $@
+
+include $(DEPENDENCE) #注意该句要放在终极目标all的规则之后，否则.d文件里的规则会被误当作终极规则了
+%.d: %.cpp
+	set -e; rm -f $@; \
+	$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+
+.PHONY: clean #之所以把clean定义成伪目标，是因为这个目标并不对应实际的文件
+clean:
+	rm -f all $(OBJECTS) $(DEPENDENCE) #清除所有临时文件：所有.o和.d。.$$已在每次使用后立即删除。-f参数表示被删文件不存在时不报错

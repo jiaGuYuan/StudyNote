@@ -1,0 +1,207 @@
+pandas将有缺失数据的列，按缺失比率排列:
+    # data_df为DataFrame
+    missRate = data_df.isnull().sum().sort_values(ascending=False)/len(data_df.index)
+
+
+numpy计算分类错误率:
+    predictErrWhere = np.where(predictResult != y_test_label) #获取分类错误的项的索引
+    errorRate = np.size(predictErrWhere, 1)/len(y_test_label)
+
+pandas返回colName列的取值列表:
+    colValues = data_df[colName].drop_duplicates()
+
+pandas返回colName列各取值出现的次数:
+    col_value_counts = data_df[colName].value_counts()
+    或
+    tmp_ser = data_df[colName]
+    col_value_counts = tmp_ser.groupby(lambda idx: tmp_ser[idx]).count() #查看各取值的个数
+
+
+
+统计value_list中各元素出现的次数,type_list结构类似于[x, x, x, ...] :
+    from functools import reduce
+    def reduce_value_count_func(x_list4tuple, y_list4tuple):
+        for x in x_list4tuple:
+            if x[0] == y_list4tuple[0][0]:
+                x_list4tuple.remove(x)
+                x_list4tuple.append((x[0], x[1] + 1))
+                return x_list4tuple
+        x_list4tuple.append(y_list4tuple[0])
+        return x_list4tuple
+
+    # 统计type_list中各元素出现的次数
+    l_ = list(filter(lambda x: x is not None, map(lambda x: [(x, 1)], type_list))) #这个map将得到[[(x,1)], [(x,1)], ...]结构
+    value_counts = reduce(reduce_value_count_func, l_) #value_counts结构[(value, count), (), ..]
+    
+    
+统计词出现的次数,并返回topN:
+    from collections import Counter
+    topN = 3
+    wordCounter = Counter("abbafafpskaag")
+    topN_word = wordCounter.most_common(topN)
+    print(topN_word) #[('a', 5), ('b', 2), ('f', 2)]
+
+    
+heapq获取最大的N个数&最小的N个数:
+    import heapq
+    nums=[1,8,2,23,7,-4,18,23,42,37,2]
+    N = 3
+    maxN = heapq.nlargest(N, nums)
+    minN = heapq.nsmallest(N, nums)
+    
+关闭缓冲区:
+    class Unbuffered(object):
+       def __init__(self, stream):
+           self.stream = stream
+       def write(self, data):
+           self.stream.write(data)
+           self.stream.flush()
+       def __getattr__(self, attr):
+           return getattr(self.stream, attr)
+        例:关闭标准输出的缓冲区:
+            import sys
+            sys.stdout = Unbuffered(sys.stdout)
+            
+
+将样本权重从大到小排序,丢弃权重最小的一部分样本:
+(类似于取基尼指数中占指定百分比所对应的人群)
+    import numpy as np
+    X = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+    w = np.array([0.1, 0.3, 0.01, 0.12, 0.07, 0.11, 0.09, 0.01, 0.03, 0.01, 0.15])
+    weight_trimming = 0.9 # 只取'权重和'为0.9的样本, 丢弃掉后面'权重和'为0.1的样本尾部
+    sort_w = np.sort(w)[::-1]     # 从大到小排序
+    cum_sum = np.cumsum(sort_w)   
+    percent_w = sort_w[np.where(cum_sum >= weight_trimming)][0]   # 获取满足'权重和'阈值时的那个权重,(小于这个权重的样本将被排除)
+    w_fit, X_fit = w[w >= percent_w], X[w >= percent_w]
+    
+    
+使用df.inxmax()获取最大值所在的索引:
+    import pandas as pd
+    import numpy as np
+    pd_data = pd.DataFrame(data=[[8, 9, 7, 9, 3, 4, 2, 5, 6]], index=['ind_x'])
+    pd_row = pd_data.loc['ind_x']
+    maxIndex = pd_row.idxmax()
+    maxValue = pd_row[maxIndex]
+    (maxIndex, maxValue)
+ 
+使用 Series.nlargest(n, keep='first')直接获取指定列中最大的n个元素所在的索引:
+    import pandas as pd
+    import numpy as np
+    pd_data = pd.DataFrame(data=[[8, 9, 7, 5, 3, 4, 2, 5, 6]], index=['ind_x'])
+    pd_row = pd_data.loc['ind_x']
+    FirstSecondMaxIndex = pd_row.nlargest(2).index.tolist()
+    FirstSecondMaxData = pd_row[FirstSecondMaxIndex]
+    list(zip(FirstSecondMaxIndex, FirstSecondMaxData))
+    
+
+    
+倒排索引:
+    例子:
+    def create_inverted_table(movie2tags_dict):
+        '''
+        建立'电影-标签'的倒排索引(标签-电影)
+        param: movie2tags_dict结构: {电影id:[标签列表], ...}
+        return: 结构: {标签:[电影列表], ...}
+        '''
+        inverted_table = {}
+        for movieid, tags in movie2tags_dict.items():
+            for tag in tags:
+                _ = inverted_table.get(tag, []) # 用tag作为Key去取值 如果取不到就返回[]
+                _.append(movieid) # 将电影的id添加到list中
+                inverted_table.setdefault(tag, _) # 将修改后的值设置回去
+        return inverted_table
+
+    movie2tags_dict = {1:['剧情', '动作', '爱情'],  2:['剧情', '战争']}
+    inverted_table = create_inverted_table(movie2tags_dict)
+    pprint(inverted_table)
+    
+spark:
+    # pivot透视操作，把某列里的字段值转换成行并进行聚合运算(pyspark.sql.GroupedData.pivot).
+    # Test
+    # 班级--性别
+    test_df = spark.createDataFrame([ (1, 'M'),
+                                      (1, 'M'),
+                                      (2, 'M'),
+                                      (2, 'M'),
+                                      (2, 'F')],
+                                    ['class_', 'gender'])
+    test_df.show()
+
+    # 统计各班男女人数
+    class_gender_num = test_df.groupBy(test_df.class_).pivot('gender', ['M', 'F']).count()
+    class_gender_num.show()
+    
+    from pyspark.ml.feature import OneHotEncoder
+    from pyspark.ml.feature import StringIndexer, IndexToString
+
+  StringIndexer & IndexToString:
+    # StringIndexer将字符串的列按照出现频率排序来分配Index(出现频率最高字符串索引为0)
+    stringindexer = StringIndexer(inputCol='gender', outputCol='gender_Indexer')
+    stringindexerModel = stringindexer.fit(test_df)
+    res_test_df = stringindexerModel.transform(test_df)
+    res_test_df.show()
+
+    # IndexToString索引到标签的转换 (StringIndexer的逆操作);
+    # 可手动指定转换后的labels,不指定时将根据StringIndexer转换过程中产生的metadata进行转换。
+    # 转换的目标字符串信息从何而来(这里并没有指定labels参数)?
+    # --StringIndexer在进行transform的时候为字段添加了Metadata属性(其中包含了StringIndexer转换之后索引对应的字符串). 
+    # --print(res_test_df.schema[2].metadata)
+    # --"{'ml_attr': {'vals': ['M', 'F'], 'type': 'nominal', 'name': 'gender_Indexer'}}"
+    # 参考：https://www.imooc.com/article/41692
+    res_test_df.schema[2].metadata
+    indexToString = IndexToString(inputCol="gender_Indexer", outputCol="indexToString"
+                                  ) #,labels=['AAA', 'BBB']
+    res_test_df = indexToString.transform(res_test_df)
+    res_test_df.show()
+    
+    # oneHotEncoder
+    oneHot = OneHotEncoder(dropLast=False, inputCol='gender_Indexer', 
+                       outputCol='gender_Indexer_onehot')
+    # OneHotEncoder编码后的数据结构是一种稀疏向量类型：(向量长度, [索引列表], [索引列表对应的取值列表])
+    res_test_df = oneHot.transform(res_test_df)
+    res_test_df.show()
+    
+栈Stack:
+    # 栈的实现
+    class Stack():
+        def __init__(self):
+            self.__list=[]
+
+        def push(self,item):
+            '''添加元素到栈顶'''
+            self.__list.append(item)
+
+        def pop(self):
+            '''弹出栈顶元素'''
+            return self.__list.pop()
+        
+        def peek(self):
+            '''返回栈顶元素'''
+            if self.__list:
+                return self.__list[-1]
+            else:
+                return None
+            
+        def is_empty(self):
+            '''判断栈是否为空'''
+            return len(self.__list)==0
+        
+        def size(self):
+            '''返回元素个数'''
+            return len(self.__list)
+        
+        def printItems(self):
+            print("栈底", self.__list, "栈顶")
+            
+    # test
+    s = Stack()
+    s.is_empty()
+    s.push(0)
+    s.push(1)
+    s.push(None)
+    s.push(2)
+    s.printItems()
+    s.pop()
+    s.printItems()
+    s.peek()
+    s.printItems()

@@ -1,0 +1,53 @@
+日志级别:
+    debug()   输出“调试”级别的日志信息
+    info()    输出“信息”级别的日志信息
+    warn()    输出“警告”级别的日志信息
+    error()   输出“错误”级别的日志信息
+    fatal()   输出“致命错误”级别的日志信息
+    
+    Logger rootLogger = Logger.getRootLogger();
+    rootLogger.removeAllAppenders();
+    rootLogger.addAppender(appender);
+    rootLogger.setLevel(Level.INFO);
+    
+    //设置消息记录, 实际记录的消息是经过rootLogger.setLevel(level)设置的级别进行过滤的,只有级别高于或等于level的消息会被真正的记录
+    Log log = LogFactory.getLog("name");
+    log.trace("trace", [Throwable t]);
+    log.debug("debug", Throwable t);
+    log.info("info", Throwable t);
+    log.warn("warn", Throwable t);
+    log.error("error", Throwable t);
+    log.fatal("fatal", Throwable t);
+    
+JUint:
+    setup():主要用于进行测试前的初始化工作.
+    tearDown():主要用于进行测试完成后的垃圾回收等工作.
+    单元测试类从 junit.framework.TestCase继承.这样在eclipse中执行该类时就会有一个Juint Test选项(Run As -> Juint Test).
+    单元测试类中前缀为test的方法在执行单元测试的过程中将会被执行, 如testFuncX();
+    单元测试类中前缀不是test的方法在执行单元测试的过程中将不会被执行, 如FuncX();
+    
+    
+    public class MyTests extends TestCase {
+        public void setUp() throws Exception {
+            System.out.println("gujiayuan setUp");
+        }
+
+        public void tearDown() {
+            LogFactory.releaseAll();
+            System.out.println("gujiayuan tearDown");
+        }
+        
+        public void testTuncX() 
+        {
+            //...进行单元测试操作
+            System.out.println("testTuncX");
+        }
+        
+        public void testTuncY()
+        {
+            //...进行单元测试操作
+            System.out.println("testTuncY");
+        }
+    }
+    在执行JUint进行单元测试时, 在执行testTuncX和testTuncY前后分别都会执行setUp和tearDown.
+    

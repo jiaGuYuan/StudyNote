@@ -1,0 +1,9 @@
+c语言_文件操作_FILE结构体解释_涉及对操作系统文件FCB操作的解释_
+http://www.cnblogs.com/haore147/p/3648395.html
+
+
+C语言文件操作函数大全
+http://www.jb51.net/article/37688.htm
+
+c文件操作 
+http://www.cnblogs.com/duzouzhe/archive/2009/10/24/1589348.html

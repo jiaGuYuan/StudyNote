@@ -1,0 +1,118 @@
+/*******find**************************/
+    在当前目录下搜索名为filename的文件，并将它删除
+    find . -name filename -exec rm {} \;
+
+    在当前目录下搜索文件名匹配*filename*的文件，并将它删除
+    find . -name *filename* -exec rm {} \;
+
+    从根目录开始查找所有扩展名为.log的文本文件，并找出包含”ERROR”的行
+    find / -type f -name "*.log" | xargs grep "ERROR"
+    例子：从当前目录开始查找所有扩展名为.in的文本文件，并找出包含”thermcontact”的行
+    find . -name "*.in" | xargs grep "thermcontact"
+
+    从根目录开始查找所有包含名为crypto.so的库文件，并将过滤掉错误信息(如 find: '/lost+found': 权限不够 。。。)
+    find / -name *crypto.so*  2>/dev/null 
+
+
+    将当前目录及其子目录(但排除./copy_outdir子目录)下的所有.o文件移动到./copy_outdir
+    find . -path "./copy_outdir" -prune -o -name *.o -exec mv  {} ./copy_outdir/ \; 
+
+
+    避开多个文件夹
+    find /usr/sam \( -path /usr/sam/dir1 -o -path /usr/sam/file1 \) -prune -o -print
+
+    find命令中的
+    -o 是或者的意思  ---与||类似的短路求值。find . xxx -o yyy  如果 -o 之前的xxx为true那么-o之后的内容将不会将执行
+    -a 是而且的意思  ---与&&类似的短路求值。find . xxx -a yyy;  如果 -o 之前的xxx为false那么-o之后的内容将不会将执行
+    -not 是相反的意思
+
+
+    sudo find /etc -size +1M -exec echo {} \;
+    #在/etc目录下找文件大小在1M以上的文件并且显示，文件用换行符隔开。
+    sudo find /etc -size +1M | xargs echo
+    #达到-exec相同的功能但是用空格分开寻找到的文件。
+    #-exec后面的{} \;是不能少的。
+    find 紧跟的是指定开始寻找的绝对路径，我取当前路径。
+    find ./ -user 用户名
+    #find后面接的是开始寻找路径名，它会在这个路径下递归寻找。
+    #-user 指定用户名 
+    find ./ -not -user 用户名 
+    find ./ -not -name 文件名
+    find ./ -not -type 类型(一般文件f,目录d，字符文件c)
+    #寻找不匹配的文件。
+    find ./ -user 用户名 -o -type f
+    #寻找当前目录下用户你指定用户文件或者(-o)一般文件。
+    find ./ -size +1M -o -type d
+    #寻找当前目录下文件大于1M的文件或者是目录。
+    find ./ -size -1M -a -type f
+    #寻找当前目录下文件小于1M并且文件类型是一般文件的文件。
+     
+    -o 是或者的意思
+    -a 是而且的意思
+    -not 是相反的意思
+    根据上面再从find的寻找方式中任意组合你乐意的方式。
+    find /etc -not -perm mode(222)
+    find /etc -not -perm -mode(-222)
+    find /etc -not -perm +mode(+222)
+    #-perm是按文件权限来查找文件
+    mode是完全匹配所对应的权限，如果不包括suid/sgid/sticky
+    -mode是权限位转化为二进制之后的1必须全部匹配，+mode则需要其中任何一个1被匹配。
+    -mode应该包含mode，+mode则包含-mode。
+
+
+/***********重定向***************/
+
+    command > filename 把标准输出重定向到一个新文件中
+    command >> filename 把标准输出重定向到一个文件中(追加)
+    command 1 > fielname 把标准输出重定向到一个文件中
+    command > filename 2>&1 把标准输出和标准错误一起重定向到一个文件中
+    command 2 > filename 把标准错误重定向到一个文件中
+    command 2 >> filename 把标准输出重定向到一个文件中(追加)
+    command >> filename 2>&1 把标准输出和标准错误一起重定向到一个文件中(追加)
+    command < filename > filename2 把command命令以filename文件作为标准输入，以filename2文件作为标准输出
+    command < filename 把command命令以filename文件作为标准输入
+    command << delimiter 把从标准输入中读入，直至遇到delimiter分界符
+    command <&m 把文件描述符m作为标准输入
+    command >&m 把标准输出重定向到文件描述符m中
+    command <&- 把关闭标准输入
+
+    说明：如果是重定向到一个已打开的文件描述符，写需要写成 &fd。
+
+
+
+/***********查看进程打开的文件描述符******************/
+    cd /proc/$(pidof Process_name)/fd   # pidof 程序名 可以直接得到进程id
+    相当于 pidof  Process_nam 得到进程ID， 再cd /proc/ID_X/fd
+
+/***********grep******************/
+    查找Telnet服务器的端口号(/etc/services中包含了服务与端口)
+    grep telnet /etc/services  
+
+    #查找当前目录下所有匹配matchstring的文件， 并将这些文件中的string1替换为string2
+    grep -rlb "matchstring" . | xargs sed -i 's/string1/string2/g'
+
+
+
+
+
+#将 int 
+#   main() 格式的main函数定义转换为 int main()格式
+find . -name "*.c"| xargs sed -i "/\(^int\)/,/\(^main.*)$\)/{/^int$/d; s/main/int main/}"
+
+在int main()函数前插入 Doxygen格式的注释/** */
+find . -name "*.c"| xargs sed -i "s#\(^int main\)#/**\n *\n */\n\1#"
+
+
+
+linux查看.so文件的命令:
+    nm
+
+    
+    
+    
+windows下使用cl进行编译:
+    1. 在cmd中运行"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\vcvars32.bat", 会自动配置相关环境变量
+    2. 使用cl命令进行编译
+            /I 指定头文件包含目录
+            
+

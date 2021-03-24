@@ -1,0 +1,44 @@
+gdb调试:
+
+gdb programName 或 gdb programName core 
+set args argsList: 设置参数;  show args: 查看参数
+
+r: 执行(run)
+
+c: 继续(continue)
+
+b: 设置断点
+   b lineNum  设置断点到行号
+   b functionName 设置断点到函数名称
+d 断点编号: //删除断点(delete breakpoint)
+info br: 查看断点(info breakpoints)
+
+s: 单步进入(相当于IDE中的Step Into)
+
+n: 单步next(相当于IDE中的Step Over)
+
+p 变量名称: //查看变量的值
+
+util: 退出循环
+
+display ... ://设置程序中断后欲显示的数据及其格式
+	display /i $pc:  --/i表示以十六进行显示, $pc表示当前汇编指令
+undisplay 编号:  //取消先前的display设置
+
+
+显示源代码:
+	tui enable/disenable: (有四个窗口可以显示cmd, src, asm, reg: 对应command, source,assembly,register)
+	focus 可以切换焦点到不同的窗口.
+	layout src: 只显示源代码窗口; layout reg:显示寄存器窗口
+	win 也可以打开源码窗口
+
+
+
+i: 查看信息(Info)
+
+
+
+path dir: 设置程序的运行路径
+show paths: 查看程序的运行路径
+watch var: 当变量var的值发生变化时,程序暂停
+info watchpoints: 查看所有观察点

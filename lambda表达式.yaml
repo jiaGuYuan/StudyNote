@@ -1,0 +1,19 @@
+C++ lambda:
+    基本格式:
+    [capture list] (params list) mutable exception-> return type { function body }
+    capture list : 捕获外部变量列表
+    params list : 形参列表
+    mutable : 表示能不能修改捕获的变量--可选
+    exception : 异常设定 --可选
+    return type : 返回类型 --可选
+    function body : 函数体
+    捕获方式:
+        []: 不捕获任何变量
+        [&]: 以引用的方式捕获外部作用域中的所有变量
+        [&foo]: 以引用的方式捕获外部作用域中名foo的变量
+        [=]: 以副本的方式捕获外部作用域中的所有变量
+        [foo]: 以副本的方式捕获外部作用域中名foo的变量
+        [=, &foo]: 以引用的方式捕获外部作用域中名foo的变量, 其它变量则以副本的方式进行捕获
+        [this]: 捕获当前类中的this指针,让lambda表达式拥有和当前类成员函数同样的访问权限.
+               如果已经使用了&或=,则默认有此选项.
+               捕获this的目的是在lambda中使用当前类的成员函数以及成员变量.

@@ -1,0 +1,90 @@
+甲: abbaabbaaba
+乙: abbaaba
+
+从甲中查找匹配乙的位置?
+
+暴力匹配:不匹配情况发生时,甲会回退到当前匹配位置的下一个位置(偏移1),乙则回退到自己的开头,然后两人开始重新比较.==> 不匹配,回退并偏移1,不匹配,回退再偏移1.
+
+    每次不匹配发生时,甲回退到开始匹配位置的下一个位置(偏移1),重新开始匹配,这样虽然可以保证不错过任何可能的匹配情况,但是会多做很多不匹配的情况,没有充分利用当前已匹配成功部分的信息.
+
+KMP:
+    每次不匹配发生时,甲回退到开始匹配位置但不再是简单的偏移1个单位,而是偏移X个单位. X由已匹配段的结构确定.
+    
+    我的理解:
+    暴力匹配中回退并偏移1个单位是为了不错过任何一种可能的匹配情况,但是会多做很多不匹配的情况.
+    ====> 采用回退方案时怎样避免做不匹配的情况呢?
+        回退后的偏移不再简单的使用单位1; 而是通过分析当前已匹配部分的结构,得到不会错过任何可能的匹配情况的偏移量来作为下一次偏移的距离.
+        如上例中当前匹配的部分为"abbaab", 之所以需要回退是因为已匹配的部分前后有自相似段(如:前面有'ab',后面也有'ab'),如果不回退下次匹配就会错过这些自相似段.
+        这些自相似段之间的跨度即是可以回退后的偏移量X(跳过的距离,跳过这些不会导致错过任何可能的匹配情况,而且还保持了已匹配的部分信息);
+        但是已匹配的部分前后可能有多个自相似段,此时需要选择最大的自相似段(最大自相似段间的跨度最小),以该跨度作为偏移量X.
+        注:最大的自相似段要排除掉已匹配部分本身(其跨度为0无意义)
+    ==优化==> 已匹配段是甲乙在匹配过程中出现的部分匹配的情况,如果每次在查找匹配过程中去计算已匹配段的前后自相似段将会很费时.考虑到所有可能的匹配段只可能是乙的前n个字符,所以可以先计算并保存n取[1..N]时的各个可能匹配段的前后最大自相似段的跨度,这样在查找匹配过程中便可直接得到跨度作为下一次甲回退后的偏移距离.
+    
+eg:
+    对乙建立取各种匹配情况时,前后'最大自相似段'跨度表
+    乙: a b b a a b a
+   n取值:   可能的匹配段:        前后最大自相似段及跨度: 
+        1               a                           无/0
+        2               a b                         无/0
+        3               a b b                       无/0
+        4               a b b a                     a/3   跨度 = 后面的a在位置3 - 前面的a在位置0
+        5               a b b a a                   a/4 
+        6               a b b a a b                 ab/4  跨度 = 后面的ab在位置4 - 前面的ab在位置0
+        7               a b b a a b a               a/6
+                     
+甲: a b b a a b b a a b a
+乙: a b b a a b a
+甲[6]&乙[6]位置发生不匹配情况.
+暴力匹配方法: 甲将回退并偏移1个单位继续与乙重新开始匹配(即从甲[1]位置继续与乙[0]匹配).
+KMP: 当前甲乙已匹配部分为"a b b a a b",对应上表中n==6的情况,此时跨度为4,
+     所以甲将回退并偏移4个单位继续与乙重新开始匹配(即从甲[4]位置继续与乙[0]匹配).
+     --另外: 算法实现时,可以从甲[4+2]位置继续与乙[0+2]匹配,因为此时前后最大自相似段'ab'长度为2(不用再进行匹配).
+     -- 此时甲不回退,乙回退且从'开始位置'偏移Y. 其中Y为最大自相似段的长度.
+     -- 表中不再记录相似段间距离,而改为记录最大自相似段的长度.
+     
+     相比与暴力匹配法,省掉了很多不必要的匹配过程.
+
+
+
+
+python实现:
+# 计算strPattern取前n个字符组成的前缀子串中最大前后自相似段的长度, n取0到len(strPattern)-1
+# 如strPattern="ababzabab"时
+#            n取值: 0  1  2   3   4      5      6       7       8      
+#         前缀子串: a  ab aba abab ababz ababza ababzab ababzaba ababzabab
+#  最大前后自相似段: 无 无 a   ab   无     a      ab      aba      abab
+# 最大自相似段的长度: 0  0  1   2    0     1      2      3        4
+def calculateMaxMatchLengths(strPattern:str)->list:
+    maxLengthList = [0]*len(strPattern) # 初始化一个定长列表
+    maxLength = 0;
+    for n in range(1, len(strPattern)):
+        # 计算取前n个字符组成的前缀子串中最大前后自相似段的长度
+        # 与上一个(第n-1个)前缀子串中'最大自相似段'的下一个字符比较，匹配不上再与其'次大自相似段'的下一个字符比较,依次... 
+        # 次相似段必然包含在最大相段中,第三相似段必然包含在次相段中...
+        # 'ababzabab'的最大相似段为'abab',次大相似段为'ab'(它即是'ababzabab'的最大相似段的最大相似段)
+        while maxLength > 0 and strPattern[maxLength] != strPattern[n]:
+            maxLength = maxLengthList[maxLength - 1]
+        if strPattern[maxLength] == strPattern[n]:
+            maxLength += 1; 
+        maxLengthList[n] = maxLength
+    return maxLengthList
+    
+# 使用KMP方法从text中查找子串pattern出现的位置(可有多个)
+def KMP_search(text:str, pattern:str)->list:
+    pos_list = []
+    maxMatchLengthList = calculateMaxMatchLengths(pattern)
+    offset = 0;
+    for i in range(len(text)):
+        while offset > 0 and pattern[offset] != text[i]: # 在offset处发生不匹配情况，模式串修改偏移再继续匹配
+            offset = maxMatchLengthList[offset - 1]  # 模式串修改偏移由已匹配部分(前offset-1)决定
+        if pattern[offset] == text[i]:
+            offset += 1
+        if offset == len(pattern): # 找到了一个完整匹配
+            pos_list.append(i-len(pattern)+1) # 记录匹配的开始位置
+            offset = maxMatchLengthList[offset-1] # 准备进行下一次匹配
+    return pos_list
+    
+test:
+calculateMaxMatchLengths("abababzabababa")
+KMP_search("abbaabbaaba", "abbaaba")
+KMP_search("aaaa", "aa")

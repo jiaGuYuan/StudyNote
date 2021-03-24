@@ -1,0 +1,101 @@
+为virtualbox中的linux添加一块磁盘,用于开发过程中调试对磁盘的格式化与分区:
+    方法:
+        在virtualbox中: 设置---->存储
+        单击选中控制器 ----> 新建一个虚拟盘 ----> ...
+        这样虚拟机中的linux就可以检测到这块新添加的硬盘了.
+
+    fdisk -l可以查看到新添加的硬盘.
+    但是,这块硬盘还不能被使用.我们还需要对其进行分区(fdisk),格式化(mkfs),检验,挂载(mount).
+    在新添加的磁盘上新建一个分区. 假设新添加的磁盘为/dev/sdb:
+        fdisk /dev/sdb  
+        m--显示操作菜单, p---显示分区信息,  n--新增分区, d--删除分区, q--退出, w--写入分区表(使操作生效).
+
+    将刚才创建的分区进行格式化.(刚才创建的分区为/dev/sdb6):
+        mkfs [-t 文件系统格式] 设备文件名
+        mkfs -t ext3 /dev/sdb6
+
+
+    磁盘检查(没出问题不要瞎用)
+        fsck [-t 文件系统] [-ACay] 设备名称
+
+
+    手动挂载:
+        挂载
+            mount [-t 文件系统] [-L Label名] [-o 额外选项] [-n] 设备文件名  挂载点
+        卸载
+            umount [-fn] 设备文件名或挂载点
+        
+    开机自动挂载: 配置文件"/etc/fstab"
+        配置格式如下:
+         UUID=*************  /mountpos  ext4  defaults  0  0
+         磁盘相关信息可通过blkid命令获取
+
+virtualbox快捷键:
+    全屏模式开关:右CTRL+F 
+    自动缩放模式:右CTRL+C
+
+
+从VMware转VBox虚拟机:
+    1. 保证vmware的虚拟机处于关机状态
+    2. 进入vmware界面, 选择'文件'-->'导出OVF'
+    3. 使用vBox, '管理' --> '导入虚拟机'
+    
+
+配置vBox centos7固定IP,虚拟机之间互通,可访问主机IP,和外网(如:百度):
+    要求centos7固定IP:'192.168.19.137'
+                 mask:'255.255.255.0'
+    i. 为了虚拟机之间互通及虚拟机可以ping通主机和百度,我为虚拟机配置了两张网卡.
+        选择要配置的虚拟机->设置->网络: 
+            网卡1: 使用'网络地址转换(NAT)'连接方式 --虚拟机可以ping通外网
+                
+            网卡2: 使用'仅主机(Host-Only)网络'连接方式. --虚拟机与主机及虚拟机之间互通
+                   界面选择:'VirtualBox Host-Only Ethernet Adapter'.
+                             --该界面可在'管理'->'主机网络管理器'中进行配置.
+                               为了使得虚拟机能与主机互通,该界面的IP需要与虚拟机(*.137)处于同一网段,掩码也要一致.
+                               设置完成后点击应用即可.可以在cmd中使用ipconfig查看配置.
+                               也可在'控制面板/网络和 Internet/网络连接/'中对对应网卡(VirtualBox Host-Only Network)进行配置.
+           
+           说明:'NAT网络'连接方式的界面在'管理'->'全局设定'->'网络'中进行配置.
+           
+        注: VMware只配置一个网卡可以实现上述要求的方法:
+            1. 使用'网络地址转换(NAT)'连接方式
+            2. "控制面板/网络和 Internet/网络连接", 选中当前用户联网的网卡-->右键属性-->共享-->选择'步骤1'中的网卡(如:"VMware Network Adapter VMnet8")
+            VBox可以参考这种方式将能联网的主机网卡共享给'VirtualBox Host-Only Network'网卡,来实现虚拟机联网的目的.
+            
+            VMWare虚拟机网络配置参考: https://www.cnblogs.com/aeolian/p/8882790.html
+            VMWare Nat模式联网要开启"VMware NAT Service"和"VMware Workstation Server"服务
+            
+           
+    ii. 设置静态IP:
+        1.进入网卡配置文件的目录:
+            cd /etc/sysconfig/network-scripts
+        2.找到与网卡2('仅主机(Host-Only)网络')对应的配置文件,ifcfg-<interface-name> 的这种形式
+            ifconfig可以查看网络接口, 我这里网卡2对应的接口是'enp0s8'.
+            
+        3. vim ifcfg-enp0s8 (没有ifcfg-enp0s8时,则从其它网卡拷贝一份)
+            TYPE="Ethernet"
+            PROXY_METHOD="none"
+            BROWSER_ONLY="no"
+            BOOTPROTO="static" #**静态IP**
+            DEFROUTE="yes"
+            IPV4_FAILURE_FATAL="no"
+            IPV6INIT="yes"
+            IPV6_AUTOCONF="yes"
+            IPV6_DEFROUTE="yes"
+            IPV6_FAILURE_FATAL="no"
+            IPV6_ADDR_GEN_MODE="stable-privacy"
+            NAME="enp0s8"     #**与网络接口同名**
+            UUID="24f1055b-3faa-44a2-89ba-d7ec625b9a49" #**保证惟一**
+            DEVICE="enp0s8"   #**与网络接口同名**
+            ONBOOT="yes"       #**系统启动时激活网卡**
+            BROADCAST=192.168.19.255
+            IPADDR=192.168.19.137  #**要设置的IP**
+            NETMASK=255.255.255.0  #**掩码**
+            GATEWAY=192.168.19.2
+            DNS1=192.168.19.2
+        4.重启网卡: systemctl restart network
+
+
+mysql:
+    用户名/密码: root/Gujiayuan; gjy/gujiayuan
+                  root/Gujiayuan@0412

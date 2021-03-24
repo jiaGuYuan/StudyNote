@@ -1,0 +1,323 @@
+JSP(Java Server Pages):
+
+JSP 脚本元素包括： JSP 表达式、JSP Scriptlet 和 JSP 声明
+JSP 表达式包括在 <%=... %> 标签内， JSP Scriptlet 包括在<%...%>内
+JSP声明包括在<%!...%>内
+JSP 指令有 page、include 和 taglib指令
+JSP 指令包括在 <%@ 和 %> 标签内
+page 指令用于设置 JSP 页面的属性；include 属性用于将其他文件嵌入 JSP 页面；taglib 指令允许用户创建自定义标签
+
+
+
+
+隐式对象: 
+	输入/输出对象: request response out 
+	作用域通信对象: pageContext request session application 
+	Servlet相关对象: page和config
+	错误对象: exception 
+隐式对象不需要我们来new，而由web容器来进行加载，这就是我们所说的JSP隐式对象.
+
+JSP 隐式对象是预定义的类，可被嵌入 JSP 表达式和 Scriplet
+
+隐式对象通过 JSP 容器导入到 JSP 页面中
+request、response 和 out 对象等输入和输出对象用于显示和检索网页中的信息
+session、application 和 pageContext 等作用域通信和控制对象向 JSP 页面提供页面环境的访问权
+page 对象用于表示 Servlet， 而 config 对象用于存储 Servlet  的初始化参数
+
+JavaBean的编写:
+	有一个public无参的构造函数
+	类是public的
+	取得或设定属性时,必须提供public的set方法和get方法
+	建议把JavaBean定义在包内
+
+JSP与JavaBean搭配使用,有以下优点:
+	1.可将HTML和JAVA代码分离,为了日后维护的方便
+	2.可离用JavaBean的优点:我们只要将常用的程序写到JavaBean当中,JSP网页只要调用JavaBean组件来执行所要的功能,不用再重复写相同的代码,这样一来,可以节省了不少时间
+
+
+JSP2.0标准动作有
+	<jsp:useBean>
+	<jsp:getProperty>
+	<jsp:setProperty>
+	<jsp:include>
+		<jsp:param>
+	<jsp:forward>
+	...
+include动作: 
+	1.这个动作元素用于在当前页面中包含静态和动态的资源，一旦被包含的页面执行完毕，请求处理将在调用页面中继续
+	2.该动作可以在它的内容中包含一个或多个<jsp:param> 元素，为被包含的页面提供参数信息
+	3. 区别include指令与include动作
+
+Forward 动作: 
+	这个动作允许将客户端所发来的请求,从一个JSP页面转交到另一个JSP页面
+
+useBean动作: 常用有三个属性:
+	id:在JSP网页中,id 值表示JavaBean的代号,代表我们使用JavaBean的对象
+	scope:表示这个JavaBean的范围,和我们讲的隐式对象的范围一致
+	class:表示这个JavaBean的类的位置
+	--通过jsp:useBean动作设置JavaBean,并通过jsp:setProperty获取JavaBean时,form表单中的控件名(name属性值)与JavaBean中的属性成员名要相同(数目可以小于JavaBean属性的数目)---jsp将以控件名为反射建立相应的JavaBean. 否则在jsp:setProperty中需要使用param参数指定请求中的name, property指定JavaBean中的属性---相当于手动建立起映射.
+	<jsp:useBean id="myBean" class="cn.com.beans.MyBean" scope="session">
+
+setProperty:
+	一般来说,JSP提供了四种方法来设定JavaBean的值:
+	<jsp:setProperty name="myBean" property="*"/> 由窗体传来的参数值,通过自省机制,设定所有属性值
+	<jsp:setProperty name="myBean" property="myProperty"/> 也是通过自省机制,不过只设定myProperty属性
+	<jsp:setProperty name="myBean" property="myProperty" param="ParamName"/>由窗体传来的参数名称为ParamName,传给属性名称为myProperty.--非自省方式
+	<jsp:setProperty name="myBean"property="myProperty"value="MyValue">可以通过value,动态设定JavaBean的属性
+	--注意: jsp:setProperty动作中的name对应jsp:userBean的id,  param参数指定请求中的name, property指定JavaBean中的属性.
+
+若要取得JavaBean中的属性,我们必须使用<jsp:getProperty>这个标签,它不像<jsp:setProperty>
+有那么多方法, 只有一种<jsp:gtProperty name=“myBean”property=“myProperty”/>
+
+JavaBean的范围：
+	范围从小到大如下:
+	page
+	request
+	session
+	application
+
+
+
+
+
+
+
+EL表达式语言(Expression Language):
+	启用/禁用EL:
+		<%@page isELIgnored="true|false" %>
+
+	语法:
+		${ EL表达式 } 
+
+	EL可以直接在JSP页面的模板中使用,也可以作为元素属性的值, 还可以在自定义或者标准动作元素的内容中使用,但不能在脚本元素中使用.
+
+	数据的访问方式 .操作符 或 []
+		如: 要访问JavaBean对象user的属性name ${ user.name } 或 ${ user[name] }
+
+	empty运行符:
+		用来判断指定的值是否为null或是空值
+
+	条件操作符 '?:' --同C语言.
+
+	隐式对象:
+		requestScope: 可以获得请求范围内的值
+			-- ${requestScope.objectName} 
+		sessionScope: 可以获取会话范围的值
+			-- ${sessionScope.name}  
+		applicationScope: 可以获取应用范围内的值 
+		param: 返回客户端的请求参数的字符串值
+			-- 表达式 ${param.name} 相当于 request.getParameter(name)。
+		paramValues: 返回映射至客户端的请求参数的一组值
+			-- 表达式 ${paramvalues.name) 相当于 request.getParamterValues(name)。
+
+
+
+
+
+JSP自定义标签:
+	自定义标签有两个重要的组成部分: 标签描述文件(.tld文件), 标签处理程序(.java)
+	.java --> tld --> wdb.xml --> jsp
+
+	如在JSP中使用如下自定义标签
+		<myPrefix:myTag attr="myAttr"></prefix:myTag>
+	需要做的工作有.
+	 1. 为了识别标签前缀需要在JSP文件中添加
+	 	<%@ taglib prefix="myPrefix" uri="/mytld_uri" %> --表明以"myPrefix"为前缀的标签,将根据uri指定的tld文件进行解析(tld文件的具体路径需要在web.xml中获取).
+	 2. 在web.xml文件中添加
+	 	<jsp-config>
+	 		<taglib>
+	 			<taglib-uri>/mytld_uri</taglib-uri> --对应(1)中的uri
+	 			<taglib-locationi>mytld.tld文件的相对路径</taglib-locationi> --指定tld文件的真实路径
+	 			<attribute>
+	 				<name>myAttr</name>
+	 				<required>true</required> <!--指定这个属性是必写的-->
+	 				<rtexprvalue>true</rtexprvalue> <!--指定这个属性支持表达式(如EL表达式)-->
+	 			</attribute>
+	 		</taglib>
+	 	</jsp-config>
+	 3. 在mytld.tld文件中指定标签与其对应的处理类
+	 	<tag>
+	 		<name>myTag</name>
+	 		<tag-class>cn.com.tags.MyTagClass</tag-class>
+	 	</tag>
+
+	 4. 编写 cn.com.tags.MyTagClass 类(实现javax.servlet.jsp.tagext包中的接口).
+
+	 --当标签包含属性时, java处理类中也要有一个同名的字段，并提供public的getX和setX方法。(实例化标签对象时，将会自动完成赋值--利用反射)
+
+	 开发的顺序一般与上面相反 4-->3-->2-->1.
+
+	 流程如下:
+	 当在jsp文件中遇到一个自定义标签时, 先根据<%@ taglib %> 打到相应前缀标签的uri, 再在web.xml中查找这个uri对应的tld文件的具体路径, 然后在tld中查找标签名对应的java类的完整路径名.
+	 最后就可以通过反射来加载并执行这个java类了.
+
+
+
+jsp1.2中基本接口的调用顺序:
+
+ 	1.当需要处理一个标签时,由JSP实例化标签处理程序
+
+ 	2.
+ 	setPageContext()
+ 	setParent()
+ 	setAttribute()
+
+ 	3. doStartTag()  返回EVAL_BODY_INCLUDE则输出标签体到当前输出流中
+		返回SKIP_BODY则
+	4. doEndTag() 返回EVAL_PAGE则执行页面余下部分
+	 	返回SKIP_PAGE
+
+	release()
+
+
+JSP标准标签库(JSTL):
+	核心标签: --前缀一般写为"c", 需要在jsp文件中添加 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+		通用标签: 用于操作JSP页面内的作用域变量  
+			set     --eg: <c:set var="name" value="tom" scope="request" /> 相当于<% request.setAttribute("name", "tom")%>
+			remove  --eg: <c:remove  var="name" scope="request" />  scope默认是page
+			out     --eg: <c:out value="${name}" />
+			...
+		条件标签:
+			if      --eg: 	<c:if test="${param.userSex == '男'}" >
+								...
+						    </c:if>
+			choose	--eg:	<c:choose>     类似于switch
+								<c:when test="${param.userSex == '男'}">
+									...
+								</c:when>
+
+								<c:when test="${param.userSex == '女'}">
+									...
+								</c:when>
+
+								<c:otherwise>
+									...
+								</c:when>
+							</c:choose>
+			... 
+		迭代标签:
+			forEach		--eg: 	<c:forEach var="item" items="${vector_info}">  EL表达式${vector_info}对应一个集合
+									...${item}...
+								</c:forEach>
+			forTokens	--eg: 	<% String names = "tom@小明@jack@rose@张学友" %>
+								<c:forTokens var="name" items="${names}" delims="@">  
+									...${name}...
+								</c:forTokens>
+
+	国际化标签(I18N标准): --前缀一般写为"fmt", 需要在jsp文件中添加 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/fmt" %>
+		setLocale
+		bundle
+		setBundle
+		message
+		...
+	格式化标签: 
+
+	SQL标签: --前缀一般写为"sql", 需要在jsp文件中添加 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/sql" %>
+		setDataSource
+		query
+		update
+		transaction
+		param
+
+		-eg: 	
+			<h1> 使用 SQL 标签库</h1>
+			<c:set var = "valprice" value = "1000"/>
+			<sql:setDataSource driver = "com.microsoft.jdbc.sqlserver.SQLServerDriver" url ="jdbc:microsoft:sqlserver://localhost:1433;DataBaseName=shopstop;" user="sa" password="" var="conn"/>
+			
+			<sql:transaction dataSource="${conn}">
+				<sql:update var="newTable">
+					CREATE TABLE ProductDetails(
+						ProductId int IDENTITY (1000, 1) NOT NULL primary key,
+						ProductName varchar (20) NOT NULL ,
+						ProductType varchar (15) NOT NULL ,
+						Price varchar (5) NOT NULL ,
+						Brand varchar (25) NOT NULL ,
+						Description varchar (50) NOT NULL
+					)
+				</sql:update>
+			</sql:transaction>
+			
+			<sql:update var="newrow" dataSource="${conn}">
+				INSERT INTO ProductDetailss(ProductName, ProductType, Price, Brand, Description 
+					VALUES('牛仔裤 ', '衣服', '1000', 'Lee', '品质良好的牛仔裤')
+			</sql:update>
+			
+			<sql:query var="products" dataSource="${conn}">
+				select * from ProductDetailss
+			</sql:query>
+
+
+
+
+war包生成:
+ 选中工程  -> 文件 -> Export -> 选择Java EE下的 War File (MyEclipse) 
+ ->  Next -> 选择工程 -> 选择存放目录 ->   保存.
+ 拷贝到Web服务目录即可(对于Tomcat7.0, 拷贝到webapps目录下即可)
+
+
+
+过滤器:
+	作用于用户和Web资源之间.
+	实现Filter接口, 并重写Init() doFilter() destroy()
+
+	配置过滤器: 在web.xml中添加	
+		<filter>
+			<filter-name>myFilterName</filter-name>
+			<filter-class>cn.com.filters.MyFilterNameClass</filter-class>
+		</filter>
+
+		<filter-mapping>
+			<filter-name>myFilterName</filter-name>
+			<filter-pattern>/*</filter-pattern>  --拦截所有请求
+			或 <filter-pattern>*.jsp</filter-pattern> --拦截所有jsp请求
+		</filter-mapping>
+
+	当有多个过滤器时, 过滤器链的顺序由web.xml中的<filter-mapping>标签顺序决定.
+
+监听器:
+	在web.xml中配置
+	<listener>
+  		<listener-class>cn.com.HttpSessionListenerDemo</listener-class> 
+  	</listener>
+
+	HttpSessionListener
+	HttpSessionAttributeListener
+	HttpSessionBindingListener   --不需要配置web.xml文件
+	HttpSessionActivationListener
+
+	ServletContextListener
+	ServletContextAttributeListener
+
+	ServletRequestListener
+	ServletRequestAttributeListener
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+我的理解是当你要查询商户信息时(PAYQRP)
+需要发送一个如下的请求
+http://XXX.XXX.XXX.XXX/CCBIS/B2CMainPlat_00_SMHZ?CCB_IBVersion=V6&isAjaxRequest=true&TERMiNALID=...&SCODE=...&QRTYPE=....&QRCODE=...&BRANCHID=...&TXCODE=...&VERSION=...
+
+它返回给你一个如下的响应
+

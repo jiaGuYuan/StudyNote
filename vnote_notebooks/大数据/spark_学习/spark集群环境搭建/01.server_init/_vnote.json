@@ -1,0 +1,68 @@
+{
+    "created_time": "2021-03-24T06:19:43Z",
+    "files": [
+        {
+            "attachment_folder": "",
+            "attachments": [
+            ],
+            "created_time": "2021-03-24T06:19:43Z",
+            "modified_time": "2021-03-24T06:19:43Z",
+            "name": "0.bugs.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "attachments": [
+            ],
+            "created_time": "2021-03-24T06:19:43Z",
+            "modified_time": "2021-03-24T06:19:43Z",
+            "name": "1.mount_disk.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "attachments": [
+            ],
+            "created_time": "2021-03-24T06:19:43Z",
+            "modified_time": "2021-03-24T06:19:43Z",
+            "name": "2.pre-setting.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "attachments": [
+            ],
+            "created_time": "2021-03-24T06:19:43Z",
+            "modified_time": "2021-03-24T06:19:43Z",
+            "name": "3.architecture.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "attachments": [
+            ],
+            "created_time": "2021-03-24T06:19:43Z",
+            "modified_time": "2021-03-24T06:19:43Z",
+            "name": "4.cm_install.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "attachments": [
+            ],
+            "created_time": "2021-03-24T06:19:43Z",
+            "modified_time": "2021-03-24T06:19:43Z",
+            "name": "安装zookeeper.md",
+            "tags": [
+            ]
+        }
+    ],
+    "sub_directories": [
+    ],
+    "version": "1"
+}

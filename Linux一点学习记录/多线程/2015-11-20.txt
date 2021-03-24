@@ -1,0 +1,42 @@
+//一个生产者、一个消费者，一个缓冲区时
+
+#include <stdio.h>
+#include <windows.h>
+
+CRITICAL_SECTION g_csThreadCode;	//关键区用于互斥访问
+HANDLE g_hEventBufferEmpty, g_hEventBufferFull;	//事件用于同步
+
+DWORD WINAPI producer(LPVOID lpPara) //生产者
+{
+	
+	WaitForSingleObject(g_hEventBufferEmpty, INFINITE);	//等待空闲缓冲区
+	//操作资源
+	printf("生产者向缓冲区中放产品\n", );
+
+	ResetEvent(g_hEventBufferFull); //生成可用产品
+}
+
+DWORD WINAPI consumer(LPVOID lpPara) //消费者
+{
+	WaitForSingleObject(g_hEventBufferFull, INFINITE);	//等待可用产品
+	//操作资源
+	printf("消费者从缓冲区中取产品\n", );
+
+	ResetEvent(g_hEventBufferEmpty); //释放缓冲区
+}
+
+
+int main()
+{
+	printf("      生产者消费者问题   1生产者 1消费者 1缓冲区\n\n");
+
+	InitializeCriticalSection(g_csThreadCode); //函数说明：定义关键段变量后必须初始化。
+	g_hEventBufferEmpty = CreateEvent(NULL,	FALSE, TRUE, NULL); //创建一个自动复位事件，表示缓冲区是否为空 （触发）
+	g_hEventBufferFull = CreateEvent(NULL, FALSE, FALSE, NULL); //创建一个自动复位事件，表示缓冲区无可用产品 （未触发）
+	 
+	system("pause"); //暂停以查看显示窗口
+	return 0;
+}
+
+
+int consumer_count = 0; //消费量

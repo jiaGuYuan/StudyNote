@@ -1,0 +1,204 @@
+提问：
+Why do we use __init__ in python classes?
+
+Sorry if this question is a bit general but its been bugging me 
+because I don't fully understand it. 
+I'm a python newbie and all my programming so far has been functions 
+and I'm starting to look at using classes
+(since I'm incorporating some other people's code into my programs).
+
+I understand the idea behind classes
+(creates basically a function that you can modify for different environments..
+like a car class that you can change the color depending on your needs). 
+I'm having trouble understanding the Initialization of the classes.
+What's the point of them and how do we know what to include in them? 
+Does writing in classes require a different type 
+of thinking versus creating functions
+(I figured I could just create functions 
+and then just wrap them in a class so I can re-use them..will that work)?
+
+Here's an example:
+
+class crawler:
+  # Initialize the crawler with the name of database
+  def __init__(self,dbname):
+    self.con=sqlite.connect(dbname)
+
+  def __del__(self):
+    self.con.close()
+
+  def dbcommit(self):
+    self.con.commit()
+#then the code that I understand starts....
+
+Or another code sample:
+
+class bicluster:
+  def __init__(self,vec,left=None,right=None,distance=0.0,id=None):
+    self.left=left
+    self.right=right
+    self.vec=vec
+    self.id=id
+    self.distance=distance
+There is so many of these I come across(when trying to read other people's code) 
+but I'm somewhat at a loss to understand the logic in creating them. 
+I'm sorry if this question is super basic, I searched around 
+because I feel I should know this but I'm pretty confused. 
+Any clarification on how this works would be great.
+
+
+回答：
+By what you wrote, you are missing a critical piece of understanding:
+the difference between a class and an object.
+__init__ doesn't initialize a class, 
+it initializes an instance of a class or an object. 
+Each dog has colour, but dogs as a class don't. 
+Each dog has four or fewer feet, but the class of dogs doesn't. 
+The class is a concept of an object. 
+When you see Fido and Spot( Fido and Spot是两只狗的名字), you recognise their similarity, their doghood. 
+That's the class.
+
+When you say
+
+class Dog:
+    def __init__(self, legs, colour):
+        self.legs = legs
+        self.colour = colour
+
+fido = Dog(4, "brown")
+spot = Dog(3, "mostly yellow")
+You're saying, Fido is a brown dog with 4 legs 
+while Spot is a bit of a cripple and is mostly yellow. 
+The __init__ function is called a constructor, or initializer, 
+and is automatically called when you create a new instance of a class.
+Within that function, the newly created object is assigned to the parameter self. 
+The notation self.legs is an attribute called legs of the object in the variable self. 
+Attributes are kind of like variables, but they describe the state of an object, 
+or particular actions (functions) available to the object.
+
+However, notice that you don't set colour for the doghood itself - it's an abstract concept. 
+There are attributes that make sense on classes. 
+For instance, population_size is one such 
+-- it doesn't make sense to count the Fido because Fido is always one. 
+It does make sense to count dogs. Let us say there're 200 million dogs in the world.
+It's the property of the Dog class. Fido has nothing to do with the number 200 million, nor does Spot.
+It's called a "class attribute", as opposed to "instance attributes" that are colour or legs above.
+
+Now, to something less canine and more programming-related.
+As I write below, class to add things is not sensible - what is it a class of?
+Classes in Python make up of collections of different data, that behave similarly. 
+Class of dogs consists of Fido and Spot and 199999999998 other animals similar to them, 
+all of them peeing on lampposts. What does the class for adding things consist of? 
+By what data inherent to them do they differ? And what actions do they share?
+
+However, numbers... those are more interesting subjects. 
+Say, Integers. There's a lot of them, a lot more than dogs. 
+I know that Python already has integers, but let's play dumb and "implement" them again 
+(by cheating and using Python's integers).
+
+So, Integers are a class. They have some data (value), and some behaviours 
+("add me to this other number"). Let's show this:
+
+class MyInteger:
+    def __init__(self, newvalue)
+        # imagine self as an index card.
+        # under the heading of "value", we will write
+        # the contents of the variable newvalue.
+        self.value = newvalue
+    def add(self, other):
+        # when an integer wants to add itself to another integer,
+        # we'll take their values and add them together,
+        # then make a new integer with the result value.
+        return MyInteger(self.value + other.value)
+
+three = MyInteger(3)
+# three now contains an object of class MyInteger
+# three.value is now 3
+five = MyInteger(5)
+# five now contains an object of class MyInteger
+# five.value is now 5
+eight = three.add(five)
+# here, we invoked the three's behaviour of adding another integer
+# now, eight.value is three.value + five.value = 3 + 5 = 8
+print eight.value
+# ==> 8
+This is a bit fragile (we're assuming other will be a MyInteger), but we'll ignore now. 
+In real code, we wouldn't; 
+we'd test it to make sure, and maybe even coerce it 
+("you're not an integer? by golly, you have 10 nanoseconds to become one! 9... 8....")
+
+We could even define fractions. Fractions also know how to add themselves.
+
+class MyFraction:
+    def __init__(self, newnumerator, newdenominator)
+        self.numerator = newnumerator
+        self.denominator = newdenominator
+        # because every fraction is described by these two things
+    def add(self, other):
+        newdenominator = self.denominator * other.denominator
+        newnumerator = self.numerator * other.denominator + self.denominator * other.numerator
+        return MyFraction(newnumerator, newdenominator)
+There's even more fractions than integers (not really, but computers don't know that). Let's make two:
+
+half = MyFraction(1, 2)
+third = MyFraction(1, 3)
+five_sixths = half.add(third)
+print five_sixths.numerator
+# ==> 5
+print five_sixths.denominator
+# ==> 6
+You're not actually declaring anything here. Attributes are like a new kind of variable. Normal variables only have one value. Let us say you write colour = "grey". You can't have another variable named colour that is "fuchsia" - not in the same place in the code.
+
+Arrays solve that to a degree. If you say colour = ["grey", "fuchsia"], you have stacked two colours into the variable, but you distinguish them by their position (0, or 1, in this case).
+
+Attributes are variables that are bound to an object. Like with arrays, we can have plenty colour variables, on different dogs. So, fido.colour is one variable, but spot.colour is another. The first one is bound to the object within the variable fido; the second, spot. Now, when you call Dog(4, "brown"), or three.add(five), there will always be an invisible parameter, which will be assigned to the dangling extra one at the front of the parameter list. It is conventionally called self, and will get the value of the object in front of the dot. Thus, within the Dog's __init__ (constructor), self will be whatever the new Dog will turn out to be; within MyInteger's add, self will be bound to the object in the variable three. Thus, three.value will be the same variable outside the add, as self.value within the add.
+
+If I say the_mangy_one = fido, I will start referring to the object known as fido with yet another name. From now on, fido.colour is exactly the same variable as the_mangy_one.colour.
+
+So, the things inside the __init__. You can think of them as noting things into the Dog's birth certificate. colour by itself is a random variable, could contain anything. fido.colour or self.colour is like a form field on the Dog's identity sheet; and __init__ is the clerk filling it out for the first time.
+
+Any clearer?
+
+EDIT: Expanding on the comment below:
+
+You mean a list of objects, don't you?
+
+First of all, fido is actually not an object. It is a variable, which is currently containing an object, just like when you say x = 5, x is a variable currently containing the number five. If you later change your mind, you can do fido = Cat(4, "pleasing") (as long as you've created a class Cat), and fido would from then on "contain" a cat object. If you do fido = x, it will then contain the number five, and not an animal object at all.
+
+A class by itself doesn't know its instances unless you specifically write code to keep track of them. For instance:
+
+class Cat:
+    census = []
+
+    def __init(self, legs, colour):
+        self.colour = colour
+        self.legs = legs
+        Cat.census.append(self)
+Here, census is a class-level attribute of Cat class.
+
+fluffy = Cat(4, "white")
+spark = Cat(4, "fiery")
+Cat.census
+# ==> [<__main__.Cat instance at 0x108982cb0>, <__main__.Cat instance at 0x108982e18>]
+# or something like that
+Note that you won't get [fluffy, sparky]. Those are just variable names. If you want cats themselves to have names, you have to make a separate attribute for the name, and then override the __str__ method to return this name. This method's (i.e. class-bound function, just like add or __init__) purpose is to describe how to convert the object to a string, like when you print it out.
+
+shareimprove this answer
+edited Dec 26 '15 at 16:01
+
+Student
+329420
+answered Dec 22 '11 at 20:15
+
+Amadan
+93k886135
+2	 	
+wow thanks..this actually made alot of sense to me so anything that makes something what it is, I need to pre-declare in the init function. In this case, Dog, has legs and colour. For example, if I made a class that added two numbers, I would declare self.firstnumber and self.secondnumber then just do firstnumber + secondnumber later on in the class to get the answer? – Lostsoul Dec 22 '11 at 20:23
+1	 	
+Kind of. You could do that. But it hardly makes sense to make a class just to add things. Classes normally implement data with behaviours - pure behaviours are just functions. I'll expand the answer with something relevant; wait a bit. – Amadan Dec 22 '11 at 20:28
+2	 	
+Thank you for the amazing answer. I see and understand the power of classes now. Sorry, if it sounds dumb. You just me realize I can sort data and maintain the state of many different things at once(whereas I would only track as many variables as I can create or more via loops). So say, I need to figure out the average number of legs per dog? Is there a way to retrieve a list of all objects I have created with a class so I can start a calucation like this? or should I also be maintaining a list of the classes I create(i.e. [fido, spot]) – Lostsoul Dec 23 '11 at 5:33
+10	 	
+again, I need to thank you for the amazing answer. I'm re-reading it and its very well written and not only explain init to me but also helped me understand the benefits of classes. I can't thank you enough. – Lostsoul Dec 23 '11 at 5:35
+5	 	
+Best answer that I have ever seen to any question. I learned more from this one answer than I have from several chapters of books on classes. Thanks. – Raw_Input May 28 '15 at 21:51 

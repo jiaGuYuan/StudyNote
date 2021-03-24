@@ -1,0 +1,1459 @@
+﻿数组:
+    数组长度 array.length
+    java的数组是对象。
+    java数组静态初始化: int array[] = new int[]{1,2,3,4}; //注意静态初始化不可指定维度.
+                 或     int array[] = {1,2,3,4};
+                 或     int[] array = new int[]{1,2,3,4};
+                 或     int[] array = {1,2,3,4};
+    new数组: Type [] array = new Type[LENGTH];  或  Type array[] = new Type[LENGTH];
+
+    java的对象在作函数参数时是传递的是引用--实参与形参引用的是同一个对象(并不是说形参是实参的引用，更像是两个指针指向同一个对象)。
+    "将java中的引用类比C++的指针"
+    而java的基本类型在作函数参数时传递的是值(副本)。
+
+    java中数组作函数参数不会有C\C++中的退化行为。
+
+访问权限:
+    可以在类定义时为类添加访问修饰符,对类进行访问权限制.
+    public修饰的类不受限制可以从任何地方访问. 同包,不同包,子类,非子类都能访问到.
+    protected: 同包内可访问,子类可访问.
+    默认的访问权限是从本包中进行访问, 不同的包则无法访问. 同包可访问,不同包则无法访问.
+    private:只能在同一个类的方法中访问. 同包中的其它类无法访问.
+    当java源文件中包括public类时，源文件必须与public类同名。一个源文件中只能有一个public类。
+    
+    public  > protected > friendly(缺省) > private
+    public: 不限制   
+    protected: 同包(包括同包子类,同包非子类),不同包子类
+    friendly: 同包(包括同包子类,同包非子类)
+    private: 本类中
+    
+修饰符:
+    abstract, final, native, static, strictfp, synchronized, transient, volatile
+
+
+object oriendted programming:
+    对象是引用类型，使用new运算符创建对象实例。
+    java中无需前向声明
+
+    每个对象都有自己独立的数据成员(非static数据成员)，但是所有对象共享成员方法。
+    非static数据成员属于对象，非static成员方法属于对象; static成员数据、static成员方法属于类。
+    非static成员方法属于对象是因为其含有一个隐含的this引用，用来指向调用它的对象。
+    static成员方法无this指针，所以在static成员方法中只能操作static数据成员。
+
+
+可以使用package关键字将源文件中的类打入某入包中:
+    package package_name; ---该语名必须是源文件的第一条语句。表示将该源文件打入包package_name中。
+
+    导入包使用import语句。
+ 
+ 
+创建对象的语法:
+    类名 引用名 = new 类名(xxx);
+
+
+main()必须声明为 public static main(String[] args) ---理解为什么?
+
+java的构造函数没有初始化列表。
+java无析构。
+
+
+
+java的函数重载是如何实现的？
+
+
+java中没有static局部变量(即不能在成员函数中定义static局部变量)。
+只有属于类的static成员。
+
+java中的静态块是在类加载之后要执行的代码块。
+java中的块是在对象加载之后、构造方法执行之前要执行的代码块。
+静态块与块的定义如下:
+    pulbic class MyClass{
+        public MyClass(){
+            //构造函数
+        }
+
+        {
+            //代码块(块)
+        }
+
+        static {
+            //静态块
+        }
+    }
+
+当new MyClass()时 先执行表态块、再执行块、最后执行构造函数。
+
+强制JVM加载类:
+try{
+    Class.forName("MyClass");
+}catch(ClassNoFoundException ex){
+    ex.printStackTrace();
+}
+
+
+
+java包的创建与使用:
+    1.包的创建: 以HelloWorld.java源文件为例
+    //HelloWorld.java
+    package my_pack.hello_pack;  //只需要指定包路径名---此语句必须是源文件的第一行
+    public class HelloWorld(){
+        public void show(){
+            System.out.println("Hello World");
+        }
+    }
+    对该文件进行编译javac –d desc_dir HelloWorld.java,
+    将在-d 指定的目录下自动创建存放包的目录与对应的.class文件.
+    <package xxx.yyy表示将由源文件生成的类.class文件放到指定的包(即xxx.yyy)下--如果对应的目录不存在则会创建所需的目录>
+
+
+
+    2.包的使用: 以MyClass.java源文件为例
+    //MyClass.java
+    import my_pack.hello_pack.HelloWorld;  //需要指定包的路径名与对就的.class文件名
+    public class MyClass{
+        public static void main(String[] args){
+            Student s = new Student();
+            s.show();
+        } 
+    }
+    对该文件进行编译javac -cp desc_dir –d desc_dir MyClass.java, 并运行生成的.class文件(java MyClass).
+
+    这个示例将生成的文件按如下的目录结构分布:
+    *
+    desc_dir  //
+       |... my_pack
+       |    |... hello_pack
+       |        |... HelloWorld.class
+       |
+       |... MyClass.class
+
+
+    import xxx.yyy.*;  导入包xxx.yyy下的所有类,  但是并不会递归的导入xxx.yyy的子包下的类.
+
+    当两个同名的类分属于不同的包时, 不能同时import ---因为系统无法判断你要使用的是哪一个.
+    如下:  两个同名类A,分类属于包cn.com和cn下, 同时导入它们会报错:
+    import cn.com.A;
+    import cn.A;  
+    解决方法是:
+    在import导入时只能导入同名类中的一个,其余的类在使用时使用全路径名.(也可以一个都不导入,全部使用全路径名)
+    如: cn.A a = new cn.A();
+
+
+//静态导入
+import static cn.ClassA.static_method;  --通过这种方式可以导入类的静态成员.如此就可以直接访问这个静态成员了.
+
+//包名用全小写,可用'_'分隔, 一般用域名倒置法
+
+
+
+java中基本类型创建在栈上.
+java中所有对象创建在堆上,所有引用创建在栈上,栈上的引用指向堆上的对象.
+java中的引用(变量)相当于对C++中的指针的封装,在引用对象实例时自动进行了一次解引用操作.
+java中数组(数组名)是一个引用.
+java: ClassType value = new ClassType(); --在堆上new出一个ClassType实例, 在栈上创建它的引用(由value来引用它).
+类比c++. ClassType *pvalue = new ClassType(); --在堆上new出一个ClassType实例, 在栈上创建一个指针来指向它.
+value.member = x; 相当于c++的(*pvalue).member = x
+
+Java的数组引用.
+Type array[] = new Type[N]; --在堆上new出一个数组对象实例, 在栈上创建它的引用(由array来引用).**注意: 此时数组中的元素是空指向的. **
+当Type是基本类型时,相当于c++的 Type *parray = new Type[N];
+当Type是引用类型(类类型)时,相当于C++的 Type **pparray = new *Type[N];
+
+对象数组中存放的并不是对象本身，而是对象的引用.
+
+java中除了基本类型就是引用类型. 
+
+
+java没有无符号类型.
+
+java中的对象数组中存放的是对象的引用. (数组元素是对象的引用):
+    如: MyClass[] array = new MyClass[N];  //在栈上创建一个数组引用,在堆上创建一个数组对象. 并使引用指向对象
+        for(int i=0; i<array.length; i++)
+        {
+            array[i] = new MyClass(); //初始化数组的引用元素
+        }
+        一个完整的数组需要了三个空间: (1)栈上的数组引用 (2)堆上的数组对象 (3)堆上的MyClass对象
+        栈上的array数组引用,指向堆中的数组对象; 而数组对象中的元素是MyClass对象的引用.
+
+
+java中通过extends关键字实现继承.
+
+继承是单向的,即派生类可以继承和访问基类中的成员,但基类则无类访问派生类中的成员.
+java只允许单一继承.
+
+
+    
+
+父类中的构造函数不能被子类继承,即便它是public的.
+父类的构造函数负责初始化属于它的成员变量,而子类的构造函数则只需考虑属于它自己的成员变量,
+不必去关注父类的情况(不过有时需要在构造函数中调用super()来显式的构造父类的部分).
+
+在实例化子类对象时，如何将参数传递给父类的构造方法？
+    ---这将使用到super关键字。
+
+当实例化子类的对象时,必须先执行父类的构造方法,然后再执行子类的构造方法.
+
+在java中,super关键字有两个主要用途:
+    1. 在子类的构造方法中,super关键字可以显式的调用直接父类的构造方法,用于将参数传递给它.
+       一般语法是: super(实参); //该语句必须是子类构造方法的第一条语句.
+    2. 当子类和父类有同名成员时, 在子类中默认访问属于自己的成员.
+       super关键字可以明确地指定要访问父类中的成员.
+       一般语法是: super.成员名  //前提是父类中的该成员不是private的.
+
+
+
+    继承体系结构中最上层是最普遍、最一般的情况，往下每一层都比上一层更具体，并包含有高层的特征。
+    对普通类使用的访问修饰符只有public和缺省两种。
+    java中可以在类的构造函数通过 this(参数表) 的方式来调用另一个构造函数。--至于调用哪一个构造函数是通过参数匹配来选择的。
+
+
+方法重载&方法覆盖:
+    方法重载--同一作用域,同名函数不同参数.
+    方法覆盖--子类重写父类方法.(同名函数-同参不同作用域)
+
+    public class BaseClass{
+        public void fun(){
+            //.....
+        }
+    }
+
+    public class DerivedClass extends BaseClass{
+        public void fun(){ //方法覆盖(重写)
+            //....
+        }
+
+        public void fun(type args){ //方法重载
+            //....
+        }
+    }
+
+    public class Test{
+        public static void main(String[] args){
+
+            BaseClass c = new DerivedClass(); //父类引用指向子类对象
+            c.fun(); //此处发生多态 (*1*)
+        }
+    }
+
+    (*1*):由于BaseClass中已经实现了fun(),所以不强制要求DerivedClass重写fun().
+          但如果我们需要子类强制重写父类的方法,应该怎么做呢.
+          比如: 在上例中我们应该如何定义BaseClass的fun(),来使得DerivedClass类必须重写fun()呢.
+        ----要解决这个问题需要使用关键字abstract.
+        public abstract class BaseClass{//只有抽象类才能有抽象方法
+               public abstract void fun(); //抽象方法不需要实现. 由继承它的子类来实现.
+        }
+
+抽象类:
+    抽象类不能直接实例化.---但可以在子类的构造中通过super()来间接构造.
+    抽象方法要求子类强制实现.
+    抽象类可以有抽象方法, 也可以有其他成员. 抽象类也可以没有抽象方法.
+    抽象类中不能实现抽象方法,但它强制子类实现它.
+    子类可以选择性的覆盖抽象类中的非抽象方法,但必须实现实现抽象类中的抽象方法.
+    构造方法与静态方法不能用abstract修饰.
+
+    java中的方法覆写与c++中的虚函数重写类似.
+    java中的abstract方法与C++中的纯虚函数类似.
+
+    子类实现抽象方法时方法不要用abstract修饰.
+    在进行方法覆盖时子类重写的方法不能有比父类更严的访问权限.
+
+    抽象方法最好使用protected访问权限. 其次public. 不可private, friendly(缺省)
+
+
+
+
+接口(interface):
+    1. 接口的所有方法皆为抽象. --不管你是否指定abstract.(java8 可通过default关键字指定非抽象的接口方法)
+    2. 接口中所以成员(方法和属性)皆为public. --不管你是否指定public.(但是不能指定其他访问权限)
+    3. 接口的所有属性皆为静态常量.--不管你是否指定static(静态) final(常量)
+    4. 类不能继承(extends)接口,类只能实现(implements)接口--实现接口方法时必须为public.
+    5. 接口可以继承(extends)接口. 接口可以继承多个接口(extends InfA, InfB)
+    6. 实现接口的类需要实现接口中的所以方法.--接口是一种强制性规范
+    7. 接口不是类,接口无构造,接口不能实例化.
+
+
+    类可以实现多个接口(implements InfA, InfB).
+
+    public interface InfA{//定义接口
+        int X = 10; //public final static int X = 10;
+        void f();   //public abstract void f();
+    }
+
+    public class ImplClassName implements InfA, InfB{} //注意命名规范
+
+
+    接口解决java没有多继承的问题.
+    接口的引用可以指向实现类的实例对象.---多态
+    接口中只能包含方法原型,不能包含方法主体. 子接口不能实现父接口. 接口只能在类中实现.
+
+
+
+
+final: 最终的,不可修改的(相当于c++的const)
+    可修饰变量(成员变量,局部变量),成员方法,类
+    final修饰的方法不能被子类覆盖.
+    final修饰的类不能被继承.
+    final修饰的变量必须在定义时赋初值(或构造中赋初值).--但要在构造中赋初值时便不能在定义中赋初值(两者其一)。
+
+
+内部类:
+    public class A{
+        private int x;
+        private void fa(){
+            B b = new B();
+            b.fb();
+        }
+
+        //内部类(内部类访问权限可以为public,默认,private, protected)
+        private class B{
+            public void fb(){
+                x = 10; //内部类可以访问外部类的private成员
+            }
+        }
+
+        //静态内部类
+        public static class C{
+            //...
+        }
+
+        public void fa_2()
+        {
+            //匿名内部类(通过匿名内部类实现InfD接口)
+            InfD d = new InfD(){
+                public void show(){ //匿名类实现接口InfD的方法
+                    //....
+                }
+            };
+            d.show();
+
+            //匿名内部类(匿名内部类继承抽象类并实现其接口)
+            AbstractX c = new AbstractX(){
+                public void show(){ //匿名类实现抽象类的方法
+                    //....
+                }
+            };
+            c.show();
+
+
+            //匿名内部类(匿名内部类继承类)
+            MyClass mc = new MyClass(){
+                public void show(){ //匿名内部类定制MyClass类
+                    //....
+                }
+            };
+            mc.show();
+        }
+
+    }
+    //编译A.java时会生成两个文件 A.class和A$B.class
+
+    最好只在包含内部类的类中创建内部类对象.当要在外部创建内部类的对象时,内部类必须是public的,且创建内部类对象的方式为: 外部类对象.new 内部类构造()--每个内部类对象都会与一个外部类对象关联,所以需要通过一个外部类对象来创建内部类对象.
+
+    把内部类当作是外部类的一个成员.
+    静态内部类当作是外部类的一个静态成员.
+
+    内部类访问外部类的对象(每个内部类对象都会与一个外部类对象关联):
+        访问方式:  外部类名.this
+    内部类调用与外部类同名的方法(不同名的也可以):
+        调用方式:　外部类名.this.方法名()
+    内部类访问与外部类同名的属性(不同名的也可以):
+        访问方式:　外部类名.this.属性名
+        如:Vector.java源码中的内部类 private class Itr implements Iterator<E>的remove()方法
+        public void remove() {
+            if (lastRet == -1)
+                throw new IllegalStateException();
+            synchronized (Vector.this) {
+                checkForComodification();
+                Vector.this.remove(lastRet); //内部类访问外部类的成员
+                expectedModCount = modCount;
+            }
+            cursor = lastRet;
+            lastRet = -1;
+        }
+
+     判断对象是否是某个类的实例: instanceof
+     if(obj instanceof MyClass)//判断obj是否为MyClass的实例(或MyClass子类的实例)
+
+
+
+
+
+    java的局部变量不能是static的。--即 类的成员方法中不能定义static 变量。
+
+    一个java项目中可以有多个main() --- 也可以重载，只有启动类中的public static void main(String[] args)会作为程序入口。 其他类中的main()与类的方法无异。
+    import mypackage.MyClass;
+    public class T{
+        public static void main(String[] args){
+            MyClass.main(new String[]{"hello", "world"}); //调用Assignment类中的main
+
+            main(1); //调用重载的main
+        } 
+
+        public static void main(int i){
+            System.out.println(i);
+        } 
+
+    }
+
+
+类成员的访问权限与类的访问权限
+
+
+
+在构造函数中调用一个动态绑定的方法(非final函数)。能否产生多态效果？:
+    --在Java中，在父类的构造函数中调用的非final方法会进行动态绑定，但是因为在父类的构造函数执行时子类还没有构造，所以调用动态绑定(非final)方法，可能得到的是非预期的结果。应当避免在构造函数中调用非final方法。
+
+
+！！！ 小心基类构造函数中调用动态绑定方法时的多态行为:
+    --多态会在基类的构造函数中发生，但此时产生多态的子类对象并未被完全创建
+注意:在基类的构造函数中能够安全调用的是final方法和private方法。－－它们不会被子类重写(即不会发生多态)。
+
+
+
+一条常规的设计准则是:
+    用继承表达行为间的差异，并用成员变量表达状态的变化。
+
+
+
+/*****************************/
+单继承与接口多实现:
+    import java.util.*;
+    interface InfA {
+        void fa();
+        void f();
+    }
+    interface InfB {
+        void fb();
+        void f();
+    }
+
+    class C {
+        public void fa() {} 
+        private int f(){return 0;}
+    }
+
+    /**
+     * MyClass继承C并实现接口InfA和InfB
+     * 注意:
+     */
+    class MyClass extends C implements InfA, InfB {
+        /* 因为父类C中已经实现了InfA中的 fa()方法, 所以这里可以不实现fa。
+           1. 尝试改变类C中fa()的访问权限
+           2. 尝试改变类C中的fa()的返回值，使之与InfA中fa()方法的返回值不同，看会发生什么。
+        */
+        // public void fa() {} 
+
+        public void fb() {}
+
+        /* 接口InfA、InfB中都有 f()方法,且其方法原型完全一致, 所以这里只要实现一次即可。
+           当接口InfA、InfB中 f()方法的原型不一致时(参数列表不一致)，相当于重载。
+           1. 尝试改变InfB中f()的返回值，看会发生什么－－将导致MyClass无法相同实现InfA和InfB.(因为这样即不符合重载也不符合重写)
+           2. 尝试改变类C中f()的访问权限为public，看会发生什么
+        */
+        public void f(){}
+        //public int f(){return 0;}
+
+    }
+
+    public class Test {
+        static void t(InfA x) { x.fa(); }
+        static void u(InfB x) { x.fb(); }
+        static void w(C x) { x.fa(); }
+        public static void main(String[] args) {
+            MyClass i = new MyClass();
+            t(i); 
+            u(i); 
+            w(i); 
+        }
+    }
+    /***************************/
+
+
+
+异常:
+    1.异常堆栈（打印异常堆栈信息printStackTrace()）
+     2. 
+     try{
+         ... //可以抛出异常的代码
+         ...
+     }catch(异常类型 ex){ //捕获指定类型的异常并处理
+         ...
+         ...
+     }finally{ //无论异常是否发生都会执行的代码(即使在catch中有return,finally块也会执行) [可选]
+         ...
+         ...
+     }
+
+     如果异常发生将直接执行对应的catch块，try块内发生异常位置之后的代码不会执行。
+     但try块外部的代码可以被执行(如果在异常处理中不退出函数).
+
+    void f(){
+        try{
+            int c = 3/0;
+            System.out.println("aaa");
+        }catch(ArithmeticException ex){
+            System.out.println(ex.getMessage());
+            ex.printStackTrace();
+            return;
+        }finally{
+            System.out.println("finally"); //不管异常是否发生,都会执行(除非程序非正常退出)
+        }
+
+        System.out.println("end"); 
+    }
+
+
+    throw: 手动抛出异常
+    throws: 向上(调用者)抛出异常
+
+
+    void f() throws XXXException, YYYException{
+        if(xxx){
+            throw (new XXXException());
+        }
+        ...
+
+        if(yyy){
+            throw (new YYYException());
+        }
+
+        if(zzz){
+            throw (new ZZZException());
+        }catch(ZZZException ex){
+            ...
+        }
+    }
+
+
+Java 提供了四种类型的“集合类”:
+    Vector（矢量）、 BitSet（位集）、 Stack（堆栈）以及Hashtable（散列表）
+
+判断对象继承关系:
+    if(obj instanceof MyClass) //判断对象obj是否是MyClass(或其子类)的对象
+
+判断对象是否属于同一个类:
+    Class cls = obj.getClass();
+    if(cls == myClsObj.getClass()) //判断obj对象与myClsObj对象是否属于同一个类
+
+    Class myCls = Class.forName("MyClass"); //需要进行异常处理
+    if(cls == myCls) //判断cls对象是否是MyClass的实例
+
+
+防止在toString()方法中使用 String对象 + this: 
+    public String toString(){
+        return "haha:"+this;//此处会引发(无穷)递归调用。当编译器发现 String对象+非String对象，会主动调用非String对象的toString()方法 
+    }    
+
+
+
+关于在遍历Collection的过程中增删元素的问题:
+1: ConcurrentModificationException异常出现的原因
+    在遍历的过程中增删了元素，导致迭代器失效。详见源码
+
+Java HashMap 如何正确遍历并删除元素:
+    https://www.cnblogs.com/zhangnf/p/HashMap.html?utm_source=itdadao&utm_medium=referral
+
+
+流操作:
+    转换流:字节流　--->  字符流
+        InputStreamReader
+        OutputStreamWriter
+
+    对象流:
+        使用DataInputStream和DataOutputStream来读写类型数据时,读写顺序与类型必须一致。
+
+    容器流:
+        ByteArrayInputStream    ByteArrayOutputStream
+
+    打印流: (以String形式输出，所有打印流自带缓冲区)
+        PrintStream        PrintWriter
+
+
+异常:
+    分类:
+        运行错误:
+        逻辑错误:
+
+    try{
+        ...  //监视有可能发生异常的代码段
+    }catch(异常类型 ex){ //捕获发生的异常
+        ... //处理捕获的异常
+    }catch(异常类型n ex){
+        
+    }finally{  //无论是否发生异常finally块都会被执行(finally块是可选的, 且finally块必须与try一起使用)
+        
+    }
+
+    当使用多重catch捕获异常时, 要注意catch块的书写顺序,越靠近Exception的异常类应当越靠后(即类层次越低的异常应写在前面).---对catch的判断更像if,而不是switch.
+
+    Exception RuntimeException ArithmeticException IllegalArgumentException 
+    ArrayIndexOutOfBoundsException NullPointerException ClassNotFoundException
+    NumberFormatException IOException FileNotFoundException EOFException
+
+
+    try/catch/finally执行流程:
+        try块 -------
+           |        |
+           |发生异常|
+           ↓        |
+        catch块        |(无异常)
+           |        |
+           ↓        |
+        finally块 ←--
+
+
+    Throwable有两个直接子类，它们是:
+        Error类:Error类的异常通常为内部错误，因此在正常情况下并不期望用户程序捕获它们；
+        Exception类:绝大部分用户程序应当捕获的异常类的根类；
+        一些常用的异常类都直接或间接派生自Exception类，因此我们可以认为绝大部分的异常都属于Exception。
+
+    Exception方法:
+        getMessage(): 返回与异常相关的描述信息
+        printStackTrace(): 在控制台上打印与异常产生有关的信息
+
+
+
+    try/catch块可嵌套.
+
+    自定义异常:
+    class MyException extends Exception{ //自定义异常一般从Exception类继承
+        //.....
+    }
+    
+    throw:
+        throw语句用于手工抛出异常.
+        执行流程将在throw语句后立即停止,转而寻找与抛出异常类型相匹配的catch块.
+
+        语法:
+            throw (异常类型的实例);
+
+    throws关键字:
+        如果某个函数中的代码有可能引发异常，可以使用try/catch块进行处理,这种处理方式成为“内部处理”；
+        如果不方便在函数内部进行处理，也可以将异常往函数外部传递，这就要使用到关键字throws；
+        throws用于将函数内部产生的异常抛给主调函数；
+        一般语法:
+            返回值类型 functionName(参数列表) throws 异常类型{
+                ...
+            }
+        任何抛到函数外部的异常，都必须使用throws关键字指定其异常类型
+
+    当调用带有throws关键字的函数时(throws在函数声明之后),则必须放在try/catch块中进行监控,否则编译器将会报错.
+    如果不便进行监控处理,也可以继续使用throws往外抛出异常,但不太推荐此种做法
+
+    请注意throw和throws的区别.
+
+    void functionName(void) throws XXXException{//functionName函数可能会抛出XXXException异常
+        ...
+        throw (new XXXException); //(1)
+
+        ...
+        f(); //(2)对f的调用可能抛出XXXException异常
+    }
+
+
+valueOf方法:
+    每个包装类都有一个静态的valueOf方法，用于将字符串转换成相应包装类的对象.
+
+    除了Boolean类和Character类以外，其它的包装类都有静态的parseXxx方法（Xxx指代具体的数据类型），用于将字符串转换成相对应的原始数据类型值
+
+
+    Java中，字符串是String类的对象
+
+注意:用==进行比较时,比较的是引用.
+     当要比较对象时,需要使用equals()方法.(但该方法默认也是比较引用--因为在Object中equals()方法比法的是引用,如果我们不重写equals()那么执行的是Object中的函数, 但可以重写它,使之满足我们的要求)
+
+String & StringBuffer:
+    java String对象是不可变的:
+        创建一个字符串对象之后，将不能更改构成字符串的字符
+        每当更改了字符串版本时，就创建了一个新的字符串对象，并在其内包含所做的修改，原始字符串保持不变.
+
+
+        Integer n1 = new Integer(11);
+        Integer n2 = new Integer(11);
+        if(n1 == n2) //false
+        if(n1.equals(n2)) //true
+
+
+        StringBuffer类用于表示可以修改的字符串；
+
+    StringBuffer(int capacity):
+        创建一个空的StringBuffer对象，缓冲空间大小由capacity指定
+
+    在Java中一旦创建了字符串就不能直接更改，这就是字符串的不变性.
+    而StringBuffer类正是针对此问题而提供的字符可变序列.
+    StringBuffer与String是同等的类，唯一区别是可以进行更改.
+
+
+
+Object:
+    Java中的类体系遵循单根结构，即任何一个类往上追溯都到达同一个父类；
+    Object类就是这个单根体系的根，也就是说它是其它所有类的共同父类；
+    如果用户定义的类没有扩展任何其它类，则默认扩展自Object类；
+    Object类中定义的一些方法，会被继承到所有类中。
+    boolean equals(Object obj):
+        判断当前对象是否与参数obj（内容）相等，如果有必要，应该在自定义的类中覆盖该方法
+    public int hashCode():当重写了equals()时,最好也重写hashCode(); 使equals()相等的两个对象的hashCode()产生相等的结果.
+
+    String toString():
+        返回当前对象的字符串表示，如果有必要，应该在自定义的类中覆盖该方法
+    Class getClass():
+        返回当前对象的类描述对象，此方法被继承到所有类中
+    protected void finalize() throws Throwable
+        当前对象被垃圾回收时调用此方法（类似于C++的析构函数），但无法确定具体何时调用
+    public final void wait() throws InterruptedException
+        使当前线程进入等待状态
+
+
+Class类:
+    1.Class类的实例用于记录对象的类描述信息；
+    2.如果在程序运行时，需要检索某个对象的相关类信息，可以调用该对象的getClass方法来获得记录其描述信息的Class类实例；
+    3.Class类没有公共的构造方法，无法通过new运算符实例化，只能通过对象的getClass方法，或是通过Class的静态方法forName来获得实例。
+
+    static Class forName(String className) throws ClassNotFoundException
+        使用参数className来指定具体的类，来获得相关的类描述对象，该方法有可能抛出类加载异常（ClassNotFoundException），必须捕捉
+    Class getSuperclass()
+        获得当前类描述对象的父类的描述对象
+
+理解: Class类 是类的元信息的抽象. 每一个类都有其元信息,所以每一个类都包含一个Class对象. 
+我们可以通过获取类的Class对象来获取其元信息.
+(注意: 这里我们说的是类, 一个类只有一个元信息. 无论它有多少对象)
+
+引用对象获取其Class对象的方式: 对象.getClass() 如: Class cInteger = integer.getClass()
+通过类名(完整路径名)获取Class对象的方式:  Class.forName(完整类名)  如: Class c = Class.forName("java.")
+主类型获取Class对象的方式: 主类型.class  如: Class cInt = int.class
+对于主类型的包装类还可以用  包装类.TYPE (如: Integer.TYPE) 的方式来获取其Class对象
+
+
+
+
+valueOf(xx) //装箱
+valueType() //拆箱
+
+
+
+主类型 包装类  String 之间的转换:
+    主类型 ---->  包装类:   
+            1. new 包装类(主类型值)
+            2. 包装类.valueOf(主类型值)
+            3. 利用自动装箱(包装类 x = 主类型值)
+    包装类 ---->  主类型:
+            1. 包装类对象.intValue()
+            2. 利用自动拆箱
+
+
+    主类型 ---> String:
+            1. ""+主类型值;
+            2. String.valueOf(主类型值)
+
+    String ---> 主类型:
+            1. 主类型对应的包装类.parseType(str)
+
+
+    包装类 ---> String:
+            1. 包装类对象.toString()
+            2. String.valueOf(包装类对象)
+            3. 包装类对象+""
+    String ---> 包装类:
+            1. 包装类.valueOf(str)
+
+
+
+容器:
+ArrayList:
+ArrayList是长度可变的对象引用数组，称为动态数组.(注意ArrayList是引用数组,只能存放引用类型,不能存放主类型).
+访问和遍历数组元素时，ArrayList的性能优越.
+ArrayList<Integer> al= new ArrayList<Integer>(); //ok
+ArrayList<int> al2= new ArrayList<int>(); //error
+
+LinkedList类用于创建链表数据结构；
+与ArrayList相比，如果需要频繁地添加和删除元素，LinkedList的性能更加优越；
+
+Vector类与ArrayList类和LinkedList类很相似，最大的区别在于Vector是线程同步的；
+
+ArrayList类可以创建动态数组；
+LinkedList类可以创建链表结构；
+Vector类可以创建线程同步的动态数组；
+HashMap类可以创建键值对集合
+
+Collection: size() isEmpty() clear() add() remove() contains() equals() iterator() toArray()...
+    List:
+        size() isEmpty() clear() add() remove() set() indexOf() get() contains() iterator()...
+        ArrayList --可变长的对象数组(动态数组),线性存储
+        LinkedList --双链表实现
+        Vector -- 与ArrayList一样,不过Vector是线程同步的
+    Set:     离散存储,不充许重复元素.
+        size() isEmpty() clear() add() remove() contains() equals() iterator() ...
+        HashSet --
+
+Map:
+    size() isEmpty() clear() put() remove() get() containsKey() contatinsVaule() keySet() values() ...
+    HashMap -- 哈希键值对, 键不可重复 
+    Hashtable -- 与HashMap类似,不过Hashtable是线程同步的
+
+
+Iterator:
+    hasNext() next() remove()
+    //遍历
+    Iterator itr = collection.iterator();
+    while(itr.hasNext()){
+        E e = it.next();
+    } 
+
+    //遍历
+    for(E e : collection){
+        e.xxx;
+    }
+
+    如:
+    Vector<String> v = new Vector();
+    v.add("a"); v.add("b");
+    for(String str : v){
+        System.out.println(str);
+    }
+
+HashMap在遍历过程中移除元素
+    for (Iterator<Map.Entry<Integer, User>> iter = num2user.entrySet().iterator(); iter.hasNext();){
+        Map.Entry<Integer, User> item = iter.next();
+        if(item.getValue()==XXX){//判断元素是否符合删除条件
+            iter.remove();
+        }
+    }
+
+
+
+流操作2:
+字节流:
+    8位通用字节流,以字节为单位.在java.io包中,一般继承于InputStream和OutputStream
+字符流:
+    16位unicode字符流,以字符为基本单位,适合处理字符串和文本,大部分继承于Reader和Writer.
+读/写字节文件:
+    FileInputStream类和FileOutputStream类
+读/写字符文件:
+    FileReader类和FileWriter类配合BufferedReader类和BufferedWriter类
+控制台接受输入:
+    InputStreamReader+BufferedReader类
+读/写数据文件:
+    DataInputStream类和DataOutputStream类
+
+
+InputStream     InputStreamReader     BufferedReader 
+FileInputStream     FileReader     DataInputStream(需要配合字节流) 
+FileOutputStream     FileWriter     DataOutputStream(需要配合字节流)
+ByteArrayInputStream ByteArrayOutputStream
+
+有封装关系的流,被依赖的流要后关.
+
+java输出流会自动创建文件,但不会创建目录. 
+
+垃圾回收只会回收new出来的堆区内存,不会为我们关闭流.所以打开流要记得关闭.
+
+
+
+
+事件处理:
+    1.在事件源上加载监听器
+    2.实现事件监听类
+    3.实现事件业务逻辑方法
+    --充分利用MyEclipse的代码生成功能
+void addXXXListener(YYYListener e)
+
+
+事件监听:
+    1. 外部类
+    2. 适配器模式
+    3. 内部类
+    4. 匿名内部类
+    5. 继承并实现 
+
+JTable的列标题不显示的问题:
+    1: 将JTable放入JScrollPane中即可.  jsp = new JScrollPane(jtab);
+    2: 使用JTableHeader
+
+JPanel的布局问题:
+    1: 可以指定布局管理器. 要想不使用布局,需要传入null参数(此时将使用绝对坐标定位).
+    2: 无参构造默认使用FlowLayout
+
+
+
+
+GUI 
+    -- 包 java.awt, java.awt.event,　javax.swing
+    AWT(Abstract Window Toolkit)        
+    Swing    
+    布局管理器
+
+java的窗体默认不可见。
+
+
+alignment: left center right bottom top 
+orientation: horizontal vertical 
+layoutManager: flow border gridl
+gap间隙 panel面板　dimension尺寸　component组件　frame框架
+
+区域:北north     南south     东east         西west      中center
+　　page_start  page_end    line_start  lint_end 
+before  after first last begins  ends
+opaque不透明　
+         panel     label     button    checkBox    comboxBox     DateTimePicker
+简写:    pnl       lbl       btn       chk         cmb           dtp 
+
+
+
+java.net:
+    InetAddress
+    Socket
+    ServerSocket
+
+IP地址: 32bit  网络地址+主机地址
+    五类地址:
+      网络地址                   主机地址
+    位:0 .... 7   8 ...  15  16 ..  23  24 ..  31
+    A: 0------- | --------   --------   --------    0-127.xxx.xxx.xxx
+    B: 10------   -------- | --------   --------  128-191.xxx.xxx.xxx
+    C: 110-----   --------   -------- | --------  192-223.xxx.xxx.xxx
+    D: 1110----   --------   --------   --------  224-238.xxx.xxx.xxx
+    E: 11110---      --------   --------   --------  239-255.xxx.xxx.xxx
+
+
+端口号: 16bit
+    1024以下保留
+
+
+java.net.InetAddress:
+    static InetAddress getByName(String host)  host可以是点分十进制IP,域名,主机名
+    static InetAddress getLocalHost()
+    static InetAddress getByAddress(byte[] address)
+    static InetAddress[] getAllByName(String host)
+    ...
+
+
+Socket: IP+端口
+    套接字起到通信端点的作用.
+    IP--标识主机, 端口--标识程序
+
+java.net.Socket:
+    用于创建套接字对象
+    Socket(InetAddress address, int port)
+    Socket(String hostName, int port)
+    ...
+    InputStream getInputStream()
+    OutputStream getOutputStream()
+    void close()
+
+    InetAddress getInetAddress()  --返回与当前套接字连接的远程主机的InetAddress对象
+    int getPort() --返回与当前套接字连接的远程主机端口
+
+
+
+java.net.ServerSocket:
+    用来创建服务器套接字，它监听本地或远程客户程序通过公共端口的连接
+    ServerSocket(int port)
+    Socket accept()
+
+
+
+Socket编程:
+    编写服务器端程序:
+        1.创建一个服务器套接字(ServerSocket),绑定到指定端口.
+        2.调用accpept方法,监听客户端请求.接受连接返回通信套接字(Socket)
+        3.调用Socket的getInputStream()和getOutputStream()获取输入/输出流. 进行数据传输
+        4.关闭通信套接字, 关闭服务器套接字
+    
+    编写客户端程序:
+        1.创建一个套接字(Socket),向服务器的监听端口发出连接请求
+        2.与服务器正确连接后,调用Socket的getInputStream()和getOutputStream()获取输入/输出流. 进行数据传输
+        3.关闭通信套接字
+
+
+一切皆是文件, 网络操作也是一种IO操作.
+scoket使用的是字节流(效率高). 为了方便我们可以先将字节流转换成字符流,再进行操作.
+
+    字节流            字符流                 缓冲    
+InputStream  -> InputStreamReader   -> BufferedReader  (一层层的依赖)
+如: 
+    InputStream is = socket.getInputStream();
+    InputStreamReader isr = new InputStreamReader(is);
+    BufferedReader in = new BufferedReader(isr).
+
+java.io.PrintWriter
+    可以将字节流转化成字符流输出.
+    PrintWriter(OutputStream out)
+    PrintWriter(OutputStream out, boolean autoFlush)
+    PrintWriter(Writer out)
+    PrintWriter(Writer out, boolean autoFlust)
+    PrintWriter(File file)
+    void flush()
+
+Socket进行通信时,发送端与接收端要对应. 当发送端发送byte时,接收也要是byte的.
+
+
+
+网络模型:
+
+                应用层 --HTTP/SMTP..
+应用层  ----    表示层
+                会话层
+        
+传输层  ----      传输层 --TCP/UDP..
+        
+网际层            网络层 --IP
+        ----
+网络接口层        链路层 --ARP..
+                物理层 --硬件
+
+
+
+UDP套接字:
+    DatagramSocket
+
+
+配置文件操作:
+    Properties类
+
+
+
+附:
+equals() & hashCode():
+/**
+     * * 使用自定义类作为HashTable的key时，需要注意的问题 ---重写equals()和hashCode() .(**对于HashSet等也就遵守这个规定*)
+     * public int hashCode()返回该对象的哈希码值。支持此方法是为了提高哈希表（例如 java.util.Hashtable 提供的哈希表）的性能。
+     * hashCode 的常规协定是:
+     * 在 Java 应用程序执行期间，在对同一对象多次调用 hashCode
+     * 方法时，必须一致地返回相同的整数，前提是将对象进行 equals
+     * 比较时所用的信息没有被修改。从某一应用程序的一次执行到同一应用程序的另一次执行，该整数无需保持一致。 如果根据 equals(Object)
+     * 方法，两个对象是相等的，那么对这两个对象中的每个对象调用 hashCode 方法都必须生成相同的整数结果。 如果根据
+     * equals(java.lang.Object) 方法，两个对象不相等，那么对这两个对象中的任一对象上调用 hashCode 方法不
+     * 要求一定生成不同的整数结果。但是，程序员应该意识到，为不相等的对象生成不同整数结果可以提高哈希表的性能。 实际上，由 Object 类定义的
+     * hashCode 方法确实会针对不同的对象返回不同的整数。（这一般是通过将该对象的内部地址转换成一个整数来实现的，但是 JavaTM
+     * 编程语言不需要这种实现技巧。） 返回: 此对象的一个哈希码值。
+
+     
+     * 为了成功地在哈希表中存储和获取对象，用作键的对象必须实现 hashCode 方法和 equals 方法。
+     * 两个不同的引用(如b1,b2)对于HashTable而言可能是表示相同的key。 只要作为key的两个对象 的
+     * hashCode()和equals()相等。 如:b1, b2; 它们虽然是不同对象的引用，
+     * 但是由于b1.hashCode()==b2.hashCode()且b1.equals(b2)为true. 所以将它们作为key,
+     * put到HashTable中时， HashTable将它们当作同一个key. ---这个符合情理的:
+     * 两个对象相等(equals)时，它们理应对应同一个key。
+     * 当你只重写了equlas()而没有重写hashCode()时，它们只是"假的相等".
+     * 
+     * 假如Integer没有重写hashCode()。 那么如下代码将发生什么问题:
+     * Hashtable<Integer, String> ht  = new Hashtable<Integer, String>();
+     * ht.put(1, "111");  //ht中将添加一个键值映射
+     * 
+     * ht.put(1, "222");  //ht中将添加另一个键值映射，而是修改上一个键值映射。 因为没有重写hashCode()，而使用了Object的hashCode()--基于内部地址生成的。两次put时自动装箱产生不同的Integer(内部地址不同)。 
+     * ht.get(1);//--将无法获取到数据。因为自动装箱将产生另一个不同的Integer作为key.
+     * 重写hashCode()可以生成基于非地址的hashCode()， 来满足自定义key的需求。 
+     */
+
+
+接口(interface):
+      1.接口不能实例化 
+      2.接口所有方法皆abstract
+      3.接口所有成员皆public，接口被接口继承（extends），也可以多继承(extends A,B)
+      4.类可以实现(implements)多接口
+      5.接口中的所有属性皆静态常量 public static(静态) final(常)
+      6.接口是强制性规范
+
+异常:
+      try    监视  
+      catch    捕获    
+      finally    最后（可选项）  一定会执行的
+      throw    抛出  手工抛出异常 （引发）
+      throws    抛出  向上（上指的是调用者）抛出异常
+      exception    异常
+      error    错误
+      instanceof 如有该实例化
+
+class Student{
+    private String name;
+    private int age;
+ 
+    ...
+}
+
+Student stu = new Student();
+引用:指向对象     stu就是对象的引用，可以指向其他对象或null    
+对象:类的实例化   new Student();产生的就是对象   可以有多个引用 stu1 = stu2 = stu;
+
+Object:所有类的最终父类
+Class类:所有类的类，所有类都是Class的对象
+
+Class c1 = stu.getClass();
+Class c2 = Student.class;
+Class c3 = Class.forName("java.lang.StringBuffer");
+
+Student s1 = new Student("MM",21);
+Class c = s1.getClass();
+
+/*************************类的反射*****************************/
+Field f = c.getDeclaredField("name");   //获取类字段
+Object o= c.newInstance();              //类实例化
+f.setAccessible(true);            //可更改
+f.set(o,"ZMM");                //重新赋值
+
+方法中有横杆说明方法已过时
+
+java.util包:
+Date
+Calendar
+Random
+实现Collection接口的类:
+LinkedList    双链表  频繁增删操作
+ArrayList    数组    频繁查找
+Vector        与ArrayList类似，可同步进行，线程安全
+
+HashMap<K,V>    键值对形式存储，未实现Collection接口,K是Set集合，V是Collection集合
+Iterator    迭代器  
+    Iterator<E> it = collection.iterator(); 
+    it.hashNext 返回下一节点是否存在
+    it.next()返回下一节点，并更新头结点    
+
+Set        内存中不连续，是接口 
+
+for(String s: col)    //foreach 映射 : 集合   col无泛型映射，为Object
+
+HashTab        与HashMap类似，线程同步，线程安全
+
+
+java.util.ArrayList数组
+ArrayList<泛型> array = new ArrayList<泛型>();    //泛型可以是所有的数据类型及类
+
+/**************************************************************************/
+9 异常处理   设计手机         --> 作业.avi java语法应用及面向对象思想  
+12 ArrayList 石头剪刀布小游戏 --> 作业.avi 面向对象思想及数学化实例应用
+/**************************************************************************/
+
+File    //文件或目录。文件存储的最小单位是簇，占8个扇区，1个扇区521字节，所以文件最小占用空间大小为4KB
+File file = new File("aaa/bbb");
+file.mkdirs();    //创建目录，多级目录的话用mkdirs,单级目录用mkdir
+file.delete();    //删除文件/目录（一次只能删除一个文件），若目录下有文件，需要先删除所有文件
+
+流:字节流和字符流。所有的IO流不会被被垃圾回收，所以流需要手动关闭
+  字节流:8位二进制 InputStream(字节输入流)，OutputStream(字节输出流)
+    FileInputStream    文件输入流，不自动创建文件    .read()读取一个字节 .read(byte[10])一次读取10字节
+    FileOutputStream    文件输出流，自动创建文件(但不创建目录)     .write()写一个字节或字节数组 .write(byte[],index,len)
+
+    BufferedInputStream  带缓冲区的字节输入流
+    BufferedOutputStream 带缓冲区的字节输出流
+
+  字符流:16位二进制，Unicode字符流 Reader(字符读取流)  Writer(字符写入流)
+    FileReader    fr.read()与FileInputStream类似，不过读取的是char型数据
+    FileWriter    fw.write()与FileOutputStream类似
+
+    BufferedReader br = new BufferedReader(fr); 带buffer的字符读取流    br.readLine();//读取一行，但不读取换行符
+    br.make((int)f.length());//回滚长度
+    br.reset();         //回滚         可实现重复读取,但文件缓存中的内存不会释放
+    BufferedWriter bw = new BufferedWriter(br); bw.newLine()//增加换行符 只有在close 
+
+   转换流: InputStreamReader 输入字节流转换为输入字符流
+       OutputSteamWriter 输出字节流转换为输出字符流
+
+   数据流: 继承于InputStream 或 OutputStream，用于传输数值类型（int long char float double ...）
+    DataOutputStream dos = new DataOutputStream(new FileOutputStream(new File("file")));
+    写入文件:dos.writeInt dos.writeDouble dos.writeFloat
+    DataInputStream dis = new DataInputStream(new FileInputStream(new File("file")));
+    读取文件:dis.readInt dis.readDouble dis.readFloat
+
+   对象流:继承于InputStream 或 OutputStream 
+    ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File("file")));
+        oos.writeObject(object); 此时object对象需要实现接口 Serializable(窄接口--空接口，无要实现的方法) 实现序列化
+         例:public class Hero implements Serializable{
+            private String name;
+            private transient float mp;//若不想此成员加入传输，需加入关键字transient 
+        }
+    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File("file")));
+
+   容器流:存储二进制值 
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    DataOutputStream dos = new DataOutputStream(baos);
+    dos.writeInt(12);//向数据流中写入数据
+    byte []by = baos.toByteArray();//将数据流传入容器
+    ByteArrayInputStream bais = new ByteArrayInputStream(byte[] b);
+    DataInputStream dis = new DataInputStream(bais);
+    a = dis.readInt();
+    bais.available();获取流中还存在的字节个数
+
+   打印流:输出流
+    PrintStream  字节流
+    PrintStream ps = new PrintStream(new FileOutputStream(new File("file"),true),false);//true newLine ,false autoFlush
+    PrintWriter  字符流，带转换流，可转换字节流为字符流
+
+窗口上压面板，面板上压控件
+
+
+Class类:
+    Class类描述java类的元信息.--类的名字,类我包名,成员...
+    Class类的构造是private的.
+    获取Class类的对象的方法:
+        1. ClassName.class(类名.class)   Eg: String.class
+        2. 对象名.getClass()    Eg: new String().getClass()
+        3. 使用Class的forName()方法        Eg: Class.forName("java.lang.String")
+
+    查看是否为原始数据类型字节码--isPrimitive()
+
+通过Class类对象来产生某个类的实例时,使用newInstance()方法:--依据类的无参构造来实例化
+如:
+class c = Class.forName("java.lang.String");
+Object o = c.newInstance(); //产生一个String的实例
+//String str = (String)c.newInstance();
+
+
+
+
+反射的概念:
+    将一个类中的各个组成部分映射成某一个类的对象.
+    常用的类:
+        Package
+        Field    --提供有关类中的成员属性的信息,及它的动态访问权限
+        Method  --提供有关类中的成员方法的信息,及它的动态访问权限
+        Constructor
+
+Field:
+    获得Field的方法:--通过Class类的成员方法
+        //获取public属性(包括继承的)
+        Field getField(String name)
+        Field[] getFields()
+
+        //获取本类的属性(包括本类非public属性, 但不包括继承的属性)
+        Field getDeclaredField(String name)
+        Field[] getDeclaredFields()
+
+    操作字段: --通过AccessibleObject类(Field的父类)的方法
+        Object get(Object obj)
+        void set(Object obj, Object value)
+        static void setAccessible(AccessibleObject[] array, boolean flag)
+
+Method:
+    获得Method的方法: --通过Class类的成员方法
+        Method getMethod(String name, Class... parameterTypes) 
+        Method[] getMethods() 
+        Method getDeclaredMethod(String name, Class... parameterTypes) 
+        Method[] getDeclaredMethods()
+
+    调用方法: --Method类的成员方法
+        invoke(Object obj, Class... parameterTypes) //以指定的参数列表调用方法
+        getReturnType() --获取返回类型
+        static void setAccessible(AccessibleObject[] array, boolean flag)
+
+
+Constructor: --通过Class类的成员方法
+    获取Constructor:
+        Constructor getConstructor(Class... parameterTypes)  //以指定的参数列表调用构造
+        Constructor[] getConstructors() 
+        Constructor getDeclaredConstructor(Class... parameterTypes) 
+        Constructor[] getDeclaredConstructors()
+    
+    暴力反射:
+        static void setAccessible(AccessibleObject[] array, boolean flag)
+
+    执行构造: --通过Constructor类的成员方法
+        Constructor newInstance(Object... initargs)
+
+
+
+利用反射可以动态的创建类的对象:
+    Class c = null;
+    try{
+        c = Class.forName("cn.com.Student");
+        Field f  = c.getField("stuNo"); //可通过getField()获得public属性
+        
+        //通过Class的newInstance()产生某字节码的对象
+        Object o = c.newInstance();
+        
+        f.set(o, "s001");//将o对象的f指示的字段设置为"s001"
+        System.out.println(f.get(o, "stuNo"));
+        System.out.println(((Student)o).getStuNo());
+    }catch(...){
+        
+    }
+
+    //-----
+    Class c = null;
+    try{
+        c = Class.forName("cn.com.Student");
+        
+        //通过Class的newInstance()产生某字节码的对象
+        Object o = c.newInstance();
+
+        Field[] fs  = c.getFields(); //可通过getFields()获得所有public属性
+        //Field[] fs = c.getDeclaredFields(); //获取本类的所有属性
+
+        //设置所有字段
+        for(Field f : fs){
+            String data = input(); //外部输入
+            Class type = f.getType();
+            if(type == int.class){
+                f.set(o, new Integer(data));
+            }else if(type == xxx){
+                ...
+            }
+        }
+
+    }catch(...){
+        
+    }
+
+    Class getSuperclass() --获取父类的Class
+
+
+
+
+在java中实现多线程:
+    1. 继承java.lang.Thread类  --- 并重写run方法(有点类似QThread), 或指定Runnable参数
+    2. 实现java.lang.Runnable接口. ---将实现Runnable接口的类对象作为Thread的构造参数.创建一个线程
+
+Thread:
+    static Thread currentThread()
+    static void sleep(long millis)
+    static void sleep(long millis, int nanos)
+    static void yield() //暂停当前正在执行的线程,转而执行其他线程
+    static boolean interrupted() //判断当前线程是否已经中断
+
+    Thread()
+    Thread(String name) //指定别名
+    Thread(Runnable target) //线程将运行target对象的run方法.
+    Thread(Runnable target, String name)
+    start()   //启动线程
+    setName()
+    setPriority(int newPriority)
+
+
+当创建的线程类不需要继承其他类时, 使用继承Thread类的方式创建线程即可.
+当创建的线程类需要继承其他类时, 则不能通过继承Thread类的方式创建线程(java不能多继承),这时可以采用实现Runnable接口的方式来创建线程.
+Runnable解决了Java不能多继承的问题.
+
+
+
+
+线程的生命周期和线程状态:
+    void join()
+    boolean isAlive()
+    viod interrupt()
+
+    sleep()和yield()都会使当前处于运行状态的线程放弃CPU.两者的区别是:
+    1.执行sleep后,线程转入睡眠状态,而执行yield后线程转入就绪状态.
+    所以执行sleep后低优先级的线程也可以得到运行,而执行yield后只会让相同或更高优先级的线程运行(包括它自己--因为它是就绪态).
+    2.sleep方法可能抛出异常,yield不抛出异常
+    一般情况下建议使用sleep方法.
+
+    join()方法用于等待其它线程结束.
+
+
+
+
+
+后台线程: Daemon
+    void setDaemon(boolean on)  --只有在线程启动之前调用才有效
+    boolean isDaemon() 
+    由前台线程创建的线程是前台线程,由后台线程创建的线程是后台线程.
+
+
+
+
+
+线程同步与死锁: Synchronized
+    public synchronized void  func(){           
+            ....                        
+    }
+    等价于
+    public void func(){
+        synchronized(this){
+            ...
+        }
+    }
+    即以当前对象为参考,锁住方法体. (--进入方法时加锁,离开方法时解锁)
+
+
+    在方法体中使用synchronized可以锁住局部代码块.
+    public void function(){
+        synchronized(Object){//对代码块加锁
+            ...
+        }
+        ...
+    }
+
+
+??? 问题:
+class MyClass{
+    public void func1(){
+        synchronized(this){
+            ...
+        }
+    }
+    
+    public void func2(){
+        synchronized("abc"){
+            ...
+        }
+    }
+}
+请问: synchronized(this)与synchronized("abc")有什么区别.
+-- synchronized(Object obj)表示以obj对象为参考来进行同步.
+this与MyClass的具体对象相关, 而"abc"是常量.
+如:
+MyClass m1 = new MyClass();
+MyClass m2 = new MyClass();
+当以this为参考时, m1与m2之间不会同步,因为它们是两个不同的对象.
+当以"abc"为参考时, m1与m2之间会同步, 因为"abc"是一个常量对象(在内存中是唯一的), 无论对于MyClass的哪个对象而言,"abc"是固定不变的.
+
+
+
+同一个synchronized参考对应同一把锁:(参考同一个对象的所有synchronized对应同一把锁)
+如:
+class MyClass{
+
+    public synchronized void func0(){
+        ...
+    }
+    public void func1(){
+        synchronized(this){
+            ...
+        }
+    }
+
+    public void func2(){
+        synchronized(this){
+            ...
+        }
+    }
+
+
+    public void func3(){
+        synchronized("abc"){
+            ...
+        }
+    }
+}
+MyClass中的func0,func1和func2中的synchronized都是参考this来进行锁操作的, 所以它们对应同一把锁. 但它们与func3不是用同一把锁.
+
+
+
+
+
+
+
+
+     
+java编译错误记录:
+    1. 错误: 编码 GBK 的不可映射字符 (0x80)
+    ----此问题由编码问题引起。
+        解决方法: javac -encoding UTF-8  *.java
+
+    2. 错误: 非法字符: '\ufeff'
+    ----此问题由UTF-8的BOM头引起。
+        解决方法: 以无BOM的UTF-8另存为即可。
+        具体做法: 在sublime text编辑器中通过 文件--> 保存编码 --> UTF-8 即可解决
+
+    3. javac
+        3.1 指定生成的.class文件存放目录: -d dir_path  (实际上的存放目录还与源文件中的package指定的路径有关)
+        3.2 指定.java源文件的存放目录:  -s <directory>  
+
+    4. java
+        4.1 如何运行指定目录下的.class程序.
+            --默认情况下在当前文件下查找, -cp 指定查找目录.
+
+    5. Address already in use: JVM_Bind
+        --端口已经被占用
+
+
+

@@ -1,0 +1,240 @@
+ODBC: open database connectivity
+JDBC: java database connectivity
+
+
+
+JDBC四种驱动类型:
+	JDBC-ODBC驱动
+	纯Java驱动
+	本地API驱动
+	JDBC网络纯Java驱动
+
+
+不论采用哪种驱动方式, 在程序中对数据库的操作方式基本相同,只是加载不同的驱动程序而已.
+
+
+java.sql包
+	一些接口:
+		Connection 连接对象, 用于与数据库取得连接
+		Driver 用于创建连接对象
+		Statement 语句对象,用于执行SQL语句,并将数据检索到结果集(ResultSet)对象中
+		PreparedStatement 预编译语句对象,用于执行预编译的SQL语句,执行效率比Statement高
+		CallableStatement 存储过程语句对象,用于执行存储过程
+		ResultSet 结果集对象,包含执行SQL语句后返回的数据
+
+	一些类:
+		SQLException 数据库异常类,是其它JDBC异常类的根类
+		DriverManager 驱动程序管理类, 用于加载和卸载各种驱动程序，并建立与数据库的连接
+		Date 该类中包含有将SQL日期格式转换成Java日期格式的方法
+		TimeStamp 时间戳
+
+
+以JDBC-ODBC桥驱动方式为例,描述如何访问数据库:
+1. 建立ODBC数据源
+	[windows开始菜单] --> [设置] --> [控制面板] --> [管理工具] --> [数据源(ODBC)] -> ...
+2.加载驱动程序(使用Class类的forName方法,加载驱动程序类到JVM
+	Class.forName("sun.jdbc.odbc.JdbcOdbcDricer"); //对于使用JDBC-ODBC桥的驱动方式，应加载JdbcOdbcDriver类
+3.使用DriverManager类的静态方法getConnection()来获得连接对象.
+	//static Connection getConnection(String url, String user,String password) throws SQLException
+	//url:连接字符串，user:数据库用户名，password:登录口令，成功连接到数据库返回Connection对象，连接失败则抛出SQLException异常，必须捕捉.
+	//url串的一般形式为 "jdbc.odbc:数据源名称"
+	Connection con = DriverManager.getConnection("jdbc:odbc:myODBC", "scott", "tiger");
+4.通过Connection对象的createStatemente()方法来创建语句对象,以执行SQL语句
+	Statement sta = con.createStatement();
+5.执行SQL语句
+	a. 执行不返回结果的操作语句(如: delete, update, instert), 使用Statement对象的executeUpdate()方法
+		int affect_row = sta.executeUpdate("INSERT INTO user VALUES('田七', '男', to_date('1994-04-12', 'yyyy-mm-dd'), '重庆')");
+	b. 执行返回结果集的查询语句(select), 使用Statement对象的executeQuery()方法.
+		ResultSet rs = sta.executeQuery("SELECT * FROM user");
+6.关闭资源
+	当对数据库的操作结束后，应当将所有已经被打开的资源关闭，否则将会造成资源泄漏；
+	注意关闭的顺序, 先打开的资源后关闭.
+
+
+数据库操作示例:
+import java.sql.*;    //导入java.sql包
+public class JDBCDemo {
+  public static void main(String[] args) {
+    String strCon = "jdbc:odbc:myODBC";  //连接字符串
+    String strUser = "scott";               //数据库用户名
+    String strPwd = "tiger";                  //口令
+    System.out.println("正在连接数据库...");
+
+    Connection con = null;
+     Statement sta = null;
+    try {  //监控异常
+      Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");  //加载驱动程序
+      
+      //获得连接对象
+      con = DriverManager.getConnection(strCon, strUser, strPwd);
+      System.out.println("成功连接到数据库。");
+      sta = con.createStatement();    //创建语句对象
+      //执行SQL语句
+      String strSql = "DELETE FROM user WHERE [Name] = '郑六'";
+      int count = sta.executeUpdate(strSql);
+      System.out.println("成功删除" + count + "行数据。");
+      
+    } catch (ClassNotFoundException cnfe) { 
+    	cnfe.printStackTrace(); 
+    }  catch (SQLException sqle) { 
+    	sqle.printStackTrace(); 
+    } finally{
+      //关闭所有已经打开的资源
+      if(sta != null)
+      	sta.close(); 
+      if(con != null)
+      	con.close();    
+    }
+}
+
+
+
+操作结果集: (执行select查询后的结果集用ResultSet对象保存)
+	boolean next() 结果集游标下移一行, 已经到达结果集末尾时返回false
+	X getX(String colnumName) 获取字段值
+	X getX(int clonumIndex) 获取字段值(字段索引从1开始) 
+
+结果集操作示例:
+public class QueryDemo {
+	public static void main(String[] args) {
+		String strCon = "jdbc:odbc:myODBC";  //连接字符串
+		String strUser = "scott";               //数据库用户名
+		String strPwd = "tiger";                  //口令
+		System.out.println("正在连接数据库...");
+
+		Connection con = null;
+		Statement sta = null;
+		ResultSet rs = null;
+		try {  //监控异常
+			Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");  //加载驱动程序
+
+			//获得连接对象
+			con = DriverManager.getConnection(strCon, strUser, strPwd);
+			System.out.println("成功连接到数据库。");
+			sta = con.createStatement();    //创建语句对象
+
+
+			//执行SQL语句
+			rs = sta.executeQuery("SELECT * FROM user");
+			System.out.println("查询到数据如下：");
+			while (rs.next()) {        //循环将结果集游标往下移动，到达末尾返回false
+				//根据字段名称获得各个字段的值
+				System.out.print(rs.getString("Name") + "\t");     //获得字符串
+				System.out.print(rs.getString("Sex") + "\t");  //获得字符串
+				System.out.print(rs.getDate("Age") + "\t");   //获得日期型数据
+				System.out.println(rs.getString("Address"));         
+			}
+		} catch (ClassNotFoundException cnfe) { 
+			cnfe.printStackTrace(); 
+		}  catch (SQLException sqle) { 
+			sqle.printStackTrace(); 
+		} finally{
+			//关闭所有已经打开的资源
+			if(rs != null)
+      			rs.close();
+			if(sta != null)
+				sta.close(); 
+			if(con != null)
+				con.close();    
+	}
+}
+
+
+
+如果要多次执行相似的SQL语句，可以使用PreparedStatemend（预编译语句对象）对象来执行；
+包含在PreparedStatement对象中的SQL语句可以带有一个或多个参数，使用“?”作为占位符，如:
+	PreparedStatement ps = con.prepareStatement("UPDATE user SET Address = ? WHERE Name = ?");
+在执行SQL语句之前，必须使用PreparedStatement对象中的setX方法设置每个“?”位置的参数值:
+	void setX(int parameterIndex, X x) //“?”的索引从1开始
+
+设置好每个参数的值之后，就可以使用PreparedStatement对象的executeUpdate和executeQuery方法来执行
+
+
+使用PreparedStatement来进行查询时,其setString()方法会自动将内容加上''号,从而可以避免SQL注入.
+例: 如何用PriparedStatement查询出名字中包含 源 字的用户.
+	QString name = "源";
+	String sql = "SELECT * FROM user WHERE LIKE ?";
+	pstm = conn.prepareStatement(sql);
+	pstm.setString(1, "%"+name+"%");
+	rs = sta.executeQuery();
+
+
+
+public class PreparedStatementDemo {
+  public static void main(String[] args) {
+    String strCon = "jdbc:odbc:myODBC";  //连接字符串
+    String strUser = "scott";               //数据库用户名
+    String strPwd = "tiger";                  //口令
+    System.out.println("正在连接数据库...");
+
+    Connection con = null;
+    Statement sta = null;
+    ResultSet rs = null;
+    try {  //监控异常
+      Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");  //加载驱动程序
+      
+      //获得连接对象
+      con = DriverManager.getConnection(strCon, strUser, strPwd);
+      System.out.println("成功连接到数据库。");
+     
+      //insert
+      String sql = "INSERT INTO user VALUES(?, ?, to_date(?, 'yyyy-mm-dd'), ?)";
+      sta = con.prepareStatement();    //创建语句对象
+      sta.setString(1, user.getName());
+      sta.setString(2, user.getSex());
+      sta.setString(3, user.getBirthday());
+      sta.setString(4, user.getAddress());
+      //执行SQL语句
+      rs = sta.executeQuery();
+
+
+	  //select
+      sql = "SELECT * user name LIKE ?)";
+      sta = con.prepareStatement();    
+      sta.setString(1, user.getName());
+      sta.setString(2, user.getSex());
+      sta.setString(3, user.getBirthday());
+      sta.setString(4, user.getAddress());
+      //执行SQL语句
+      rs = sta.executeQuery();
+      while(rs.next()){
+		System.out.print(rs.getString("Name") + "\t");     //获得字符串
+		System.out.print(rs.getString("Sex") + "\t");  //获得字符串
+		System.out.print(rs.getDate("Age") + "\t");   //获得日期型数据
+		System.out.println(rs.getString("Address"));         
+      }
+      
+    } catch (ClassNotFoundException cnfe) { 
+    	cnfe.printStackTrace(); 
+    }  catch (SQLException sqle) { 
+    	sqle.printStackTrace(); 
+    } finally{
+      //关闭所有已经打开的资源
+      if(rs != null)
+      	rs.close();
+      if(sta != null)
+      	sta.close(); 
+      if(con != null)
+      	con.close();    
+    }
+}
+		
+
+
+
+使用JDBC-ODBC桥方式连接数据库，其性能完全取决于数据源（ODBC）的性能，并且无法脱离Microsoft的平台.
+大部分DBMS产商都为自己的产品开发了纯Java的驱动程序，我们只需要加载相应的驱动，就可以直接连接到数据库，而无需通过ODBC桥连接.
+
+
+
+纯Java驱动连接Oracle:
+Class.forName("oracle.jdbc.driver.OracleDriver");
+Connection con = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:ORA", "scott", "tiger"); //连接字符串格式："jdbc:oracle:thin:@服务名或IP:1521:数据库名"
+
+
+
+
+
+
+
+

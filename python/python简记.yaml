@@ -1,0 +1,886 @@
+查看帮助:
+    help("keywords")
+    help("modules")
+    help(className)
+    help(functionName)
+    
+查看类型:
+    type(varName)
+    >>> type(1)
+        <type 'int'>
+    >>> type(1.0)
+        <type 'float'>
+    >>> type('abc')
+        <type 'str'>
+    >>> type(())
+        <type 'tuple'>
+    >>> type([])
+        <type 'list'>
+    >>> type({})
+        <type 'dict'>
+        
+    函数类型:
+        import types
+        dir(types) #列举所有的函数类型
+        
+验证变量类型:
+    isinstance(varName, str)
+验证变量是否可迭代:
+    from collections import Iterable
+    isinstance(varName, Iterable)
+    验证对象是否为某类型或其子类型: isinstance(对象, 类型)
+    验证对象是否为切片:  isinstance(var, slice)  eg: isinstance(slice(0,5,1), slice)
+    验证对象是否是"可调用"的:  callable(obj)
+    
+默认参数:
+    def funcName(args=XXX):
+        pass
+可变参数:
+    def funcName(*args):
+        pass
+关键字参数:
+    def funcName(**args):
+        pass
+命名关键字参数:
+    def funcName(*, argName1, argName2):
+        pass
+ 
+将一个list变成"索引--元素"对:
+     for i, value in enumerate(['A', 'B', 'C']):
+        pass
+
+列表推导式:
+    [x * x for x in range(n)]   生成[0,n)的平方
+    [x for x in range(n) if x%2==0] 生成[0, n)内的偶数
+生成器:
+    g = (x * x for x in range(10) if x > 5)
+自定义生成器: yield与next() 
+    函数名也是一个变量, 修改函数名的作用即修改函数名的值.
+    def func(n):
+        pass
+    abs = func  "改变abs的行为, 此后abs不再是求绝对值, 而是与func函数一样"
+    
+    为了在其它模块中生效:
+        import builtins; 
+        builtins.abs = func
+    
+    
+map()对序列的每个元素执行某个操作:
+    map(f, [x1, x2, x3, x4]) <==> [f(var) for var in list]
+reduce()把序列前两个元素的操作结果作为与第三个元素操作的操作数:
+    reduce(f, [x1, x2, x3, x4]) <==> f(f(f(x1, x2), x3), x4)
+filter()对序列元素进行过滤:
+    l = filter(lambda n: n%2==1, [1, 2, 4, 5, 6, 9, 10, 15]) #从列表中取出奇数
+sorted()函数按关键字参数key进行排序:
+    sorted([36, 5, -12, 9, -21], key=abs) #对列表按绝对值进行排序
+
+
+闭包:
+    函数可以嵌套定义, 嵌套定义的函数可以使用外层函数中定义的变量.
+    外层函数中定义的变量在嵌套函数的整个生命周期中均可用, 但其作为范围又被限制在外层函数中,
+    不会对外层的范围产生影响. 这样就相当于存在一个长期有效,但范围受限的变量, 这个变量很适合
+    用于控制嵌套函数的状态.
+    注意!!!:嵌套的函数使用外层函数中的变量时, 其值是在运行时获取的.
+    为了避免出现问题,在嵌套函数中使用的外层变量最好只在嵌套函数中进行更改.
+        
+    def count():
+        initVar = 1
+        def inc():
+            initVar += 1
+            return initVar-1
+        return inc
+
+    f = count()
+    f() #1
+    f() #2
+    
+    不好的例子:
+    def bad_eg():
+        fs = [] 
+        for i in range(1, 3):
+            fs.append(lambda: -1*i) #注意:这里加入到fs列表中的是(无参的)函数,而不是函数调用的结果;
+            # 内层的lambda函数在运行过程中才会从外层获取i的值. fs == [f1, f2] 
+        return fs
+    l = bad_eg()
+    l[0]() #-2 调用fs中的lambda函数时,i取值为2
+    l[1]() #-2
+    #你可能觉得结果应该是是-1,-2. 但是结果-2,-2是正确的.
+    #原因是, 加入fs中的匿名函数在执行时才从其外层函数bad_eg中获取变量i的值, 
+    #而此时bad_eg中的循环已经结束了,循环变量i的值为2
+    
+匿名函数(lambda):
+    lambda argsList : expression
+    相当于:
+    def name(argsList):
+       return expression
+
+
+装饰器:
+    import functools
+    
+    def log(func):
+        @functools.wraps(func)       #将被装饰函数(func)的一些属性复制到装饰函数(wrapper)中
+        def wrapper(*args, **kw):
+            ...执行定制操作...
+            return func(*args, **kw)
+    return wrapper
+
+    @log         #用log来对myfunc进行装饰   --> 之后调用myfunc()相当于调用wrapper()      
+    def myfunc():
+        pass
+        
+偏函数:
+    偏函数即对某个函数的某个关键字参数进行定制而生成一个新的函数.
+    import functools
+    int('12345') #--> 12345   说明:int()函数的base参数默认为10, 将字符串按照十进制转换为整数.
+
+    int2 = functools.partial(int, base=2) #对int()函数的base参数的默认值定制为2, 而产生一个新的函数.
+    int2('1010') #--> 10
+
+
+模块:
+    一个.py文件即一个模块(文件名即为模块名). 不同模块中同名的变量不冲突.
+    例外: __init__.py的模块名不是文件名,而是其所在的目录名
+包:  
+   包含__init__.py文件的目录即是一个包. 不同包中的同名模块不冲突.
+   包名也是一个模块,对应目录下的__init__.py文件.
+   
+   引用一个模块:   
+        包名.模块名
+
+    
+一个.py文件示例:    
+    #!/usr/bin/env python3  #可以使py文件直接在Unix/Linux/Mac上运行
+    # -*- coding: utf-8 -*-    #表示.py文件本身使用标准UTF-8编码
+    'a test module' #任何模块代码的第一个字符串都被视为模块的文档注释
+    __author_ = 'GJY'   #使用__author__变量把作者写进去
+    import sys    #导入sys模块
+    def test():
+        args = sys.argv #sys模块有一个argv变量，用list存储了命令行的所有参数--与C的main的参数类似
+        if len(args) == 1:
+            print('Hello world!')
+        elif len(args) == 2:
+            print('Hello, %s!' % args[1])
+        else:
+            print('Tool many arguments!')
+
+    if __name__ == '__main__':  #从当前模块运行时该条件成立, 从其它模块导入该模块时该条件不成立
+        test()
+       
+
+    　
+作用域:
+    特殊变量: __varName__
+    私有变量: __varName   #在模块中是约定私有; 在calss中是实际私有, python会修改实际的名称(改为_ClassName__varName)
+              _varName    #约定私有
+
+导入模块:
+    导入模块：import moduleName #相当于导入了整个.py文件
+        使用模块中的函数:   moduleName.funcName() 
+    导入模块中的特定函数:  from moduleName import funcName    
+        使用模块中的函数: funcName()
+    
+    
+    
+通过pip安装第三方模块:
+    pip install moduleName
+    
+    
+    
+    
+模块搜索路径:    
+    默认情况下python会搜索当前目录,所有已安装的内置模块和第三方模块.
+    添加自己的搜索路径:
+        1.  import sys
+            sys.path.append('/Users/michael/my_py_scripts')
+            这种方法是在运行时修改，运行结束后失效
+        2.  设置环境变量PYTHONPATH
+
+
+
+面向对象编程(OOP):
+    类属性,对象属性, 类方法, 对象方法:
+    def test():
+        pass
+
+    class MyClass(object):
+        _filed1 = "haha"  # 类属性(定义在类中) --所有MyClass对象共享该属性
+
+        def __new__(cls):
+            cls.cls_filed2 = "hehe"  # 类属性(在__new__中通过cls参数定义)
+            return object.__new__(cls)
+
+        def __init__(self):
+            self.obj_filed1 = 22  # 对象属性, 对象特有(但是因为这个属性定义在__init__中,因为所有对象都会拥有这个属性)
+            var = "局部变量"  # 局部变量
+
+        def func(self):
+            print(self)
+
+        @classmethod
+        def class_func(cls):  # 类方法
+            print(cls)
+
+        @staticmethod
+        def static_func():  # 静态方法
+            pass
+
+    a = MyClass()
+    a.obj_filed2 = 11  #为对象a添加一个对象属性
+    a.obj_func2 = test #为对象a添加一个对象方法
+    print(dir(MyClass))
+    print(dir(a))
+
+    a.func()
+    MyClass.class_func()
+    a.class_func()
+
+    b = MyClass()
+    b.func()
+    MyClass.class_func()
+    b.class_func()
+    
+    print(MyClass.func, MyClass.class_func, MyClass.static_func)
+    print(a.func, a.class_func, a.static_func)
+    MyClass.func("hehe")  #通过类名调用普通成员时,与调用全局函数类似
+    区别： 
+    • 类方法和静态方法由所有类的实例所共享。类实例方法由每个实例所独享，每个实例都有它的一个副本。
+    • 类方法的隐含调用参数是类，而类实例方法的隐含调用参数是类的实例，静态方法没有隐含调用参数。（隐含参数即方法的第一个函数，所以使用时不需要显式传入）
+    
+
+
+
+    继承:
+    from types import MethodType
+    
+    class Person(object):
+        def __init__(self, name):
+            self.name = name
+            
+        def show(self):
+            print("name=", self.name)
+
+    class Student(Person):
+        def __init__(self, name, score):
+            Person.__init__(self, name)
+            self.score = score
+
+        def show(self):
+            print("name=", self.name, "score=", self.score)
+
+    class Teacher(Person):
+        def __init__(self, name, course):
+            Person.__init__(self, name)
+            self.course = course
+
+        def show(self):
+            Person.show()
+            print("course=", self.course)
+
+    s = Student('ggg', 88)
+    s.show()
+    bart.age = 24 #对象可以动态添加属性
+    #del bart.age  #对象也可以动态删除属性
+    
+    
+    def set_age(self, age): 
+        self.age = age
+    
+    s.set_age = MethodType(set_age, s) # 给实例绑定一个方法
+
+    #给类对象s绑定的属性和方法只对该对象起作用，对类的其他对象不起作用。要想绑定的属性或方法对类的所有对象起作用则需要绑定到类上（而不是类对象上）。
+    def set_score(self, score):
+        self.score = score
+
+    Student.set_score = set_score #为类绑定方法
+
+
+    查看对象的所有属性和方法: dir(对象名  or 类型名)
+    操作对象的属性: getattr()、setattr()以及hasattr()
+
+    python是动态语言可以动态为对象添加属性.
+    在class中定义的属性是类属性(直接通过类名来访问). 所有该类的对象共享类属性.
+    对象可以添加同名的属性来屏蔽类属性(此时通过对象访问的是对象属性, 通过类名访问的是类属性).
+    访问属性时,python先查找对象是否具有该属性, 再查找类是否具有该属性.
+    class Student(object):
+        name = "gjy"  #类属性(定义在类中) --所有Student对象共享属性
+        def __new__(cls):
+            cls.age = 24 #类属性(在__new__中通过cls参数定义)
+            return object.__new__(cls)
+
+        def __init__(self):
+            self.score = 90  #对象属性, 对象特有(但是因为这个属性定义在__init__中,因为所有对象都会拥有这个属性)
+            sex = "man"  #局部变量
+
+    s = Student()
+    s.like = "看电影"  #对象属性, s对象特有
+    print(dir(s))  # ..., name, age, score, like 
+    print(dir(Student)) #..., name, age
+    
+    s.name = "gujiayuan" #为对象s添加一个对象属性
+    print(s.name, Student.name) #"gujiayuan"  "gjy"
+    
+    o = Student()
+    print(o.name, Student.name) #"gjy"   "gjy"
+    
+    Student.name = "gsf"
+    print(o.name) #"gsf"  o对象无对象属性name,此时访问的是类属性name
+    
+
+    限制实例的属性:
+        __slots__:用于限制实例的属性
+        class Student(object):
+            __slots__ = ('name', 'age') #只能为Student的实例添加指定的属性
+        
+        注意:__slots__定义的属性仅对当前类实例起作用，对继承的子类是不起作用的
+
+通过@property和@xxx.setter来隐藏属性:
+    用@property封装类属性的get成员方法后, 在直接获取属性时将会调用对应的get方法.
+    用@score.setter封装类属性的set成员方法后, 在直接设置属性时将会调用对应的set方法.
+    通过它们可以对属性的读取和设置进行一些过滤. 因为此时直接对属性的读和写被对应的方法代理了.
+    
+    class Student(object):
+        @property
+        def score(self):
+            return selt._score
+        
+        @score.setter
+        def score(self, value):
+            if not isinstance(value, int):
+                raise ValueError('score must be an integer!')
+            if value < 0 or value > 100:
+                raise ValueError('score must between 0 ~ 100!')
+            self._score = value
+                
+        s = Student()
+        s.score = 60 #此时将调用score(self, value)成员函数
+        print(s.score) #此时将调用score(self)成员函数
+        
+        注意: @property封装的方法名 即属性名--被它封装的方法用于get该属性,
+              @xxx.setter中的xxx即它封装的方法名 也是属性名 --被它封装的方法用于set该属性, 
+              
+              
+定制类:
+    特殊变量__varName__:
+    __str__(self),   __repr__(self)
+    __iter__(self),  __naxt__(self)
+    __getitem__(self, index), __setitem__(self, index, value)          
+    __getattr__(self, attrName),   __setattr__(self, attr, value)
+    __call__()
+    
+    通过callable()函数，我们就可以判断一个对象是否是“可调用”对象          
+              
+              
+枚举:
+  1.
+    from enum import Enum
+    Month = Enum('Month', ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
+    for name, membe     r in Month.__members__.items():
+        print(name, '=>', member, ',        ', member.value)
+    --
+    Jan => Month.Jan , 1
+    Feb => Month.Feb , 2
+    Mar => Month.Mar , 3
+    ... 
+    
+  2.          
+    from enum import Enum, unique
+    @unique
+    class Weekday(Enum):
+        Sun = 0 # Sun的value被设定为0
+        Mon = 1
+        Tue = 2
+        Wed = 3
+        Thu = 4
+        Fri = 5
+        Sat = 6          
+              
+通过type动态创建类:
+    def fn(self, name='world'): 
+        print('Hello, %s.' % name)
+
+    Hello = type('Hello', (object,), dict(hello=fn)) #创建一个Hello class, 其基类为object, 并为其设置一个hello属性
+    h = Hello() #创建对象
+    h.hello()
+    
+    注意: type()即可以返回一个对象的类型，又可以创建出新的类型.
+    
+元类:
+    元类即创建类的模板.
+    # metaclass是类的模板，所以必须从`type`类型派生
+    class ListMetaclass(type):
+        def __new__(metaCls, cls, clsBases, clsAttrs):
+            print(metaCls, cls, clsBases, clsAttrs)
+            clsAttrs['add'] = lambda self, value: self.append(value)  #为类增加一个add属性(这个属性的值是一个函数)
+            return type.__new__(metaCls, cls, clsBases, clsAttrs)
+
+    #有了ListMetaclass，我们在定义类的时候还要指示使用ListMetaclass来定制类，传入关键字参数metaclass
+    class MyList(list, metaclass=ListMetaclass):
+        def __new__(cls):
+            print("MyList new")
+            return list.__new__(cls)
+
+    #测试一下MyList是否可以调用add()方法：
+    L = MyList()
+    L.add(1)
+    print(L)
+    
+    
+错误处理: 
+    try:
+        print('try...')
+        r = 10 / int('a')
+        print('result:', r)
+    except ValueError as e:
+        print('ValueError:', e)
+    except ZeroDivisionError as e:
+        print('ZeroDivisionError:', e)
+        logging.exception(e)
+    finally:
+        print('一定会被执行...finally...')
+
+    异常继承体系中的子类的捕获写在基类之前(与C++,Java类似).
+    
+    
+记录错误:    
+    Python内置的logging模块可以非常容易地记录错误信息
+    try:
+        bar('0')
+    except Exception as e:
+        logging.exception(e)
+
+    logging.basicConfig(level=logging.INFO)
+    
+自定义异常 & 抛出异常:
+    class FooError(ValueError):
+        pass
+
+    def foo(s):
+        n = int(s)
+        if n==0:
+            raise FooError('invalid value: %s' % s)
+        return 10 / n
+    
+    
+IO:
+    读文件:
+    try:
+        f = open('/path/to/file.txt', 'r', encoding='utf-8')
+        print(f.read())
+    finally:
+        if f:
+            f.close()
+
+    或:  
+    with open('/path/to/file.txt', 'r', encoding='utf-8') as f:
+        print(f.read())
+
+    建议使用with形式, 可以防止忘记关闭文件.
+    
+在内存中操作str和bytes的方法:    
+    StringIO:
+        from io import StringIO
+        f = StringIO()
+        f.write('hello')
+        print(f.getvalue())
+
+    BytesIO:
+        from io import BytesIO
+        f = BytesIO()
+        f.write('中文'.encode('utf-8'))
+        print(f.getvalue())
+
+    
+操作文件和目(os模块):    
+    import os
+    os.name  #操作系统类型   'posix'/'nt'分别对应linux/windows
+    os.environ #环境变量
+    
+    操作文件和目录的函数一部分放在os模块中,一部分放在so.path模块中.
+    
+    os.path.abspath('.')  # 查看当前目录的绝对路径
+    os.path.join('/Users/michael', 'testdir') # 拼接路径(会自动根据不同的系统使用对应的路径分隔符)
+    os.listdir(".") #返回当前目录下的文件列表(目录也是文件)
+    os.mkdir('/Users/michael/testdir') # 创建目录
+    os.rmdir('/Users/michael/testdir') # 删除一个空目录
+    os.path.split('/Users/michael/testdir/file.txt') #拆出路径中的目录名文件名(从最后一个路径分隔符拆分)
+    os.path.splitext('/path/to/file.txt') #拆出文件路径中的后缀名与路径名(从最后一个'.'号拆分)
+    os.rename('test.txt', 'test.py') # 对文件重命名
+    os.remove('test.py') # 删掉文件
+    
+    在shutil模块中包含了复制文件的函数:
+        copyfile(src, dst)
+    
+    eg: [item for item in os.listdir('.') if os.path.isdir(x)]  #列出当前目录下的所有目录
+    
+    
+    
+序列化:        
+    import pickle
+
+    #序列化
+    with open('/path/to/obj.dat', 'wb') as f:
+        pickle.dump(obj, f) #将对象序列化为字节流并写入文件
+    
+    #反序列化
+    with open('/path/to/obj.dat', 'rb') as f:
+        obj = pickle.load(f)  
+    
+    
+JSON:
+    JSON类型与Python类型对应关系:
+        JSON类型      Python类型
+        {}              dict
+        []              list
+        "string"        str
+        1234.56         int或float
+        true/false      True/False
+        null            None
+
+    import json
+    d0 = dict(name='gjy', age=24, score=88)
+    d1 = [1, 2, 3, 4.1, 5.1, 6.1]
+    d2 = "string_xxx"
+    d3 = True
+    d4 = None
+    l = [d0, d1, d2, d3, d4]
+    json_str = json.dumps(l)  #序列化--> [{"name": "gjy", "age": 24, "score": 88}, [1, 2, 3, 4.1, 5.1, 6.1], "string_xxx", true, null]
+    o = json.loads(json_str) #反序列化
+    
+    如何将class对象转换成JSON:
+        json.dumps(obj, default=obj2dict) #defaule参数指定了将对象obj转换成json格式时所使用的函数.所以只需要定义一个函数来完成这个转换即可
+        
+    如何将JSON转换成class对象:    
+        def dict2student(d):
+            return Student(d['name'], d['age'], d['score']) #返回一个Student对象
+        json.loads(json_str, object_hook=dict2student) #object_hook参数指定的函数负责把dict转换为Student实例
+    
+    
+多进程:
+    os模块封装了常见的系统调用
+    import os
+    print('Process (%s) start...' % os.getpid())
+    # Only works on Unix/Linux/Mac:
+    pid = os.fork()
+    if pid == 0:
+        print('I am child process (%s) and my parent is %s.' % (os.getpid(), os.getppid()))
+    else:
+        print('I (%s) just created a child process (%s).' % (os.getpid(), pid))
+
+    跨平台的多进程模块(multiprocessing):
+    from multiprocessing import Process
+    import os
+
+    # 子进程要执行的代码
+    def run_proc(name):
+        print('Run child process %s (%s)...' % (name, os.getpid()))
+
+    if __name__=='__main__':
+        print('Parent process %s.' % os.getpid())
+        p = Process(target=run_proc, args=('test',))
+        print('Child process will start.')
+        p.start()
+        p.join()  #等待子进程结束
+        print('Child process end.')
+
+    Pool:如果要启动大量的子进程，可以用进程池的方式批量创建子进程
+    from multiprocessing import Pool
+    
+    ......
+    ......
+    ......
+    
+多线程:
+    Python的标准库提供了两个模块：_thread(低级模块)和threading(高级模块)    
+    import time, threading
+
+    lock = threading.Lock()
+
+    # 新线程执行的代码:
+    def run_thread(n):
+        for i in range(100000):
+            lock.acquire() # 先要获取锁
+            try:
+                 ...操作共享资源...
+            finally:
+                lock.release()  # 改完了一定要释放锁
+
+    t1 = threading.Thread(target=run_thread, args=())
+    t2 = threading.Thread(target=run_thread, args=())
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+
+    ThreadLocal:
+      ThreadLocal对象定义时是全局的, 但使用时是每个线程本地的.可以任意读写而互不干扰，也不用管理锁的问题，ThreadLocal内部会处理。
+        
+        # 创建全局ThreadLocal对象:
+        local_student = threading.local()
+
+        def process_student():
+            # 获取当前线程关联的student:
+            name = local_student.name
+            print('Hello, %s (in %s)' % (name, threading.current_thread().name))
+
+        def process_thread(name):
+            # 绑定ThreadLocal的student:
+            local_student.name = name
+            process_student()
+
+        t1 = threading.Thread(target= process_thread, args=('Alice',), name='Thread-A')
+        t2 = threading.Thread(target= process_thread, args=('Bob',), name='Thread-B')
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+            
+    
+
+正则:
+    ^   : 开始位置, 在方括号表达式中使用表示补集(除此之外的其他字符)
+    $   : 结束位置
+    \b  : 匹配一个单词边界
+    \B  : 匹配一个非单词边界
+    ()  : 捕获子表达式
+    *   : 零次或多次
+    +   : 一次或多次
+    .   : '\n'之外的任意单字符
+    []  : 集合中的任一个
+    |   : 两个匹配中的一个    
+    ?   : 匹配前面的子表达式零次或一次，或指明一个非贪婪限定符
+    {}  : 匹配次数限定
+   
+   \d   : 一个数字  <==> [0-9]
+   \D   : \d的补集  <==> [^0-9]
+   \w   : 一个下划线 or 字母 or 数字 <==> [A-Za-z0-9_]
+   \W   : \w对应的补集 <==> [^A-Za-z0-9_]
+   \s   : 一个空白字符  <==> [?\f\n\r\t\v]
+   \S   : 一个非空白字符 <==> [^?\f\n\r\t\v]
+   \cx  : 匹配由x指明的控制字符。eg: \cM 匹配一个 Control-M 或回车符, x 的值必须为[a-zA-Z];否则,将 c 视为一个原义的 'c' 字符。
+   
+   
+   re.split(r'\s+', 'a b   c')  # 按一个或多个空格切分字符串
+   m = re.match(r'^(\d{3})-(\d{3,8})$', '010-12345') #m.group(n) n为0时获取整个匹配的串, n非0时获取第n个捕获的串
+    
+    
+    
+常用内建模块:
+    日期和时间: datetime
+        from datetime import datetime
+        now = datetime.now() # 获取当前datetime
+        dt = datetime(2015, 4, 19, 12, 20, 30) #构造datetime 2015-04-19 12:20:30
+        secNum = dt.timestamp() # 把datetime转换为timestamp
+        datetime.fromtimestamp(secNum) #timestamp转换为datetime(本地时间)
+        datetime.utcfromtimestamp(secNum) #UTC时间
+        datetime.strptime('2015-6-1 18:19:59', '%Y-%m-%d %H:%M:%S') #str转datetime
+        datetime_str = now.strftime('%Y-%m-%d %H:%M:%s') #datetime转str
+    
+        datetime加减:
+            from datetime import datetime, timedelta
+            now + timedelta(days=1, hours=10)
+    
+        时区转换:
+            可以先通过utcnow()拿到当前的UTC时间，再转换为任意时区的时间:
+            from datetime import datetime, timedelta, timezone
+            #获取utc时间
+            utc_dt = datetime.utcnow().replace(tzinfo=timezone.utc)
+            print(utc_dt)
+
+            # 转换时区为北京时间
+            bj_dt = utc_dt.astimezone(timezone(timedelta(hours=8)))
+            print(bj_dt)
+            
+    集合模块: 
+        collections       
+            
+    namedtuple:
+        from collections import namedtuple
+        Point = namedtuple('Point', ['x', 'y'])
+        #Point = namedtuple('Point', ('X', 'Y')) #与上面的语句效果是一样的
+        p = Point(1, 2) #p.x -->1, p.y-->2
+        
+    deque:
+        deque是为了高效实现插入和删除操作的双向列表，适合用于队列和栈
+        from collections import deque
+        q = deque(['a', 'b', 'c'])
+        q.append('x')
+        q.appendleft('y')
+
+    
+    defaultdict:
+        与dict相比,defaultdict允许在key不存在时返回一个默认值
+        from collections import defaultdict
+        dd = defaultdict(lambda: 'N/A')
+        dd['key1'] = 'abc'
+        dd['key1'] # key1存在	
+        dd['key2'] # key2不存在，返回默认值'N/A'
+
+    OrderedDict:
+        与dict相比, OrderedDict按key插入顺序排列.
+        from collections import OrderedDict
+        od = OrderedDict([('a', 1), ('c', 3), ('b', 3)]) 
+        注意，OrderedDict的Key会按照插入的顺序排列，不是Key本身排序：
+
+    Counter:
+        Counter是一个简单的计数器
+        统计字符出现的个数：
+        from collections import Counter
+        c = Counter()
+        for ch in 'programming':
+            c[ch] = c[ch] + 1
+
+    
+    struct:
+        Python提供了一个struct模块来解决bytes和其他二进制数据类型的转换
+        #pack函数把任意数据类型变成bytes
+        struct.pack('>I', 10240099) #b'\x00\x9c@c'
+        
+        #unpack把bytes变成相应的数据类型
+        struct.unpack('>IH', b'\xf0\xf0\xf0\xf0\x80\x80')
+
+        pack/unpack的第一个参数是处理指令:
+            '>'表示字节顺序是big-endian,也就是网络序
+            'I'表示4字节无符号整数
+            'H'表示2字节无符号整数
+
+    hashlib: (sha, md5, ...)
+        import hashlib
+        md5 = hashlib.md5()
+        md5.update('how to use md5 in python hashlib?'.encode('utf-8'))
+        print(md5.hexdigest())
+
+    itertools: 
+        itertools提供了非常有用的用于操作迭代对象的函数
+        import itertools
+        natuals = itertools.count(1) #count()会创建一个无限的迭代器
+        for n in natuals:
+            print(n)
+        cs = itertools.cycle('ABC') # cycle()会把传入的一个序列无限重复下去
+        for c in cs:
+            print(c)
+
+        ns = itertools.repeat('AB', 3) #repeat(obj, times) 将obj重复times次
+        for n in ns:
+            print(n)
+
+        #使用takewhile()函数从itertools.count(1)生成的无限序列中截取出一个有限的序列
+        ns = itertools.takewhile(lambda x: x <= 10, itertools.count(1))
+
+        #chain()可以把一组迭代对象串联起来，形成一个更大的迭代器
+        for c in itertools.chain('ABC', 'XYZ'):
+            print(c)
+
+        #groupby()把迭代器中相邻的重复元素挑出来放在一起
+        for key, group in itertools.groupby('AAABBBCCAAA'):
+            print(key, list(group))
+
+        #为指定groupby()指定用于比较相邻元素的函数
+        for key, group in itertools.groupby('AaaBBbcCAAa', lambda c: c.upper()):
+            print(key, list(group))
+
+    contextlib:
+        任何对象，只要正确实现了上下文管理，就可以用于with语句。
+        实现上下文管理是通过__enter__和__exit__这两个方法实现的
+        class Query(object):
+            def __init__(self, name):
+                self.name = name
+
+            def __enter__(self):
+                print('Begin')
+                return self
+
+            def __exit__(self, exc_type, exc_value, traceback):
+                if exc_type:
+                    print('Error')
+                else:
+                    print('End')
+
+            def query(self):
+                print('Query info about %s...' % self.name)
+                
+        #这样我们就可以把自己写的资源对象用于with语句：
+        with Query('Bob') as q:
+            q.query()
+
+    
+        Python的标准库contextlib提供了更简单的写法:
+        from contextlib import contextmanager
+        class Query(object):
+            def __init__(self, name):
+                self.name = name
+
+            def query(self):
+                print('Query info about %s...' % self.name)
+
+        @contextmanager
+        def create_query(name):
+            # yield及其之前的操作相当于 __enter__()
+            print('Begin')  
+            q = Query(name)
+            yield q
+            #yield之后的操作相当于 __exit__()
+            print('End')
+            
+        with create_query('Bob') as q:
+            q.query()
+
+        说明:@contextmanager这个decorator接受一个generator，用yield语句通过with ... as var把变量输出到var，然后，with语句就可以正常地工作了：
+    
+    
+    @closing:
+        使用它将对象封装成上下文对象, 在with结束后后调用对象的close()函数
+        from contextlib import closing
+        with closing(open(fileNme)) as f:
+            for line in f.readlines():
+                print(line)
+
+        @closing(thing)相当于:   
+            @contextmanager
+            def closing(thing):
+                try:
+                    yield thing
+                finally:
+                    thing.close()
+
+
+    
+    
+    
+通过函数对python文本进行编译并执行:
+    #按照python的方式对文本source_code_str中的内容进行编译
+    co = complie(source_code_txt, 'tmp_compile.py', 'exec') 
+    exec(co)  #类似于import tmp_complie.py
+    
+查看变量被引用的次数:
+    import sys
+    sys.getrefcount(varName)
+
+exec()执行声明语句,eval()执行表达式:
+    exec('var1 = 5')
+    eval('var1')
+    
+三目运算:
+    var = expression1 if condition else expression2
+    等价于:
+    if condition:
+        var = expression1 
+    else:
+        var = expression2
+    
+__builtins__:
+    列出模块对象:
+        __builtins__.__dir__()
+    
+    
+    
+typing模块的作用:
+    python以文档的方式限定函数参数类型、返回值类型、变量类型等,并不会影响程序的运行
+    from typing import Sequence, TypeVar, Union
+    def test(parm1:TYPE1, parm2:TYPE1) -> RETURN_TYPE:
+        pass
+    
+    # 泛型
+    T = TypeVar('T')      # Declare type variable
+    def test2(parm: Sequence[T]) -> T:   # Generic function
+        pass

@@ -1,0 +1,10 @@
+iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 139 -j ACCEPT 
+iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 445 -j ACCEPT
+iptables -A INPUT -m state --state NEW -m udp -p udp --dport 137 -j ACCEPT
+iptables -A INPUT -m state --state NEW -m udp -p udp --dport 138 -j ACCEPT
+#iptables -A INPUT -p tcp --dport 8089 -j ACCEPT
+--------------------- 
+作者：传奇石头110 
+来源：CSDN 
+原文：https://blog.csdn.net/coder_ai/article/details/51531521 
+版权声明：本文为博主原创文章，转载请附上博文链接！

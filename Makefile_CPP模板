@@ -1,0 +1,44 @@
+﻿#使用$(wildcard *.cpp)来获取工作目录下的所有.cpp文件的列表
+#SOURCES:=$(wildcard *.cpp)
+SOURCES=./icstring1.cpp
+OBJECTS:=$(SOURCES:.cpp=.o)
+INCLUDE=.
+LIB=
+#这里dependence是所有.d文件的列表.即把串sources串里的.cpp换成.d
+DEPENDENCE:=$(SOURCES:.cpp=.d)
+
+
+
+
+#所用的编译工具
+CC=g++
+
+#当$(objects)列表里所有文件都生成后，便可调用这里的 $(CC) $^ -o $@ 命令生成最终目标all了
+#把out定义成第1个规则，使得可以把make out命令简写成make
+out: $(OBJECTS)
+	$(CC) $^ -o $@     #-l$(LIB) LIB为空时注释-l选项
+	@echo "---生成可执行文件out---\n\n"
+
+#这段是make的模式规则，指示如何由.cpp文件生成.o，即对每个.cpp文件，调用gcc -c XX.cpp -o XX.o命令生成对应的.o文件。
+#如果不写这段也可以，因为make的隐含规则可以起到同样的效果
+%.o: %.cpp
+	$(CC) -I$(INCLUDE) -c $< -o $@
+
+#注意该句要放在终极目标out的规则之后，否则.d文件里的规则会被误当作终极规则了
+include $(DEPENDENCE)
+%.d: %.cpp
+	@set -e; rm -f $@; \
+	$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+
+#之所以把clean定义成伪目标，是因为这个目标并不对应实际的文件
+.PHONY: clean 
+clean:
+	@echo "---清除所有临时文件---\n\n"
+	@rm -f $(OBJECTS) $(DEPENDENCE) 
+	
+.PHONY: cleanall
+cleanall:	
+	@echo "---清除所有临时文件和最终的可执行文件---\n\n"
+	@rm -f $(OBJECTS) $(DEPENDENCE) out

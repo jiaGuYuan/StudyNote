@@ -1,0 +1,410 @@
+修改Jupyter启动目录:
+    1. 创建配置文件 jupyter notebook --generate-config
+        默认配置文件位置"C:/Users/Administrator/.jupyter/jupyter_notebook_config.py"
+    2. 修改配置文件:
+         设置配置文件中的 jupyter notebook --notebook-dir= "D:/myProject/JupyterWKS"
+    注: 这只是设置了从命令行打开jupyter时的启动目录.
+    
+    修改从开始菜单打开jupyter时的启动目录:
+        win10: 在开始菜单中找到jupyter-->右键打开文件位置-->在快捷图标上右键属性-->修改快捷方式属性,目标默认为:D:\Software\Anaconda3\python.exe D:\Software\Anaconda3\cwp.py D:\Software\Anaconda3 D:\Software\Anaconda3\python.exe D:\Software\Anaconda3\Scripts\jupyter-notebook-script.py %USERPROFILE%
+        将%USERPROFILE%修改为指定的启动目录即可.("D:/myProject/JupyterWKS")
+
+在浏览器中增加Jupyte的单元格宽度:
+    1. 在正在使用的当前笔记本中执行(仅对当前笔记本有效)
+        from IPython.core.display import display, HTML
+        display(HTML("<style>.container { width:85% !important; }</style>"))
+    2. 在'~/.jupyter/custom/custom.css'文件中新增如下内容(全局有效)
+        /* 调整Cell宽度占比 */
+        .container {
+            width: 85% !important;
+        }
+        
+        
+jupyter notebook 绘图中文显示乱码:
+    import matplotlib.pyplot as plt
+    plt.rcParams['font.sans-serif']=['SimHei']
+    plt.rcParams['axes.unicode_minus']=False
+        
+设置Jupyter Notebook每个Cell同时可输出多个语句的值的方法:
+    1. 在每个新建文件开始处添加如下两行(仅对当前文件有效):
+        from IPython.core.interactiveshell import InteractiveShell
+        InteractiveShell.ast_node_interactivity = "all"
+
+    2.直接添加配置文件(对所有文件生效):
+        vi ~/.ipython/profile_default/ipython_config.py
+        配置文件内容如下:
+        c = get_config()
+        #Run all nodes interactively
+        c.InteractiveShell.ast_node_interactivity = "all"
+    3. 使用魔术方法:
+        %config ZMQInteractiveShell.ast_node_interactivity='all'
+
+conda包管理:
+    查看python环境:
+        conda info --env: 所有查看python环境,前面有个'*'的代表当前环境
+    创建一个名为py36Env的环境，指定Python版本是3.6:
+        conda create --name py36Env python=3.6  //这里创建的环境将安装在默认路径下
+            //指定环境的路径: conda create -p D:/myEnvPath/envs/py36Env python=3.6 
+    删除py36环境:
+        conda remove --name py36Env --all
+            //指定环境的路径: conda env remove -p D:/myEnvPath/envs/py36Env
+    激活(进入)py36环境:
+        source activate py36Env
+            //指定环境的路径: source activate D:/myEnvPath/envs/py36Env
+    退出环境:
+        conda deactivate 
+ 
+ 
+    安装python包:
+        conda install -n 环境名 包名
+        conda install 包名 #如果不用-n指定环境名称,则被安装在当前活跃环境
+        
+        conda install -n envName --channel https://mirrors.ustc.edu.cn/anaconda/pkgs/main/ tensorflow-cpu
+
+    使用下载好的包离线安装:
+        conda install --offline ./cudnn-7.0.5-cuda8.0_0.tar.bz2  #参考:https://blog.csdn.net/feifei3211/article/details/80361227
+    查看当前环境下已安装的包:
+        conda list
+    更新package:
+        conda update -n 环境名 包名
+    删除package:
+        conda remove -n 环境名 包名
+    
+    批量操作:
+    conda批量导出包含环境中所有组件的requirements.txt文件:
+        conda list -e > requirements.txt
+        #此文件可用于通过以下方式创建环境(会自动安装对应的包)：
+            $ conda create --name <env> --file <此文件>
+    conda批量安装requirements.txt文件中包含的组件依赖(在当前环境中安装包):
+        conda install --yes --file requirements.txt  --#这种执行方式，一遇到安装不上就整体停止不会继续下面的包安装
+        while read requirement; do conda install --yes $requirement; done < requirements.txt #这个执行能解决上面出现的的问题
+
+    注: 安装插件等操作要在anaconda prompt模式下输入命令
+    
+    重装conda,并保留之前的虚拟环境:
+        bash Anaconda3-5.1.0-Linux-x86_64.sh -u
+        
+    回滚conda环境:
+        1. 查看当前环境下历史更新记录:
+            conda list --revisions
+        2. 恢复到指定历史环境版本:
+            conda install --revision [revision number]
+            eg: conda install --revision 2
+          
+从cmd进入base环境:
+    执行: activate
+
+批量安装包:
+    pip freeze > requirements.txt # 导出环境信息
+    pip install -r ./environment.yml --ignore-installed
+    environment.yml内容如下
+        dependencies:
+            - python=3.7
+            - pip:
+                - pandas
+                - spacy
+                - numpy
+    --ignore-installed: 忽略已安装的包
+    -i: 指定源
+        如: pip install jieba==3.5.3 -i https://pypi.tuna.tsinghua.edu.cn/simple
+    –-default-timeout: 修改默认超时,网络不好时可使用
+        pip --default-timeout=100 install jieba==3.5.3
+        
+    问题:
+        安装python包时报错:
+            Retrying with flexible solve.
+        尝试解决方法:
+            # 更新conda
+            conda update -n base conda
+            conda update -all
+            # 修改频道 
+            conda config --add channels conda-forge
+            conda config --set channel_priority flexible
+            # 重新尝试安装
+            conda install xxx
+            
+Jupyter操作:
+    命令模式(蓝框) & 编辑模式(绿框):
+        Esc: 切到命令模式
+        Enter: 切到编辑模式
+    
+    命令模式下的操作:
+        删除单元格:
+            按两次"D"
+        保存:
+            "S"
+        在当前Cell上/下方创建单元格:
+            "A"/"B"
+            
+    标题(以'#'标记开头的Cell):
+        # : 一级标题
+        ## : 二级标题
+        ### : 三级标题
+        ...
+    Heading:
+        1: 将Cell内容作为heading 1
+        2: 将Cell内容作为heading 2
+        ...
+        
+    执行当前Cell:
+        Ctrl+Enter
+    执行当前Cell并跳到下一个Cell:
+        Shift+Enter
+    
+    执行cmd命令:
+        在命令前加!号即可; 如: !cd pathX
+    
+    查看函数说明:
+        在变量,方法,库前加上?,可以获得它的语法说明.
+        如: ?sum()
+        通过Help菜单可以找到一些常用库文档的连接,包括 NumPy, Pandas, SciPy 和 Matplotlib.
+    
+    魔术开关:
+        可使用'%quickref'查看有哪些Magic方法.
+        %lsmagic: 与'%quickref'功能一样,但是没有说明信息.
+        分为'line magic'和'cell magic':
+            'line magic': 以'%'前缀标注. 
+                如: '%matplotlib inline' --以内嵌的方式绘图
+                     %whos --查看当前环境中的变量(包含函数)信息
+            'cell magic': 以'%%'前缀标注. 
+                如: %%html --将该cell中的内容作为html来解析
+                    %%writefile newFileName  ---会将该cell中的内容写到newFileName文件中
+        
+
+        
+
+    
+设置Jupyter notebook字体为"Microsoft YaHei Mono":
+    在本地jupyter的cumtom.css文件中粘贴如下文件内容。文件路径: C:\Users\user\.jupyter\custom\custom.css (注:修改安装目录D:\Anaconda3\Lib\site-packages\notebook\static\custom下的custom.css文件是无效的.)
+    /*参考https://www.zhihu.com/question/40012144 万欣的回答*/
+    @font-face {
+     font-family: "Fira Mono";
+     font-weight: normal;
+     font-style: normal;
+     src: local('"Fira Mono"'), url('fonts/fira.ttf') format('truetype');
+    }
+
+    <script>
+        MathJax.Hub.Config({
+            "HTML-CSS": {
+                /*preferredFont: "TeX",*/
+                /*availableFonts: ["TeX", "STIX"],*/
+                styles: {
+                    scale: 100,
+                    ".MathJax_Display": {
+                        "font-size": "100%",
+                    }
+                }
+            }
+        });
+    </script>
+
+    div[id=notebook] {
+        font-family: "Microsoft YaHei Mono";
+        line-height: 20px;
+        -webkit-font-smoothing: antialiased !important;
+    }
+
+    /* Markdown - h1 */
+    div[id=notebook] h1 {
+        color: #007aff;
+        font-size: 16pt !important;
+        font-family: "Microsoft YaHei Mono";
+    }
+
+    /* Markdown - h2 */
+    div[id=notebook] h2 {
+        color: #007aff;
+        font-size: 14pt !important;
+    }
+
+    /* Markdown - h3 */
+    div[id=notebook] h3 {
+        color: #007aff;
+        font-size: 13pt !important;
+    }
+
+    /* Markdown - quote */
+    div[id=notebook] blockquote{
+        background-color: #f8f8f8;
+        color: #505050;
+        padding: 8.5px;
+        margin: 0.5em -0.5em 0.5em -0.4em;
+    }
+
+    /* Markdown - code in paragraph */
+    div[id=notebook] p code, div[id=notebook] li code {
+        font-family: "Microsoft YaHei Mono";
+        font-size: 1em !important;
+        color: #111111;
+        border: 0.5px solid #cfcfcf;
+        border-radius: 2px;
+        background-color: #f7f7f7;
+        padding: .1em .2em;
+        margin: 0px 2px;
+    }
+
+
+    /* markdown区域编辑状态的样式 */
+    div[aria-label="Edit Markup Text here"] pre {    
+         font-family: "Microsoft YaHei Mono" !important;
+        font-size: 12pt !important;
+        -webkit-font-smoothing: antialiased !important;
+    }
+
+    /* markdown区域预览状态的样式 */
+    div.text_cell_render pre p {
+        font-family: "Microsoft YaHei Mono" !important;
+        font-size: 12pt !important;
+        border: 1px solid #cfcfcf;
+        border-radius: 2px;
+        background: #f7f7f7;
+        line-height: 1.21429em;
+        padding: 8.5px;
+        margin: 0.5em -0.5em 0.5em -0.4em;
+    }
+    /* markdown区域预览状态代码的样式 */
+    div.text_cell_render code {
+        font-family: "Microsoft YaHei Mono" !important;
+        background: #f7f7f7;
+    }
+
+
+    /* code区域代码样式 */
+    div[aria-label="Edit code here"] pre {
+        font-family: "Microsoft YaHei Mono" !important;
+        font-size: 13pt !important;
+        line-height: 110% !important;
+        -webkit-font-smoothing: antialiased !important;
+    }
+
+    /* code区域代码注释样式 */
+    span.cm-comment {
+        font-family: "Microsoft YaHei Mono" !important;
+        font-style: normal !important;  
+        font-size: 12pt !important; 
+    }
+
+    /* pydoc注释样式 */
+    span[class="cm-string"]{
+        font-family: "Microsoft YaHei Mono" !important;
+        font-style: normal !important;  
+        font-size: 11pt !important; 
+    }
+
+    /* 代码输出区域样式 */
+    div[class="output_subarea output_text output_stream output_stdout"] pre {
+        font-family: "Microsoft YaHei Mono" !important; 
+        line-height: 18px !important;
+        font-size: 11pt !important; 
+        -webkit-font-smoothing: antialiased !important;
+    }
+
+    /* 调整Cell宽度占比 */
+    .container {
+        width: 85% !important;
+    }
+
+
+    
+    
+使用Stylish插件为Jupyter定制样式:
+    参考: https://www.zhihu.com/question/40012144/answer/237544263
+    我在Linux虚拟机上的Jupyter的样式,没有通过修改cumtom.css达到理想的效果.
+    Stylish插件解决了Linux虚拟机上的Jupyter的样式问题.    
+    以下是我觉得比较好看的样式:
+    Jupyter notebook字体为"Microsoft YaHei Mono"
+    @-moz-document url-prefix("http://192.168.19.137:8888/"), url-prefix("http://hadoop-master:8888/") {
+    div[id=notebook] {
+        font-family: "Microsoft YaHei Mono";
+        line-height: 20px;
+        -webkit-font-smoothing: antialiased !important;
+    }
+
+    /* Markdown - h2 */
+    div[id=notebook] h2 {
+        color: #007aff;
+    }
+
+    /* Markdown - quote */
+    div[id=notebook] blockquote{
+        background-color: #f8f8f8;
+        color: #505050;
+        padding: 8.5px;
+        margin: 0.5em -0.5em 0.5em -0.4em;
+    }
+
+    /* Markdown - code in paragraph */
+    div[id=notebook] p code, div[id=notebook] li code {
+        font-family: "Microsoft YaHei Mono";
+        font-size: 1em !important;
+        color: #111111;
+        border: 0.5px solid #cfcfcf;
+        border-radius: 2px;
+        background-color: #f7f7f7;
+        padding: .1em .2em;
+        margin: 0px 2px;
+    }
+
+
+    /* markdown区域编辑状态的样式 */
+    div[aria-label="Edit Markup Text here"] pre {    
+         font-family: "Microsoft YaHei Mono" !important;
+        font-size: 11pt !important;
+        -webkit-font-smoothing: antialiased !important;
+    }
+
+    /* markdown区域预览状态的样式 */
+    div.text_cell_render pre p {
+        font-family: "Microsoft YaHei Mono" !important;
+        border: 1px solid #cfcfcf;
+        border-radius: 2px;
+        background: #f7f7f7;
+        line-height: 1.21429em;
+        padding: 8.5px;
+        margin: 0.5em -0.5em 0.5em -0.4em;
+    }
+    /* markdown区域预览状态代码的样式 */
+    div.text_cell_render code {
+        font-family: "Microsoft YaHei Mono" !important;
+        background: #f7f7f7;
+    }
+
+
+    /* code区域代码样式 */
+    div[aria-label="Edit code here"] pre {
+        font-family: "Microsoft YaHei Mono" !important;
+        font-size: 12pt !important;
+        line-height: 100% !important;
+        -webkit-font-smoothing: antialiased !important;
+    }
+
+    /* code区域代码注释样式 */
+    span.cm-comment {
+        font-family: "Microsoft YaHei Mono" !important;
+        font-style: normal !important;  
+        font-size: 10pt !important; 
+    }
+
+
+    /* 代码输出区域样式 */
+    div[class="output_subarea output_text output_stream output_stdout"] pre {
+        font-family: "Microsoft YaHei Mono" !important; 
+        line-height: 20px !important;
+        font-size: 10pt !important; 
+        -webkit-font-smoothing: antialiased !important;
+    }
+
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

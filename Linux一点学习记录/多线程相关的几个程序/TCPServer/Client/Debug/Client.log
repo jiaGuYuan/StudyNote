@@ -1,0 +1,10 @@
+﻿生成启动时间为 2016/1/19 20:19:16。
+     1>项目“E:\Source_code\lesson\TCPServer\Client\Client.vcxproj”在节点 2 上(Build 个目标)。
+     1>Link:
+         D:\ruanjian\Visual Studio2013\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\Source_code\lesson\TCPServer\Debug\Client.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\Source_code\lesson\TCPServer\Debug\Client.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\Source_code\lesson\TCPServer\Debug\Client.lib" /MACHINE:X86 Debug\client.obj
+         Client.vcxproj -> E:\Source_code\lesson\TCPServer\Debug\Client.exe
+     1>已完成生成项目“E:\Source_code\lesson\TCPServer\Client\Client.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:00.52

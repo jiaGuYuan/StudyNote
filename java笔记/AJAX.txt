@@ -1,0 +1,59 @@
+AJAX: Asynchronous JavaScript and XML
+AJAX是如下几种技术的组合应用:
+	1. 基于web标准, XHTML+CSS
+	2. 使用DOM进行动态显示
+	3. 使用XML和XSLT进行数据交换及相关操作
+	4. 使用XMLHttpRequest进行异步数据查询,检索
+	5. 使用JavaScript将所有的东西绑定在一起
+
+ajax本质上是一个浏览器端的技术.
+
+创建ajax程序的基本流程
+	1. 创建XMLHttpRequest对象
+		var request;
+		if(window.XMLHttpRequest){//Mozilla引擎
+			request = new XMLHttpRequest();
+		}else if(window.ActiveXObject){//IE引擎
+			request = nw ActiveXObject("Msxml2.XMLHTTP");
+		}
+	2. 使用XMLHttpRequest对象创建请求
+		request.open("get", "testAjaxServlet");
+	3. 监视reqponse的状态,写回调函数处理服务器返回数据
+		request.onreadystatechange = function(){ //通过匿名函数设置回调
+			if(request.readyState==4){
+				var result  = request.responseText;//得到服务器端返回的数据
+				document.getElementById("div2").innerHTML = result;
+			}
+		};
+	4. 使用XMLHttpRequest对象发送请求
+		request.send(null);
+
+
+	eg:
+	<script type="text/javascript">
+		var request;
+		if(window.XMLHttpRequest){//Mozilla引擎
+			request = new XMLHttpRequest();
+		}else if(window.ActiveXObject){//IE引擎
+			request = nw ActiveXObject("Msxml2.XMLHTTP");
+		}
+	
+		request.open("get", "testAjaxServletUrl");
+	
+		request.onreadystatechange = function(){ //匿名函数
+			if(request.readyState==4){
+				if(request.status == 200){
+					var result  = request.responseText;//得到服务器端返回的数据
+					document.getElementById("mytagId").innerHTML = result;
+				}else if(request.status == 404){
+					document.getElementById("mytagId").innerHTML = "您请求的页面有误";
+				}else if(request.status == 500){
+					document.getElementById("mytagId").innerHTML = "服务器正在忙,请稍候";
+				}
+			}else{
+
+			}
+		};
+	
+		request.send(null);
+	</script>

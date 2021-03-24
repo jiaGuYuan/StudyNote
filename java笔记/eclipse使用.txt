@@ -1,0 +1,359 @@
+﻿
+
+MyEclipse导入已存在的工程:
+    File -> Import.. -> General (Existing Projects into Workspace) -> next -> 浏览选中工程目录 -> Finish
+
+Eclipse原生的文件浏览操作(打开文件所在目录): 
+    选择项目目录/文件 按 ALT+SHIFT +W 
+
+添加包:
+    1. 先将包拷贝到工程
+    2. 导入 右键-->Properties-->Java Build Path --> Libraries --> Add JARs --> 选择(1)中复制到工程中的包 -> OK
+
+安装插件的方法:
+    Help-->install now software --> ADD --> 在Location处填写Update site的地址 -->Add -->Next ...->重启eclipse
+卸载插件的方法:
+    Help --> about Eclipse IDE -> Installation Details -->选择要卸载的插件 -> Uninstallaion -> ...
+
+推荐字体(Microsoft YaHei Mono == Consolas+微软雅黑):
+    可从https://www.newasp.net/soft/71936.html下载,使用感觉不错
+    安装后在eclipse中设置字体:
+        Windows->Preferences->General->Appearance->Colors and Fonts->Basic->Text Font->Edit->在字体中选择Microsoft YaHei Mono
+    
+查看子类: 选中类名->Ctrl+T
+    
+Alt+/   代码自动补全
+Ctrl+/  注释代码(再次取消)  --单行注释
+Ctrl+Shift+/ 块注释    Ctrl+Shift+\ 取消块注释
+Ctrl+Shift+f  代码格式化 
+F3 跳转到类、变量的声明 
+Alt+Enter 显示当前选择资源(工程,or 文件 or文件)的属性 
+Shift+Enter 在当前行的下一行插入空行(这时鼠标可以在当前行的任一位置) 
+
+Ctrl+Shift+[ --折叠当前类中的所有代码
+Ctrl+Shift+] --展开当前类中的所有代码
+
+Ctrl+[ --折叠当前代码块
+Ctrl+] --展开当前代码块
+
+Ctrl+D: 删除当前行 
+Ctrl+G     定位在某行
+Ctrl+M     最大化当前的Edit或View(再次还原)
+Ctrl+O     快速显示当前位置信息(如:当前处于哪个函数中)
+Ctrl+T     快速显示当前类的继承结构 
+Ctrl+K     参照选中的Word快速定位到下一个 
+Ctrl+Shift+X     把当前选中的文本全部变为小写  /  Ctrl+Shift+Y 变为大写
+Ctrl+Shift+P     定位到对于的匹配符(譬如{}) (从前面定位后面时,光标要在匹配符里面,后面到前面,则反之) 
+Ctrl+Alt+↓     复制当前行到下一行(复制增加) /  Ctrl+Alt+↑
+Alt+↓     当前行和下面一行交互位置   / Alt+↑
+Alt+←     前一个编辑的页面 / Alt+→
+
+
+
+重构常用快捷键(Alt+Shift+..):
+    Alt+Shift+R 重命名
+    Alt+Shift+M 抽取方法
+    Alt+Shift+C 修改函数结构
+    Alt+Shift+L 抽取本地变量 (可以直接把一些魔法数字和字符串抽取成一个变量,尤其是多处调用的时候) 
+    Alt+Shift+F 把Class中的local变量变为field变量
+    Alt+Shift+Z 重构的后悔药
+
+
+Ctrl + F11 快速执行程序
+Ctrl+Shift+F 程序代码自动排版
+Ctrl+Shift+O 自动加入引用(自动加入import) / alt+/ 也可实现相同功能
+
+
+使用命令行生成jar文件:
+    1. 创建如下目录结构
+       myApp  
+        |-- src  
+        |    |-- cn  
+        |    |-- sample  
+        |        |-- HelloWorld.java  
+        |-- classes
+        |-- MANIFEST.MF
+    2. 在myApp目录下运行编译命令   //-d 就会在.java文件所在目录生成.class文件
+        javac -d classes ./src/cn/sample/HelloWorld.java
+    3. 编译MANIFEST.MF文件
+        Main-Class: cn.sample/HelloWorld   //Main-Class 用于指定程序的入口，是含有main函数的类
+    4. 在myApp目录下运行打包命令
+        jar cfm app.jar MANIFEST.MF -C classes .    //在当前目录下,用清单文件MANIFEST.MF将classes目录下的所有文件存档到一个名为 'app.jar' 的存档文件中
+    5. 测试运行
+        java -jar app.jar
+        
+jar包生成:
+ 选中工程  -> 文件 -> Export -> 选择Java EE下的 War File (MyEclipse) 
+ ->  Next -> 选择工程 -> 选择存放目录 ->   保存.
+ 拷贝到Web服务目录即可(对于Tomcat7.0, 拷贝到webapps目录下即可)
+
+jar文件生成:
+    选中工程 -> file -> Export -> [Select] Java -> JAR file -> next -> 选择工程 -> 选择导出路径 -> Finish
+    
+java工程依赖的jar包:
+    1.每个项目单独一份jar包拷贝: 
+    java项目中最好专门创建一个lib目录用于存放第三方包(在Eclipse中选中目录然后Ctrl+V即可复制文件到目录),
+    同时在Eclipse中配置构建路径(右键->Build Path -> Configure Build Path->Add External JARs )时选择这个lib目录
+    (或选中lib中的jar包右键->Build Path->Add to Build Path)  ---这样可以最大限度的保存包的隔离,每个项目都使用自己的包;
+    2.多个项目共享同一份jar包(只建立包的引用): 
+    自己平时玩的时候可以将所以的jar都放在同一个目录中,在Eclipse中配置构建路径时选择公共目录的要用的包即可---这个可以减小磁盘的占用.
+
+    
+    
+将jar文件加入工程:
+    (1)先复制jar文件,再在工程中选中存放目录, Ctrl+V即将其加入到了工程目录.
+    (2)然后选中工程 -> 右键 -> Properties -> Java Build Path -> Libraries -> Add JARs -> 选择中的加入的JAR文件 -> OK
+
+如何直接运行jar文件:
+    用解压工具打开jar文件, 进入META-INF目录, 将MANIFEST.MF文件打开
+    (可用记事本打开) 并增加一行 Main-class: cn.com.Start (具体执行哪个.class文件看需要). 然后可以双击运行.
+
+    控制台程序通过 java -jar xxx.jar 来运行.
+        
+
+插件&jar包安装:
+    1.左侧对齐插件(Update site: http://www.certiv.net/update):
+        1.安装方法: Help-->install now software --> Add --> 在Location处填写Update site: http://www.certiv.net/update -->Add -->Next ...->重启eclipse
+        2.Window→General→Editors→Text Editors→Indent Guide 进行配置
+
+    2.eclipse代码折叠插件(Update Site: https://github.com/stefaneidelloth/EclipseFolding/raw/master/com.cb.platsupp.site):
+        1.安装方法: Help-->install now software --> Add --> 在Location处填写Eclipse Update Site: https://github.com/stefaneidelloth/EclipseFolding/raw/master/com.cb.platsupp.site -->Add -->Next ...->重启eclipse
+        2.Window→General→java→Editor→Floding→Enable folding to use:选择Coffee Bytes Java Folding
+        配置方法可参考: https://www.cnblogs.com/Micheal-G/articles/5073778.html
+
+
+    spring安装(https://blog.csdn.net/csdnsjg/article/details/80152815):
+        1. 从官网下载对应eclipse对应和包;下载地址：http://spring.io/tools/sts/all
+        2. Help-->install now software --> Add --> 在Location处填写下载的包全名 -->Add -->Next ...->重启eclipse
+        2.Window→General→Editors→Text Editors→Indent Guide
+
+
+
+Eclipse外观:
+    Windows->General->Preferences中可以选择主题.
+    每个主题都有对应的css配置.
+    Dark[linux]使用的是e4-dark.css
+    Dark使用的是e4-dark_wind.css配置
+    *.css文件位置:到eclipse安装目录下打开eclipse.ini找到--launcher.library "C:\Users\gjy\.p2\pool\plugins"
+    进入C:\Users\gjy\.p2\pool\plugins\org.eclipse.ui,themes_*\css即可看到对应的css文件.
+    参考:
+    https://blog.csdn.net/github_38399199/article/details/82114818
+    https://www.cnblogs.com/clblacksmith/p/10812061.html
+
+    在Dark[linux]主题下Outline/package explorer等控件"选中状态"颜色太浅看不清,可通过在e4-dark.css文件的最后添加如下配置解决:
+    Tree {
+        swt-selection-foreground-color: #fcfcf9;
+        swt-selection-background-color: #912F2F;
+        swt-hot-background-color: #2F2F2F;
+        swt-selection-border-color: #7F7D68;
+        swt-hot-border-color: #545454;
+    }
+
+    Table {
+        swt-selection-foreground-color: #fcfcf9;
+        swt-selection-background-color: #912F2F;
+        swt-hot-background-color: #2F2F2F;
+        swt-selection-border-color: #7F7D68;
+        swt-hot-border-color: #545454;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+以下是myeclipse中的所有快捷键列表(是我自己修改后的配置,不是默认配置)：
+Ctrl+1 快速修复(最经典的快捷键,就不用多说了) 
+Ctrl+D: 删除当前行 
+Ctrl+Alt+↓ 复制当前行到下一行(复制增加) 
+Ctrl+Alt+↑ 复制当前行到上一行(复制增加) 
+Alt+↓ 当前行和下面一行交互位置(特别实用,可以省去先剪切,再粘贴了) 
+Alt+↑ 当前行和上面一行交互位置(同上) 
+Alt+← 前一个编辑的页面 
+Alt+→ 下一个编辑的页面(当然是针对上面那条来说了) 
+Alt+Enter 显示当前选择资源(工程,or 文件 or文件)的属性 
+Shift+Enter 在当前行的下一行插入空行(这时鼠标可以在当前行的任一位置,不一定是最后) 
+Shift+Ctrl+Enter 在当前行插入空行(原理同上条) 
+Ctrl+Q 定位到最后编辑的地方 
+Ctrl+G 定位在某行 (对于程序超过100的人就有福音了) 
+Ctrl+M 最大化当前的Edit或View (再按则反之) 
+Ctrl+/ 注释当前行,再按则取消注释 
+Ctrl+O 快速显示 OutLine 
+Ctrl+T 快速显示当前类的继承结构 
+Ctrl+W 关闭当前Editer 
+Ctrl+K 参照选中的Word快速定位到下一个 
+Ctrl+E 快速显示当前Editer的下拉列表(如果当前页面没有显示的用黑体表示) 
+Ctrl+/(小键盘) 折叠当前类中的所有代码 
+Ctrl+×(小键盘) 展开当前类中的所有代码 
+Ctrl+Space 代码助手完成一些代码的插入(但一般和输入法有冲突,可以修改输入法的热键,也可以暂用Alt+/来代替) 
+Ctrl+Shift+E 显示管理当前打开的所有的View的管理器(可以选择关闭,激活等操作) 
+Ctrl+J 正向增量查找(按下Ctrl+J后,你所输入的每个字母编辑器都提供快速匹配定位到某个单词,如果没有,则在stutes line中显示没有找到了,查一个单词时,特别实用,这个功能Idea两年前就有了) 
+Ctrl+Shift+J 反向增量查找(和上条相同,只不过是从后往前查) 
+Ctrl+Shift+F4 关闭所有打开的Editer 
+Ctrl+Shift+X 把当前选中的文本全部变为大写 
+Ctrl+Shift+Y 把当前选中的文本全部变为小写 
+Ctrl+Shift+F 格式化当前代码 
+Ctrl+Shift+P 定位到对于的匹配符(譬如{}) (从前面定位后面时,光标要在匹配符里面,后面到前面,则反之) 
+
+下面的快捷键是重构里面常用的,本人就自己喜欢且常用的整理一下(注:一般重构的快捷键都是Alt+Shift开头的了) 
+Alt+Shift+R 重命名 (是我自己最爱用的一个了,尤其是变量和类的Rename,比手工方法能节省很多劳动力) 
+Alt+Shift+M 抽取方法 (这是重构里面最常用的方法之一了,尤其是对一大堆泥团代码有用) 
+Alt+Shift+C 修改函数结构(比较实用,有N个函数调用了这个方法,修改一次搞定) 
+Alt+Shift+L 抽取本地变量( 可以直接把一些魔法数字和字符串抽取成一个变量,尤其是多处调用的时候) 
+Alt+Shift+F 把Class中的local变量变为field变量 (比较实用的功能) 
+Alt+Shift+I 合并变量(可能这样说有点不妥Inline) 
+Alt+Shift+V 移动函数和变量(不怎么常用) 
+Alt+Shift+Z 重构的后悔药(Undo) 
+
+编辑 
+作用域 功能 快捷键 
+全局 查找并替换 Ctrl+F 
+文本编辑器 查找上一个 Ctrl+Shift+K 
+文本编辑器 查找下一个 Ctrl+K 
+全局 撤销 Ctrl+Z 
+全局 复制 Ctrl+C 
+全局 恢复上一个选择 Alt+Shift+↓ 
+全局 剪切 Ctrl+X 
+全局 快速修正 Ctrl1+1 
+全局 内容辅助 Alt+/ 
+全局 全部选中 Ctrl+A 
+全局 删除 Delete 
+全局 上下文信息 Alt+？ 
+Alt+Shift+? 
+Ctrl+Shift+Space 
+Java编辑器 显示工具提示描述 F2 
+Java编辑器 选择封装元素 Alt+Shift+↑ 
+Java编辑器 选择上一个元素 Alt+Shift+← 
+Java编辑器 选择下一个元素 Alt+Shift+→ 
+文本编辑器 增量查找 Ctrl+J 
+文本编辑器 增量逆向查找Ctrl+Shift+J 
+全局 粘贴 Ctrl+V 
+全局 重做 Ctrl+Y 
+
+
+查看 
+作用域 功能 快捷键 
+全局 放大 Ctrl+= 
+全局 缩小 Ctrl+- 
+
+
+窗口 
+作用域 功能 快捷键 
+全局 激活编辑器 F12 
+全局 切换编辑器 Ctrl+Shift+W 
+全局 上一个编辑器 Ctrl+Shift+F6 
+全局 上一个视图 Ctrl+Shift+F7 
+全局 上一个透视图 Ctrl+Shift+F8 
+全局 下一个编辑器 Ctrl+F6 
+全局 下一个视图 Ctrl+F7 
+全局 下一个透视图 Ctrl+F8 
+文本编辑器 显示标尺上下文菜单 Ctrl+W 
+全局 显示视图菜单 Ctrl+F10 
+全局 显示系统菜单 Alt+- 
+
+
+导航 
+作用域 功能 快捷键 
+Java编辑器 打开结构 Ctrl+F3 
+全局 打开类型 Ctrl+Shift+T 
+全局 打开类型层次结构 F4 
+全局 打开声明 F3 
+全局 打开外部javadoc Shift+F2 
+全局 打开资源 Ctrl+Shift+R 
+全局 后退历史记录 Alt+← 
+全局 前进历史记录 Alt+→ 
+全局 上一个 Ctrl+, 
+全局 下一个 Ctrl+. 
+Java编辑器 显示大纲 Ctrl+O 
+全局 在层次结构中打开类型 Ctrl+Shift+H 
+全局 转至匹配的括号 Ctrl+Shift+P 
+全局 转至上一个编辑位置 Ctrl+Q 
+Java编辑器 转至上一个成员Ctrl+Shift+↑ 
+Java编辑器 转至下一个成员 Ctrl+Shift+↓ 
+文本编辑器 转至行 Ctrl+L 
+
+
+搜索 
+作用域 功能 快捷键 
+全局 出现在文件中 Ctrl+Shift+U 
+全局 打开搜索对话框 Ctrl+H 
+全局 工作区中的声明 Ctrl+G 
+全局 工作区中的引用 Ctrl+Shift+G 
+
+
+文本编辑 
+作用域 功能 快捷键 
+文本编辑器 改写切换 Insert 
+文本编辑器 上滚行 Ctrl+↑ 
+文本编辑器 下滚行 Ctrl+↓ 
+
+
+文件 
+作用域 功能 快捷键 
+全局 保存 Ctrl+X 
+Ctrl+S 
+全局 打印 Ctrl+P 
+全局 关闭 Ctrl+F4 
+全局 全部保存 Ctrl+Shift+S 
+全局 全部关闭 Ctrl+Shift+F4 
+全局 属性 Alt+Enter 
+全局 新建 Ctrl+N 
+
+
+项目 
+作用域 功能 快捷键 
+全局 全部构建 Ctrl+B 
+
+
+源代码 
+作用域 功能 快捷键 
+Java编辑器 格式化Ctrl+Shift+F 
+Java编辑器 取消注释 Ctrl+\ 
+Java编辑器 注释 Ctrl+/ 
+Java编辑器 添加导入Ctrl+Shift+M 
+Java编辑器 组织导入Ctrl+Shift+O 
+Java编辑器 使用try/catch块来包围 未设置，太常用了，所以在这里列出,建议自己设置。 
+也可以使用Ctrl+1自动修正。 
+
+
+运行 
+作用域 功能 快捷键 
+全局 单步返回 F7 
+全局 单步跳过 F6 
+全局 单步跳入 F5 
+全局 单步跳入选择 Ctrl+F5 
+全局 调试上次启动 F11 
+全局 继续 F8 
+全局 使用过滤器单步执行 Shift+F5 
+全局 添加/去除断点 Ctrl+Shift+B 
+全局 显示 Ctrl+D 
+全局 运行上次启动 Ctrl+F11 
+全局 运行至行 Ctrl+R 
+全局 执行 Ctrl+U 
+
+
+重构 
+作用域 功能 快捷键 
+全局 撤销重构 Alt+Shift+Z 
+全局 抽取方法 Alt+Shift+M 
+全局 抽取局部变量 Alt+Shift+L 
+全局 内联 Alt+Shift+I 
+全局 移动 Alt+Shift+V 
+全局 重命名 Alt+Shift+R 
+全局 重做 Alt+Shift+Y

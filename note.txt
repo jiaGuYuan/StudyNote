@@ -1,0 +1,30 @@
+curl --insecure --user-agent "Mozilla/5.0 (X11; Linux i686; rv:38.0) Gecko/20100101 Firefox/38.0" "https://kyfw.12306.cn/otn/leftTicket/queryX?leftTicketDTO.train_date=2019-04-03&leftTicketDTO.from_station=HZH&leftTicketDTO.to_station=SZQ&purpose_codes=ADULT"  | grep -oP "(?<={)[^{}]+(?=})" | sed -r 's/.*station_train_code":"([^"]+).*start_station_name":"([^"]+).*end_station_name":"([^"]+).*start_time":"([^"]+).*arrive_time":"([^"]+).*ze_num":"([^"]+).*zy_num":"([^"]+).*swz_num":"([^"]+).*/\1 \2 \3 \4 \5\6 \7 \8/'
+
+需要了解:
+ 1. curl命令的用法
+        --insecure: 允许不使用证书到SSL站点
+        --user-agent: 设置用户代理发送给服务器
+ 2. 
+
+
+如何查看浏览器的用户代理:
+    http://whatsmyuseragent.com  --可显示当前浏览器的user-agent.该网站同时列出了常用设备的 user-agent
+    
+
+    
+    
+获取站点名与站点代号对应表:
+curl --insecure --user-agent "Mozilla/5.0 (X11; Linux i686; rv:38.0) Gecko/20100101 Firefox/38.0" "https://kyfw.12306.cn/otn/resources/js/framework/station_name.js?station_version=1.9098" | grep -oE "@[^@]+" | gawk '{split($0, z, "|"); print(z[2], z[3])}' > station_name.txt
+
+需要了解:
+ 1. 如何抓取站点与代号信息 
+ 2. grep 
+    -o : 表示只输出匹配的文本
+    -E : 可扩展的正则表达式
+    -P : 选项表示采用 Perl 格式的正则表达式
+    -v : 表示只输出不匹配的行
+ 3. gawk的用法
+ 4. sed 
+        -r: 支持扩展表达式
+ 
+ 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<NppFTP defaultCache="%CONFIGDIR%\Cache\%USERNAME%@%HOSTNAME%" outputShown="0" windowRatio="0.76" clearCache="0" clearCachePermanent="0">
+    <Profiles>
+        <Profile name="hadoop-master" parent="" hostname="192.168.19.137" port="22" username="root" password="00CF3374F47D" askPassword="0" timeout="30" securityMode="3" transferMode="0" connectionMode="0" dataPortMin="10000" dataPortMax="32000" listParams="" initialDir="/root/toutiao_project" keyFile="" passphrase="" askPassphrase="0" useAgent="0" acceptedMethods="1">
+            <Cache>
+                <Location localpath="D:\DailyCleaning\NppFTP_Cache" externalpath="/root/toutiao_project" />
+            </Cache>
+            <FileTypes asciiTypes="" binaryTypes="" />
+        </Profile>
+    </Profiles>
+</NppFTP>

@@ -1,0 +1,1218 @@
+Java基础:
+String StringBuffer 和 StringBuilder 的区别是什么 String 为什么是不可变的:
+    可变性:
+        1.String 类中使用 final 关键字字符数组保存字符串,private　final　char　value[],所以 String 对象是不可变的.
+        2.StringBuilder 与 StringBuffer 都继承自 AbstractStringBuilder 类,在 AbstractStringBuilder 中也是使用字符数组保存字符串char[]value 但是没有用 final 关键字修饰,所以这两种对象都是可变的.
+    线程安全性:
+        1.String 中的对象是不可变的,也就可以理解为常量,线程安全.
+        2.StringBuffer 对方法加了同步锁或者对调用的方法加了同步锁,所以是线程安全的.
+        3.StringBuilder 并没有对方法进行加同步锁,所以是非线程安全的
+        相同情况下使用 StringBuilder 相比使用 StringBuffer 仅能获得 10%~15% 左右的性能提升,但却要冒多线程不安全的风险.
+    对于三者使用的总结:
+        1.操作少量的数据 = String
+        2.单线程操作字符串缓冲区下操作大量数据 = StringBuilder
+        3.多线程操作字符串缓冲区下操作大量数据 = StringBuffer
+
+        
+最好在子类的构造方法中显式的通过super()来调用父类的构造方法:
+    Java 程序在执行子类的构造方法之前,如果没有用 super() 来调用父类特定的构造方法,则会调用父类中"没有参数的构造方法".
+    
+== 与 equals: (重要)
+    == : 
+        它的作用是判断两个对象的地址是否相等.即,判断两个对象是不是同一个对象.(基本数据类型==比较的是值,引用数据类型==比较的是内存地址)
+
+    equals() : 
+        它的作用也是判断两个对象是否相等.但它一般有两种使用情况: 
+        情况1:类没有覆盖 equals() 方法.则通过 equals() 比较该类的两个对象时,等价于通过"=="比较这两个对象.
+        情况2:类覆盖了 equals() 方法.一般,我们都覆盖 equals() 方法来两个对象的内容相等;若它们的内容相等,则返回 true (即,认为这两个对象相等).
+    说明:
+        1.String 中的 equals 方法是被重写过的,因为 object 的 equals 方法是比较的对象的内存地址,而 String 的 equals 方法比较的是对象的值.
+        2.当创建String类型的对象时,虚拟机会在常量池中查找有没有已经存在的值和要创建的值相同的对象,如果有就把它赋给当前引用.如果没有就在常量池中重新创建一个 String 对象.
+
+hashCode 与 equals:  (重要)
+    将对象加入HashSet时,HashSet先计算对象的hashcode值来判断对象加入的位置,如果发现有相同hashcode值的对象,这时会调用 equals()方法来检查 hashcode 相等的对象是否真的相同.
+    hashCode()与equals()的相关规定:
+        1.如果两个对象相等,则hashcode一定也是相同的.(如果相等对象的hashcode不相等,那么它们将被散列到不同的位置; 而实际上相等对象应该被散列到同一位置)
+        2.两个对象相等,对两个对象分别调用equals方法都返回true
+        3.两个对象有相同的hashcode值,它们也不一定是相等的.(散列是可以存在冲突的)
+        4.因此,equals 方法被覆盖过,则 hashCode 方法也必须被覆盖
+        5.hashCode() 的默认行为是对堆上的对象产生独特值.如果没有重写 hashCode(),则该 class 的两个对象无论如何都不会相等(即使这两个对象指向相同的数据)
+
+
+    
+Java异常类层次结构图:
+    Throwable
+        |
+        |-----Error
+        |       |
+        |       |------VirtulMachineError
+        |       |           |
+        |       |           |-----StackOverFlowError
+        |       |           |_____OutofMemoryError
+        |       |
+        |       |______AWTError
+        |
+        |
+        |------Exception
+        |       |
+        |       |------IOException
+        |       |           |
+        |       |           |-----EOFException
+        |       |           |_____FileNotFoundException
+        |       |
+        |       |------RuntimeException
+        |       |           |
+        |       |           |-----ArrithmeticException
+        |       |           |-----MissionResourceException
+        |       |           |-----ClassNotFoundException
+        |       |           |-----NullPointerException
+        |       |           |-----IllegalArgumentException
+        |       |           |-----ArrayIndexOutOfBoundsException
+        |       |           |-----UnkownTypeException
+
+Throwable类常用方法:
+    public string getMessage():返回异常发生时的详细信息
+    public string toString():返回异常发生时的简要描述
+    public string getLocalizedMessage():返回异常对象的本地化信息.使用Throwable的子类覆盖这个方法,可以声称本地化信息.如果子类没有覆盖该方法,则该方法返回的信息与getMessage()返回的结果相同
+    public void printStackTrace():在控制台上打印Throwable对象封装的异常信息
+
+Java序列化中如果有些字段不想进行序列化 怎么办?:
+    对于不想进行序列化的变量,使用transient关键字修饰.
+    transient关键字的作用是: 阻止实例中那些用此关键字修饰的的变量序列化;
+    当对象被反序列化时,被transient修饰的变量值不会被持久化和恢复.transient只能修饰变量,不能修饰类和方法.
+        
+获取用键盘输入常用的的两种方法:
+    方法1: 通过 Scanner
+        Scanner input = new Scanner(System.in);
+        String s  = input.nextLine();
+        input.close();
+
+    方法2: 通过 BufferedReader
+        BufferedReader input = new BufferedReader(new InputStreamReader(System.in)); 
+        String s = input.readLine(); 
+
+
+J2EE基础:
+Servlet总结:
+    在Java Web程序中,Servlet负责接收用户请求HttpServletRequest,在doGet(),doPost()中做相应的处理,并将回应HttpServletResponse反馈给用户.Servlet可以设置初始化参数,供Servlet内部使用.一个Servlet类只会有一个实例,在它初始化时调用init()方法,销毁时调用destroy()方法.Servlet需要在web.xml中配置(MyEclipse中创建Servlet会自动配置),一个Servlet可以设置多个URL访问.
+    Servlet不是线程安全,因此要谨慎使用类变量.
+    Servlet是一个特殊的Java程序,一个基于Java的Web应用通常包含一个或多个Servlet类.Servlet不能够自行创建并执行,它是在Servlet容器中运行的,容器将用户的请求传递给Servlet程序,并将Servlet的响应回传给用户.
+    
+    
+Servlet接口中有哪些方法及Servlet生命周期探秘:
+    Servlet接口定义了5个方法,其中前三个方法与Servlet生命周期相关: 
+        void init(ServletConfig config) throws ServletException
+        void service(ServletRequest req, ServletResponse resp) throws ServletException, java.io.IOException
+        void destory()
+        java.lang.String getServletInfo()
+        ServletConfig getServletConfig()
+
+    生命周期:
+        Web容器加载Servlet并将其实例化后,Servlet生命周期开始,容器运行其init()方法进行Servlet的初始化;请求到达时调用Servlet的service()方法,service()方法会根据需要调用与请求对应的doGet或doPost等方法;当服务器关闭或项目被卸载时服务器会将Servlet实例销毁,此时会调用Servlet的destroy()方法.init方法和destroy方法只会执行一次,service方法客户端每次请求Servlet都会执行.Servlet中有时会用到一些需要初始化与销毁的资源,因此可以把初始化资源的代码放入init方法中,销毁资源的代码放入destroy方法中,这样就不需要每次处理客户端的请求都要初始化与销毁资源.
+
+什么情况下调用doGet()和doPost():
+    Form标签里的method的属性为get时调用doGet(),为post时调用doPost().
+
+转发(Forward)和重定向(Redirect)的区别:
+    转发是服务器行为,重定向是客户端行为.
+    1.转发(Forword) 通过RequestDispatcher对象的forward(HttpServletRequest request,HttpServletResponse response)方法实现的.RequestDispatcher可以通过HttpServletRequest 的getRequestDispatcher()方法获得.例如下面的代码就是跳转到login_success.jsp页面.
+     request.getRequestDispatcher("login_success.jsp").forward(request, response);
+    
+    2.重定向(Redirect) 是利用服务器返回的状态码来实现的.客户端浏览器请求服务器的时候,服务器会返回一个状态码.服务器通过 HttpServletResponse 的 setStatus(int status) 方法设置状态码.如果服务器返回301或者302,则浏览器会到新的网址重新请求该资源.
+
+    从地址栏显示来说:
+        forward是服务器请求资源,服务器直接访问目标地址的URL,把那个URL的响应内容读取过来,然后把这些内容再发给浏览器.浏览器根本不知道服务器发送的内容从哪里来的,所以它的地址栏还是原来的地址. redirect是服务端根据逻辑,发送一个状态码,告诉浏览器重新去请求那个地址.所以地址栏显示的是新的URL.
+
+    从数据共享来说:
+        forward:转发页面和转发到的页面可以共享request里面的数据. 
+        redirect:不能共享数据.
+
+    从运用地方来说:
+    forward:一般用于用户登陆的时候,根据角色转发到相应的模块
+    redirect:一般用于用户注销登陆时返回主页面和跳转到其它的网站等
+
+    从效率来说:
+        forward:高. redirect:低.
+
+自动刷新(Refresh):
+    Servlet中通过HttpServletResponse对象设置Header属性实现自动刷新例如: 
+    Response.setHeader("Refresh","5;URL=http://localhost:8080/servlet/example.htm");
+
+
+Servlet不是线程安全的,多线程并发的读写会导致数据不同步的问题.
+
+
+JSP有哪些内置对象,作用分别是什么:
+    JSP有9个内置对象:
+        request: 封装客户端的请求,其中包含来自GET或POST请求的参数;
+        response: 封装服务器对客户端的响应;
+        pageContext: 通过该对象可以获取其他对象;
+        session: 封装用户会话的对象;
+        application: 封装服务器运行环境的对象;
+        out: 输出服务器响应的输出流对象;
+        config: Web应用的配置对象;
+        page: JSP页面本身(相当于Java程序中的this);
+        exception: 封装页面抛出异常的对象.
+
+    Request对象的主要方法有哪些:
+        setAttribute(String name,Object): 设置名字为name的request 的参数值
+        getAttribute(String name): 返回由name指定的属性值
+        getAttributeNames(): 返回request 对象所有属性的名字集合,结果是一个枚举的实例
+        getCookies(): 返回客户端的所有 Cookie 对象,结果是一个Cookie 数组
+        getCharacterEncoding() : 返回请求中的字符编码方式.  getContentLength() : 返回请求的 Body的长度
+        getHeader(String name) : 获得HTTP协议定义的文件头信息
+        getHeaders(String name) : 返回指定名字的request Header 的所有值,结果是一个枚举的实例
+        getHeaderNames() : 返回所以request Header 的名字,结果是一个枚举的实例
+        getInputStream() : 返回请求的输入流,用于获得请求中的数据
+        getMethod() : 获得客户端向服务器端传送数据的方法
+        getParameter(String name) : 获得客户端传送给服务器端的有 name指定的参数值
+        getParameterNames() : 获得客户端传送给服务器端的所有参数的名字,结果是一个枚举的实例
+        getParameterValues(String name): 获得有name指定的参数的所有值
+        getProtocol(): 获取客户端向服务器端传送数据所依据的协议名称
+        getQueryString() : 获得查询字符串
+        getRequestURI() : 获取发出请求字符串的客户端地址
+        getRemoteAddr(): 获取客户端的 IP 地址
+        getRemoteHost() : 获取客户端的名字
+        getSession([Boolean create]) : 返回和请求相关 Session
+        getServerName() : 获取服务器的名字
+        getServletPath(): 获取客户端所请求的脚本文件的路径
+        getServerPort(): 获取服务器的端口号
+        removeAttribute(String name): 删除请求中的一个属性
+
+    request.getAttribute()和 request.getParameter()有何区别:
+        可以用 setAttribute接收对象,getAttribute 接收对象.而 getParameter 显然只能传字符串.
+         setAttribute是应用服务器把这个对象放在该页面所对应的一块内存,当你的页面服务器重定向到另一个页面时,应用服务器会把这块内存拷贝另一个页面所对应的内存中.这样getAttribute就能取得你所设下的值,当然这种方法可以传对象.
+        getParameter返回的是String,用于读取提交的表单中的值;(获取之后会根据实际需要转换为自己需要的相应类型,比如整型,日期类型啊等等).getAttribute 返回的是Object,需进行转换,可用setAttribute 设置成任意对象,使用很灵活,可随时用
+
+
+JSP九大内置对象,七大动作,三大指令:
+    https://blog.csdn.net/qq_34337272/article/details/64310849
+
+
+讲解JSP中的四种作用域:
+    page < request < session < application
+
+实现会话跟踪的技术有哪些:
+    1.使用Cookie:
+        向客户端发送Cookie:
+            Cookie c =new Cookie("name","value"); //创建Cookie 
+            c.setMaxAge(60*60*24); //设置最大时效,此处设置的最大时效为一天
+            response.addCookie(c); //把Cookie放入到HTTP响应中
+
+        从客户端读取Cookie:
+            String name ="name"; 
+            Cookie[]cookies =request.getCookies(); 
+            if(cookies !=null){ 
+               for(int i= 0;i<cookies.length;i++){ 
+                Cookie cookie =cookies[i]; 
+                if(name.equals(cookie.getName())) 
+                //something is here. 
+                //you can get the value 
+                cookie.getValue(); 
+               }
+             }
+
+        优点: 数据可以持久保存,不需要服务器资源,简单,基于文本的Key-Value
+        缺点: 大小受到限制,用户可以禁用Cookie功能,由于保存在本地,有一定的安全风险.
+
+
+    2.URL 重写:
+        在URL中添加用户会话的信息作为请求的参数,或者将唯一的会话ID添加到URL结尾以标识一个会话.
+        优点:  在Cookie被禁用的时候依然可以使用
+        缺点:  必须对网站的URL进行编码,所有页面必须动态生成,不能用预先记录下来的URL进行访问.
+
+    3.隐藏的表单域:
+        <input type="hidden" name ="session" value="..."/>
+        优点:  Cookie被禁时可以使用
+        缺点:  所有页面必须是表单提交之后的结果.
+
+    4.HttpSession:
+        在所有会话跟踪技术中,HttpSession对象是最强大也是功能最多的.当一个用户第一次访问某个网站时会自动创建 HttpSession,每个用户可以访问他自己的HttpSession.可以通过HttpServletRequest对象的getSession方 法获得HttpSession,通过HttpSession的setAttribute方法可以将一个值放在HttpSession中,通过调用 HttpSession对象的getAttribute方法,同时传入属性名就可以获取保存在HttpSession中的对象.与上面三种方式不同的 是,HttpSession放在服务器的内存中,因此不要将过大的对象放在里面,即使目前的Servlet容器可以在内存将满时将HttpSession 中的对象移到其他存储设备中,但是这样势必影响性能.添加到HttpSession中的值可以是任意Java对象,这个对象最好实现了 Serializable接口,这样Servlet容器在必要的时候可以将其序列化到文件中,否则在序列化时就会出现异常
+    
+    Session是在服务端保存的一个数据结构,用来跟踪用户的状态,这个数据可以保存在集群,数据库,文件中;Cookie是客户端保存用户信息的一种机制,用来记录用户的一些信息,也是实现Session的一种方式.
+
+
+Java常见关键字总结: static,final,this,super:
+    final关键字:
+        final关键字主要用在三个地方: 变量,方法,类.
+        1.对于一个final变量:
+            如果是基本数据类型的变量,则其数值一旦在初始化之后便不能更改;
+            如果是引用类型的变量,则在对其初始化之后便不能再让其指向另一个对象.
+        2.当用final修饰一个类时,表明这个类不能被继承.final类中的所有成员方法都会被隐式地指定为final方法.
+        3.当用final修饰一个方法时.表示把方法锁定,以防任何继承类修改它的含义. 类中所有的private方法都隐式地指定为final.
+
+    static 关键字(主要使用场景):
+        修饰成员变量和成员方法: 
+            被 static 修饰的成员属于类,被该类的所有对象共享.静态变量存放在 Java 内存区域的方法区.
+            静态成员建议直接使用类名访问: 类名.静态变量名, 类名.静态方法名()
+        静态代码块: 
+            静态代码块定义在类中方法外(与方法处于同一级别), 静态代码块在非静态代码块之前执行(静态代码块static{...}—>非静态代码块{...}—>构造方法). 该类不管创建多少对象,静态代码块只执行一次.
+        静态内部类(static修饰类的话只能修饰内部类):
+            静态内部类与非静态内部类之间存在一个最大的区别, 非静态内部类在编译完成之后会隐含地保存着一个引用,该引用是指向创建它的外围类,但是静态内部类却没有.
+            没有这个引用就意味着: 1.它的创建是不需要依赖外围类的创建.2.它不能使用任何外围类的非static成员变量和方法.
+        静态导包(用来导入类中的静态资源,1.5之后的新特性): 
+            格式为: import static 这两个关键字连用可以指定导入某个类中的指定静态资源,并且不需要使用类名调用类中静态成员,可以直接使用类中静态成员变量和成员方法.
+        说明:静态代码块与静态方法的区别是:静态代码块是自动执行的而静态方法是被调用的时候才执行的.
+            非静态代码块与构造函数的区别是:  非静态代码块是给所有对象进行统一初始化,而构造函数是给对应的对象初始化,因为构造函数是可以多个的,运行哪个构造函数就会建立什么样的对象,但无论建立哪个对象,都会先执行相同的构造代码块.也就是说,构造代码块中定义的是不同对象共性的初始化内容.
+            
+    this 关键字:
+        this关键字用于引用类的当前实例. 例如:
+            class Manager {
+                Employees[] employees;
+                 
+                void manageEmployees() {
+                    int totalEmp = this.employees.length;
+                    System.out.println("Total employees: " + totalEmp);
+                    this.report();
+                }
+                 
+                void report() { }
+            }
+            在上面的示例中,this关键字用于两个地方: 
+                this.employees.length: 访问类Manager的当前实例的变量.
+                this.report(): 调用类Manager的当前实例的方法.
+
+    super 关键字:
+        super关键字用于从子类访问父类的变量和方法. 例如:
+            public class Super {
+                protected int number;
+                 
+                protected showNumber() {
+                    System.out.println("number = " + number);
+                }
+            }
+             
+            public class Sub extends Super {
+                void bar() {
+                    super.number = 10;
+                    super.showNumber();
+                }
+            }
+        在上面的例子中,Sub 类访问父类成员变量 number 并调用其其父类 Super 的 showNumber() 方法.
+        使用 this 和 super 要注意的问题:
+            super 调用父类中的其他构造方法时,调用时要放在构造方法的首行!
+            this 调用本类中的其他构造方法时,也要放在首行.
+            this,super不能用在static方法中.
+     volatile 关键字:
+         主要作用就是保证变量的可见性然后还有一个作用是防止指令重排序
+
+
+集合框架:
+Arraylist 与 LinkedList 异同:
+    1.是否保证线程安全:  ArrayList 和 LinkedList 都是不同步的,也就是不保证线程安全;
+    2.底层数据结构:  Arraylist 底层使用的是Object数组;LinkedList 底层使用的是双向链表数据结构
+
+ArrayList 与 Vector 区别:
+    Vector类的所有方法都是同步的.可以由两个线程安全地访问一个Vector对象,但是导致单线程访问Vector的效率降低.Arraylist不是同步的,所以在不需要保证线程安全时时建议使用Arraylist.
+
+HashMap的底层实现:
+    数组(数组元素与链表元素一样)+链表  -- 链表散列; 数组中存放的不是链表头,当存在冲突时,数组中存放第一个链表元素
+
+HashMap 和 Hashtable 的区别:
+    1.线程是否安全:  HashMap 是非线程安全的,HashTable 是线程安全的;
+    2.效率: 因为线程安全的问题,HashMap 要比 HashTable 效率高一点.另外,HashTable 基本被淘汰,不要在代码中使用它;
+    3.对Null key 和Null value的支持:  HashMap 中,null 可以作为键,这样的键只有一个,可以有一个或多个键所对应的值为 null..但是在 HashTable 中 put 进的键值只要有一个 null,直接抛出 NullPointerException.
+
+    static final int tableSizeFor(int cap) {
+        int n = cap - 1;
+        //以下操作将最高有效位(非0的位)之后的所有低位置1; 需要关注的是n中为1的最高位
+        n |= n >>> 1; //将n最高的为1的bit位的下一位置1;  0..01xx..xx --> 0..011x..xx
+        n |= n >>> 2;
+        n |= n >>> 4;
+        n |= n >>> 8;
+        n |= n >>> 16;
+        return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
+    }
+
+comparable 和 comparator的区别:
+    comparable接口实际上是出自java.lang包 它有一个 compareTo(Object obj)方法用来排序.
+    comparator接口实际上是出自 java.util 包它有一个compare(Object obj1, Object obj2)方法用来排序.
+
+    
+如何对Object的list排序:
+    对objects数组进行排序,我们可以用Arrays.sort()方法
+    对objects的集合进行排序,需要使用Collections.sort()方法
+
+如何实现数组与List的相互转换:
+    List转数组:  toArray方法---参考: https://www.cnblogs.com/qianqian528/p/7985118.html
+        ElementType[] arrayObj = new ElementType[listObj.size()];
+        arrayObj2 = listObj.toArray(arrayObj);  //arrayObj与arrayObj2相同(是同一对象的引用)
+    数组转List:  asList方法 --注意点: https://blog.csdn.net/kusedexingfu/article/details/77824189; https://www.cnblogs.com/uptownBoy/articles/1698335.html
+        listObj = Arrays.asList(arrayObj);
+
+
+
+
+
+Java报错:
+    找不到或无法加载主类(Error: Could not find or load main class):
+            解决方法1: 删除package声明
+            解决方法2: 指定包名
+                编译: javac ClassName.java -d .  //"-d ."表示根据包名新建一个目录用于存放编译后的结果
+                执行: java packageName.ClassName
+
+
+
+集合框架底层数据结构总结:
+    - Collection:
+        1. List:
+            Arraylist: 数组(查询快,增删慢 线程不安全,效率高 )
+            Vector: 数组(查询快,增删慢 线程安全,效率低 )
+            LinkedList: 链表(查询慢,增删快 线程不安全,效率高 )
+
+        2. Set:
+            HashSet(无序,唯一):哈希表或者叫散列集(hash table)
+            LinkedHashSet: 链表和哈希表组成 . 由链表保证元素的排序 , 由哈希表证元素的唯一性
+            TreeSet(有序,唯一): 红黑树(自平衡的排序二叉树.)
+
+    - Map:
+        HashMap: 基于哈希表的Map接口实现(哈希表对键进行散列,Map结构即映射表存放键值对)
+        LinkedHashMap:HashMap 的基础上加上了链表数据结构
+        HashTable:哈希表
+        TreeMap:红黑树(自平衡的排序二叉树)
+
+
+
+
+
+
+JAVA工具:
+    通过 JDK 自带的 javap 命令查看类的相关字节码信息: 
+    1. 首先到类的对应目录执行 javac Demo.java 命令生成编译后的 .class 文件
+    2. 然后执行javap -c -s -v -l Demo.class
+
+Java 对象的创建过程:
+    类加载检查 ---> 分配内存 ---> 初始化零值 ---> 设置对象头 ---> 执行init方法
+
+对象比较不要使用"==":
+    1.
+    Integer i1 = 40;
+    Integer i2 = new Integer(40);
+    System.out.println(i1==i2);//输出false
+
+    2.
+    String str1 = "abcd";//先检查字符串常量池中有没有"abcd",如果字符串常量池中没有,则创建一个,然后str1指向字符串常量池中的对象,如果有,则直接将str1指向"abcd"";
+    String str2 = new String("abcd");//堆中创建一个新的对象
+    System.out.println(str1==str2);//false
+
+
+日志: Commons-loggin选择日志实现系统的次序:
+    1. 首先在classpath下寻找自己的配置文件commons-logging.properties,如果找到则使用其中的Log实现类
+    2. 如果打不到commons-logging.properties文件,则再查找是否已定义系统环境变量org.apache.commons.logging.Log,找到则使用其定义的Log实现类
+    3. 否则,查看classpath中是否有Log4j的包,如果发现,则自动使用Log4j作为日志实现类;
+    4. 否则,使用JDK自身的日志实现类(JDK1.4以后才有日志实现类);
+    5. 否则,使用commons-logging自己提供的一个简单的日志实现类SimpleLog;
+
+
+日志: Commons-loggin使用方法:
+    在需要输出日志信息的"每一个"类中做如下三个动作:
+        1. 导入所有需的commongs-logging类
+            import org.apache.commons.logging.Log;
+            import org.apache.commons.logging.LogFactory;
+        2. 在自己的类中定义一个org.apache.commons.logging.Log类的私有静态成员
+            private static Log log = LogFactory.getLog(YouClassName.class);
+        3. 使用org.apache.commons.logging.Log类的成员方法输出日志信息
+            log.debug()   输出"调试"级别的日志信息
+            log.info()    输出"信息"级别的日志信息
+            log.warn()    输出"警告"级别的日志信息
+            log.error()   输出"错误"级别的日志信息
+            log.fatal()   输出"致命错误"级别的日志信息
+        --这样做,会在每个类中生成一个静态Log实例,如果是比较大的项目,这样做是不妥的
+    一个更好的方法是:
+         定义一个单例类:线程安全的懒汉式(双重检查加锁):
+            import org.apache.commons.logging.Log;
+            import org.apache.commons.logging.LogFactory;
+            public class Logs{
+                private volatile static Log log = null;
+                private Logs(){}
+                public static Log getLogs() {
+                    if(log == null) {
+                        synchronize(Logs.class){
+                            if(log == null) {
+                                log = new LogFactory.getLog(Logs.class);
+                            }
+                        }
+                    }
+                    return log;
+                }
+            }
+            使用时:
+                import xxx.yyy.Logs;
+                Logs.getLogs().debug("debug");
+
+Spring:
+    POJO(Plain Ordinary Java Object)简单的Java对象,实际就是普通JavaBeans
+
+Bean的作用域:
+    singleton(默认作用域): 每次都返回同一个bean实例(单例类)
+    prototype: 每次都产生一个新的bean实例
+    request: 将bean限制在HTTP请求,只在 web-aware Spring ApplicationContext 的上下文中有效
+    session: 将bean限制在HTTP会话,只在web-aware Spring ApplicationContext的上下文中有效
+    global-session: 将bean限制在HTTP全局会话,只在web-aware Spring ApplicationContext的上下文中有效
+
+Bean的生命周期:
+    init-method:指定安装bean时调用的方法
+    destroy-method:指定拆卸bean时调用的方法[注: 非单例时,Spring无法对Bean的整个生命周期进行管理,
+         最终对象的销毁和资源回收由使用者负责,destroy-method对非单例bean无效].
+    如果有很多Bean有相同的初始化或者销毁方法名称,可以在xml配置文件中的beans节点下配置default-init-method和default-destroy-method属性.
+    或者: 
+    实现InitializingBean接口,那么将在bean初始化时调用接口的afterPropertiesSet()方法.
+    实现DisposableBean接口,那么将在bean销毁时调用接口的destroy()方法.
+    
+Bean后置处理器(BeanPostProcessor):
+    postProcessBeforeInitialization():
+        在任何bean初始化回调之前将此BeanPostProcessor应用于给定的新bean实例(如InitializingBean的afterPropertiesSet()或通过init-method指定的初始化方法).
+        bean已经填充了属性值. 返回的bean实例可能是原始实例的包装器.
+    postProcessAfterInitialization():
+        在任何bean初始化回调之后将此BeanPostProcessor应用于给定的新bean实例(如InitializingBean的afterPropertiesSet()或通过init-method指定的初始化方法).
+        bean已经填充了属性值. 返回的bean实例可能是原始实例的包装器.
+    举例:
+        <beans ...>
+            <bean id="helloWorld" class="com.helloworld.HelloWorld" init-method="init">
+                <property name="message" value="Hello World!" />
+            </bean>
+        
+            <!-- InitHelloWorld实现了BeanPostProcessor接口-->
+            <bean id="initHelloWorld" class="com.helloworld.InitHelloWorld" />
+        </beans>
+        初始化helloWorld Bean时调用相关初始化方法的顺序如下:
+            1.创建出bean对象,并按配置填充完成
+            2.以创建的bean对象为参数调用InitHelloWorld.postProcessBeforeInitialization(bean, beanName);
+            3.调用bean配置中init-method指定的方法
+            4.以创建的bean对象为参数调用InitHelloWorld.postProcessAfterInitialization(bean, beanName);
+
+自动装配(autowire属性):
+    1. autowire="byName": 尝试将它的属性与配置文件中定义为相同名称的bean进行匹配和连接(根据bean的name或id查找)
+    2. autowire="byType": 尝试将它的属性与配置文件中定义为相同类型的bean进行匹配和连接(根据bean的class查找)
+    3. autowire="constructor": 尝试把它的构造函数的参数与配置文件中beans名称中的一个进行匹配和连线
+
+基于注解的配置:
+    在XML注入之前进行注解注入,因为注解的配置将通过两种方式的属性连线被XML重写.
+    注解连线在默认情况下在Spring容器中不打开;如果要使用基于注解的连线,需要在Spring配置文件中启用它.
+    如果你想在Spring应用程序中使用的任何注解,可以考虑到下面的配置文件:
+        <?xml version="1.0" encoding="UTF-8"?>
+        <beans xmlns="http://www.springframework.org/schema/beans"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:context="http://www.springframework.org/schema/context"
+            xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+           <context:annotation-config/>
+           <!-- bean definitions go here ... -->
+        </beans>
+    
+    注解 & 描述
+        @Required
+            应用于bean属性的setter方法.
+            它表明受影响的bean属性在配置时必须放在XML配置文件中,否则容器就会抛出一个BeanInitializaException异常.
+        @Autowired
+            应用到bean属性的setter方法,非setter方法,构造函数和属性.sping会使用byType来自动连接@Autowired注释的setter方法
+        @Qualifier
+            通过指定确切的将被连线的bean,@Autowired 和 @Qualifier 注解可以用来消除混乱.
+        JSR-250 Annotations
+            ...
+        重点:
+             <context:annotation-config> 和 <context:component-scan>配置的区别,参考:https://www.cnblogs.com/leiOOlei/p/3713989.html
+
+    基于Java注解的配置:
+        @Configuration 和 @Bean 注解:
+            @Configuration注解的类表示这个类可以使用Spring IoC容器作为bean定义的来源.
+            @Bean注解的方法将返回一个对象,这个对象应该是被注册在Spring应用程序的上下文的bean.
+    
+    sping使用注解创建对象:
+        类定义时:
+            @Component(value="user") //"user"等同于这个bean的id. spring可以通过这个id来获取User对象
+            public class User{}
+        
+        sping配置文件中:
+            引入注解需要的约束: 
+                spring-context.xsd
+            开启注解扫描:
+                <context:component-scan base-package="要扫描的包名"></context:component>
+        
+        单实例还是多多实例:
+            类定义时:
+            @Component(value="user")
+            @Scope(value="prototype")
+            public class User{}
+    
+    sping使用注解注入属性:
+        类定义时:
+            @Component(value="userDao")
+            public class UserDao{}
+            
+            @Service(value="userService")
+            public class UserService{
+                //方式一
+                @Autowired              //默认会根据类型查找用于实例化对象的类
+                private UserDao userDao; //使用注解方式时不需要setter方法
+                
+                //方式二(推荐)
+                @Resource(name="userDao")    //根据bean id去查找用于实例化对象的类.(name值写注解创建对象时对应的value的值)
+                private UserDao userDao2; //使用注解方式时不需要setter方法
+            }
+        
+配置文件与注解混合使用:
+    1. 创建对象操作使用配置文件方式实现
+    2. 注入属性的操作使用注解方式实现
+    类定义:
+        public class BookDao{}
+        
+        public class OrderDao{}
+        
+        public class BookService{
+            @Resource(name="bookDao")
+            private BookDao bookDao;
+            @Resource(name="orderDao")
+            private OrderDao;
+        }
+    
+    spring配置文件:
+        <bean id="bookService" class="cn.studuy.xmlanno.BookService"></bean>
+        <bean id="orderDao" class="cn.studuy.xmlanno.OrderDao"></bean>
+        <bean id="bookDao" class="cn.studuy.xmlanno.BookDao"></bean>
+        
+        @Component
+        @Controller :WEB层
+        @Service    :业务层
+        @Repository :持久层
+        目前这四个注解功能是一样的,都是创建对象; 
+
+AOP(面向切面编程):
+    AOP术语:
+        Join point: 连接点--可以被增强的方法
+        Pointcut *: 切入点 --实际要增强的方法
+            使用表达式配置切入点: execution(<访问修饰符>?<返回类型><方法名>(<参数>)<异常>)
+            常用写法:
+                1. execution(* cn.mypkg.aop.BookDao.add(..)) //精确到包中类的方法
+                2. execution(* cn.mypkg.aop.BookDao.del*(..)) //精确到包中的类的以del开头的方法
+                3. execution(* cn.mypkg.aop.BookDao.*(..)) //精确到包中的类(的任意方法)
+                4. execution(* *.*(..)) //任意包的任意方法
+        Advice *: 通知/增强 -- 扩展的逻辑(前置通知,后置通知,异常通知,最终通知(在后置之后执行),环绕通知(可控制被代理的方法的执行时机))
+        Aspect *: 切面 -- 把增强应用到具体的方法上的过程称为切面(把增强用到切入点的过程)
+        Introduction: 引介  -- 动态的添加方法或Field
+        Target object: 目标对象  -- 要增强的类
+        Weaving: 织入 -- 把增强应用到目标对象的过程
+        Proxy : 代理 -- 一个类被AOP织入增强后,就产生一个代理类
+        
+    切面编程--横向扩展:
+        动态代理模式,字节码替换.
+        
+                    A -- B -- C -- D
+    纵向机制扩展B: A -- Sub_B -- C -- D
+    横向机制扩展B: A -- Proxy_B -- C -- D
+        
+Spring的aop操作:
+    spring和aspectj一起使用来进行aop操作
+    
+    使用aspectj实现aop有两种方式:
+        1. 基于aspectj的xml配置
+        2. 基于aspectj的注解方式
+        
+    基于aspectj的xml配置:
+        准备操作:
+            1. 导入aspectj的包
+            2. 配置文件. 导入aop约束 -- sping-aop.xsd
+        要增强的类:
+            public class BookDao{
+                public void add(){
+                    System.out.println("add book...");
+                }
+            }
+        增强类:
+            public class AdviceBookDao{
+                public void beforeLog(){
+                    System.out.println("前置增强");
+                }
+            }
+        进行配置:
+            <!--配置对象-->
+            <bean id="bookDao" class="cn.mypkg.aop.BookDao"></bean>
+            <bean id="adviceBookDao" class="cn.mypkg.aop.adviceBookDao"></bean>
+            
+            <!--配置aop操作-->
+            <aop:config>
+                <!--配置切入点-->
+                <aop:pointcut id="pointcut_bookDao_add" expression="execution(* cn.mypkg.aop.BookDao.add(..))" />
+                
+                <!--配置切面-->
+                <aop:aspect ref="adviceBookDao">
+                    <!--配置增强类型:
+                        method: 指定用于增强的方法
+                        pointcut-ref: 指定增强作用的切入点
+                    -->
+                    <aop:before method="beforeLog" pointcut-ref="pointcut_bookDao_add" />
+                </aop:aspect>
+            </aop:config>
+
+        验证:
+            ApplicationContext context = new ClassPathXmlApplicationContext("beanX.xml");
+            BookDao boolDao = (BookDao)context.getBean("bookDao");
+            boolDao.add();
+
+    基于aspectj的注解配置:
+        准备操作:
+            1. 导入aspectj的包
+            2. 配置文件. 导入aop约束 -- sping-aop.xsd
+        要增强的类:
+            public class BookDao{
+                public void add(){
+                    System.out.println("add book...");
+                }
+            }
+        增强类:
+            @Aspect  //指示这个类用于增强
+            public class AdviceBookDao{
+                @Before(value="execute(* cn.mypkg.dao.BookDao.add(..))") //前置增加,同时指定切入点
+                public void beforeLog(){
+                    System.out.println("前置增强");
+                }
+            }
+        进行配置:
+            <!--配置对象-->
+            <bean id="bookDao" class="cn.mypkg.aop.BookDao"></bean>
+            <bean id="adviceBookDao" class="cn.mypkg.aop.adviceBookDao"></bean>
+
+            <!--开启aop操作-->
+            <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+        验证:
+            ApplicationContext context = new ClassPathXmlApplicationContext("beanX.xml");
+            BookDao boolDao = (BookDao)context.getBean("bookDao");
+            boolDao.add();
+        
+
+log4j:
+    1. 导入log4j的jar包
+    2. 复制log4j的配置文件(log4j.properties),复制到src下面
+    3. 在配置文件中可以设置日志级别
+
+
+Spring整合web项目演示:
+    演示问题:
+    1. action调用service, service调用dao
+    实现在服务器启动的时候,加载配置文件创建对象.避免在action中加载.
+    类定义:
+        public class UserAction extends ActionSupport{
+        
+            @Override
+            public String execute() throws Exception{
+                /*在这里加载bean会导致性能问题,因为每次请求这个action时都会执行一次
+                  解决方案: 
+                    1. 在服务器启动的时候,加载配置文件创建对象
+                    2. 底层使用监听器,ServletContext对象
+                    --不需要我们自己实现,spring已经封装好了, 我们只需要配置监听器就好了:
+                        1. 在配置之前需要导入spring整合web项目的jar包--spring-web-4.2.4.RELEASE.jar
+                        2. 需要在struts的web.xml中配置监听器
+                        3. 指定加载spring配置文件的位置(在web.xml中)
+                */
+                //ApplicationContext context = new ClassPathXmlApplicationContext("beanX.xml");
+                
+                UserService userService = (UserService)context.getBean("userService");
+                userService.add();
+                return NONE;
+            }
+        }
+        
+        public class UserService{
+            private UserDao myuserDao;
+            
+            public void serUserDao(UserDao userDao){
+                this.myuserDao = userDao;
+            }
+            
+            public void add(){
+                System.out.println("UserService add...")
+            }
+        }
+        
+        public class UserDao{
+            public void add(){
+                System.out.println("UserDao add...")
+            }
+        }
+    
+    sprint配置:
+        <bean id="userService" class="cn.mypkg.service.UserService">
+            <property name="myuserDao" ref="userDao"></property>
+        </bean>
+        <bean id="userDao" class="cn.mypkg.dao.UserDao"></bean>
+        <bean id="userAction" class="cn.mypkg.action.UserAction"></bean>
+    
+    struts配置:
+        action配置(struts.xml):
+            <struts>
+                <package name="demo1" extends="struts-default" namespace="/">
+                    <action name="userAction", class="cn.mypkg.action.UserAction"></action>
+                </package>
+            </struts>
+        过滤器配置(web.xml):
+            <display-name>spring_study_webdemo</display-name>
+            
+            <!--指定spring配置文件的位置-->
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:beanX.xml</param-value>
+            
+            <filter>
+                <filter-name>struts2</filter-name>
+                <filter-class>org.apache.struts2.dispatcher.FilterDispatcher</filter-class>
+            </filter>
+            <filter-mapping>
+                <filter-name>struts2</filter-name>
+                <url-pattern>/*</url-pattern>
+            </filter-mapping>
+            
+            <!--配置监听器-->
+            <listener>
+                <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+            </listener>
+        
+Sping的jdbcTemplate操作:
+    dao层 -- jdbcTemplate
+    对持久化技术的封装:
+        JDBC            -- org.spring.framework.jdbc.core.JdbcTemplate
+        Hibemate.5.0    -- org.spring.framework.orm.hibernate5.HibernateTemplate
+        IBatis(MyBatis) -- org.spring.framework.orm.ibatis.SqlMapClientTemplate
+        JPA             -- org.spring.framework.orm.jpa.JpaTemplate
+
+    一般操作步骤:
+        1. 导包. 创建数据源对象(设置: 数据库驱动,数据库url--jdbc:mysql://192.168.0.200:3306/db_name, 用户名, 密码)
+            DriverManagerDataSource dataSource = new DriverManagerDataSource();
+            dataSource.setDriverClassName("com.mysql.jdbc.Derver");
+            dataSource.setUrl("mysql://192.168.0.200:3306/db_name");
+            dataSource.setUsername("gjy");
+            dataSource.setPassword("gujiayuan");
+        2. 创建jdbcTemplate对象,设置数据源:
+            JdbcTemplate jdbcTemplateObject = new JdbcTemplate(dataSource);
+        3. 调用jdbcTemplate对象里面的方法实现CRUD操作:
+            String sql = "insert into user values(?, ?)";
+            //增删改操作都可以直接通过JdbcTemplate的update方法执行sql
+            int rows = jdbcTemplateObject.update(sql, "gsf", "25");
+            JdbcTemplate的查询操作需要开发人员实现RowMapper接口:
+                JdbcTemplate针对RowMapper这个接口没有提供实现类,开发人员需要根据自己查询的结果进行数据封装.
+                1. 查询返回某一个值(基础对象):
+                    String sql = "select count(*) from user";
+                    /*第一个参数为要执行的sql
+                      第二参数为要查询的基础对象的class*/
+                    Integer count = jdbcTemplateObject.queryForObject(sql, Integer.class);
+                2. 查询返回某一个对象:
+                    对象类:
+                        public class User{
+                            private String name;
+                            private String age;
+                            prviate Integer id;
+                            //...省略getter,setter方法
+                        }
+                    定义一个查询结果到实现对象的映射,实现RowMapper接口:
+                        public class UserMapper implement RowMapper<User>
+                            throws SQLException{
+                            
+                            public final String SelUserSqlById = "select name, age, id from user where id=?";//id是唯一的,所以查询结果是一个对象
+                            
+                            //实现RowMapper接口的方法
+                            @Override
+                            public User mapRow(ResultSet rs, int rowNum){
+                                User user = new User();
+                                user.setId(rs.getInt("id"));
+                                user.setName(rs.getString("name"));
+                                user.setAge(rs.getInt("age"));
+                                return user;
+                            }
+                        }
+                    执行查询操作:
+                        String sql = UserMapper.SelUserSqlById;
+                        /*第一个参数为要执行的sql
+                          第二参数为RowMapper的实现类的对象
+                          第三参数为可变参数(对应sql中的占位符)*/
+                        User user = jdbcTemplateObject.queryForObject(sql, new UserMapper(), 3);
+                3. 查询返回一个List集合:
+                    对象类:
+                        public class User{
+                            private String name;
+                            private String age;
+                            prviate Integer id;
+                            //...省略getter,setter方法
+                        }
+                    定义一个查询结果到实现对象的映射,实现RowMapper接口:
+                        public class UserMapper implement RowMapper<User>
+                            throws SQLException{
+                            
+                            public final String SelUserSqlByName = "select name, age, id from user where name=?";//name不是唯一的,所以查询结果是list
+                            
+                            //实现RowMapper接口的方法
+                            @Override
+                            public User mapRow(ResultSet rs, int rowNum){
+                                User user = new User();
+                                user.setId(rs.getInt("id"));
+                                user.setName(rs.getString("name"));
+                                user.setAge(rs.getInt("age"));
+                                return user;
+                            }
+                        }
+                    执行查询操作:
+                        String sql = UserMapper.SelUserSqlByName;
+                        /*第一个参数为要执行的sql
+                          第二参数为RowMapper的实现类的对象
+                          第三参数为可变参数(对应sql中的占位符)*/
+                        List<User> userList = jdbcTemplateObject.query(sql, new UserMapper(), 3);
+
+Spring配置连接池 & dao使用jdbcTemplate:
+    Spring配置c3p0连接池:
+        1. 导c3p0的jar包和依赖包
+        2. 在spring的配置文件中配置连接池:
+            <!--配置c3p0连接池-->
+            <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledPooledDataSource">
+                <property name="driverClass" ref="com.mysql.jdbc.Derver"></property>
+                <property name="jdbcUrl" ref="mysql://192.168.0.200:3306/db_name"></property>
+                <property name="user" ref="gjy"></property>
+                <property name="password" ref="gujiayuan"></property>
+            </bean>
+            
+            <bean id="userService" class="cn.mypkg.service.UserService">
+                <property name="myuserDao" ref="userDao"></property>
+            </bean>
+            <bean id="userDao" class="cn.mypkg.dao.UserDao">
+                <property name="jdbcTemplate" ref="jdbcTemplate">
+                    <!--把dataSource注入到jdbcTemplate对象里面-->
+                    <property name="dataSource" ref="dataSource"></property>
+                </property>
+            </bean>
+            <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate"></bean>
+            
+        3. dao使用jdbcTemplate:
+            public class UserService{
+                private UserDao myuserDao;
+                
+                public void serUserDao(UserDao userDao){
+                    this.myuserDao = userDao;
+                }
+                
+                public void add(){
+                    System.out.println("UserService add...")
+                }
+            }
+            
+            public class UserDao{
+                private JdbcTemplate jdbcTemplate;
+                //省略jdbcTemplate的setter方法
+                
+                public void add(){
+                    //创建jdbcTemplate对象 --把创建对象交给spring去完成
+                    //JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+                    
+                    String sql = "insert into user values(?, ?)";
+                    jdbcTemplate.update(sql, "gjy", "gjypassword");
+                }
+            }
+            
+Spring事务管理:
+    基本概念:
+        事务特性
+        
+        不考虑隔离性产生读问题
+        
+        解决读问题:
+            设置隔离级别
+
+    事务管理的两种方式:
+        1. 编程式事务管理(基本不用)
+        2. 声明式事务管理
+            2.1. 基于xml配置文件实现
+            2.2. 基于注解实现(重点)
+            
+    spring事务管理api:
+        事务管理器接口 PlatformTransactionManager.
+        spring针对不同的dao框架提供了不同的PlatformTransactionManager实现类.
+
+
+SSH三大框架整合:
+    1. struts2
+        Action操作:
+            action创建的三种方式:
+                --继承ActionSupport
+                
+            配置action访问路径
+                --创建struts.xml配置文件(位置固定在src下)
+                
+            配置访问action的多个方法
+                --使用通配符方式配置
+                
+            在action中获取表单提交的数据:
+                --获取request对象: 使用ServletActionContext类获取
+                --属性封装
+                --模型驱动(重点)
+                --表达式封装
+                
+            在action中操作域对象
+                --使用ServletActionContext类获取域对象
+                
+            配置struts2的过滤器:
+        
+        值栈:
+            向值栈中放数据:
+                --set方法
+                --push方法
+                --定义变量, 生成get方法
+            从值栈中取数据:
+                --在jsp中使用struts2标签+ognl获取
+                --<s:property>
+                --<s:iterator>
+        
+        拦截器:
+            1. aop和责任链模式
+            2. 自定义拦截器
+                --继承MethodFilterInterceptor
+                --重写类的方法
+                --配置拦截器和action的关联
+        
+    2. hibernate5.x
+        --单独使用hibernate框架时,其核心配置文件名称(hibernate.cfg.xml)和位置(在src下)是固定的.
+        --hibernate和spring整合时,其核心配置文件名称和位置没的固定要求.
+        ORM思想: 对象关系映射
+        
+    3. sprint4.x
+        spring核心配置文件:
+            1. spring核心配置文件名称和位置没有固定要求
+            2. 在spring核心配置文件中引入schema约束
+        创建对象:
+            1. xml配置方式: <bean id="" class="" />
+            2. 注解方式: 四个注解
+        注入属性:
+            1. xml配置方式:
+            2. 注解方式:
+                --autoWired
+                --resource
+        Spring整合web项目时:
+            在服务器启动的时候,加载配置文件创建对象.避免在action中加载.
+            
+    三大框架整合时spring起到桥梁作用:
+        web ----------------------------> service ---------------------------> dao
+        struts2                           spring                            hibernate 
+            struts2和spring整合                        spring和hibernate整合
+        把struts2的action对象创建交给spring配置.     把hibernate核心配置文件中的数据库配置
+        <bean id=""  class="" scope="prototype">              写到spring配置文件中.
+        .                                            把sessionFactory对象的创建交给spring管理.
+
+spring分模块开发:
+    将spring的核心配置文件中的一部分配置放到单独的配置文件中,然后在核心配置文件中引用它.
+    <import resource="classpath:study/mypkg/module1.xml"></import>
+    <import resource="classpath:study/mypkg/module2.xml"></import>
+    
+struts的配置文件可以分为多个,在主配置文件中通过<include>标签引入其他的配置文件:
+    <include file="filePath"></include>
+
+XXX:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+配置文件:
+
+
+
+log4j.properties文件模板:
+##Log4J配置文件实现了输出到控制台,文件,回滚文件,发送日志邮件,输出到数据库日志表,自定义标签等全套功能.择其一二使用就够用了.  
+    log4j.rootLogger = DEBUG, CONSOLE,A1
+    log4j.addivity.org.apache = true
+      
+    # 应用于控制台    
+    log4j.appender.CONSOLE = org.apache.log4j.ConsoleAppender
+    log4j.appender.Threshold = DEBUG
+    log4j.appender.CONSOLE.Target = System.out
+    log4j.appender.CONSOLE.layout = org.apache.log4j.PatternLayout
+    log4j.appender.CONSOLE.layout.ConversionPattern = [framework]%d-%c-%-4r[%t]%-5p %c %x-%m%n
+    #log4j.appender.CONSOLE.layout.ConversionPattern = [start]%d{DATE}[DATE]%n%p[PRIORITY]%n%x[NDC]%n%t[THREAD]%n %c[CATEGORY]%n%m[MESSAGE]%n %n
+      
+    #应用于文件   
+    log4j.appender.FILE = org.apache.log4j.FileAppender
+    log4j.appender.FILE.File = file.log
+    log4j.appender.FILE.Append = false
+    log4j.appender.FILE.layout = org.apache.log4j.PatternLayout
+    log4j.appender.FILE.layout.ConversionPattern = [framework]%d-%c-%-4r[%t]%-5p %c %x-%m%n
+    # Use  this  layout  for  LogFactor  5  analysis
+      
+    # 应用于文件回滚    
+    log4j.appender.ROLLING_FILE = org.apache.log4j.RollingFileAppender
+    log4j.appender.ROLLING_FILE.Threshold = ERROR
+    log4j.appender.ROLLING_FILE.File = rolling.log
+    log4j.appender.ROLLING_FILE.Append = true
+    log4j.appender.ROLLING_FILE.MaxFileSize = 10KB
+    log4j.appender.ROLLING_FILE.MaxBackupIndex = 1
+    log4j.appender.ROLLING_FILE.layout = org.apache.log4j.PatternLayout    
+    log4j.appender.ROLLING_FILE.layout.ConversionPattern = [framework]%d-%c-%-4r[%t]%-5p %c %x-%m%n
+      
+    #应用于socket    
+    log4j.appender.SOCKET = org.apache.log4j.RollingFileAppender
+    log4j.appender.SOCKET.RemoteHost = localhost
+    log4j.appender.SOCKET.Port = 5001     
+    log4j.appender.SOCKET.LocationInfo = true
+    # Set up  for  Log Facter  5
+    log4j.appender.SOCKET.layout = org.apache.log4j.PatternLayout
+    log4j.appender.SOCET.layout.ConversionPattern = [start]%d{DATE}[DATE]%n%p[PRIORITY]%n%x[NDC]%n%t[THREAD]%n %c[CATEGORY]%n%m[MESSAGE]%n %n
+      
+    # Log Factor  5  Appender    
+    log4j.appender.LF5_APPENDER = org.apache.log4j.lf5.LF5Appender
+    log4j.appender.LF5_APPENDER.MaxNumberOfRecords = 2000
+      
+    # 发送日志给邮件    
+    log4j.appender.MAIL = org.apache.log4j.net.SMTPAppender
+    log4j.appender.MAIL.Threshold = FATA
+    log4j.appender.MAIL.BufferSize = 10
+    log4j.appender.MAIL.From = web@www.wuset.com
+    log4j.appender.MAIL.SMTPHost = www.wusetu.com
+    log4j.appender.MAIL.Subject = Log4J Message
+    log4j.appender.MAIL.To = web@www.wusetu.com
+    log4j.appender.MAIL.layout = org.apache.log4j.PatternLayout
+    log4j.appender.MAIL.layout.ConversionPattern = [framework]%d-%c-%-4r[%t]%-5p %c %x-%m%n
+      
+    # 用于数据库    
+    log4j.appender.DATABASE = org.apache.log4j.jdbc.JDBCAppender
+    log4j.appender.DATABASE.URL = jdbc:mysql://localhost:3306/test
+    log4j.appender.DATABASE.driver = com.mysql.jdbc.Driver
+    log4j.appender.DATABASE.user = root
+    log4j.appender.DATABASE.password =     
+    log4j.appender.DATABASE.sql = INSERT INTO LOG4J (Message) VALUES ( ' [framework] %d - %c -%-4r [%t] %-5p %c %x - %m%n ' )
+    log4j.appender.DATABASE.layout = org.apache.log4j.PatternLayout    
+    log4j.appender.DATABASE.layout.ConversionPattern = [framework]%d-%c-%-4r[%t]%-5p %c %x-%m%n
+    log4j.appender.A1 = org.apache.log4j.DailyRollingFileAppender
+    log4j.appender.A1.File = SampleMessages.log4j
+    log4j.appender.A1.DatePattern = yyyyMMdd - HH ' .log4j '
+    log4j.appender.A1.layout = org.apache.log4j.xml.XMLLayout
+      
+    #自定义Appender    
+    log4j.appender.im  =  net.cybercorlin.util.logger.appender.IMAppender
+    log4j.appender.im.host  =  mail.cybercorlin.net
+    log4j.appender.im.username  =  username
+    log4j.appender.im.password  =  password
+    log4j.appender.im.recipient  =  corlin@cybercorlin.net
+    log4j.appender.im.layout = org.apache.log4j.PatternLayout    
+    log4j.appender.im.layout.ConversionPattern  = [framework]%d-%c-%-4r[%t]%-5p %c %x-%m%n
+
+    补充一: 
+    log4j.properties文件中,logger定义的日志级别可以和appender的不一样.
+    在定义logger时,尽量把日志级别往低里写;在appender里定义日志级别时可以按需要来写.
+    比如,定义一个logger,
+    log4j.rootLogger = DEBUG, CONSOLE,A1
+    定义成DEBUG,不管appender怎么定义,肯定有输出.
+    如果定义成: 
+    log4j.rootLogger = INFO, CONSOLE,A1
+    定义成INFO,appender的定义必须级别必须比他高才行,如果appender定义成DEBUG,将不会输出.
+     
+    同样的,在程序中调用logger时,调用的方法级别也必须要比logger定义的级别高,才有输出.
+    比如,log4j.rootLogger = INFO, CONSOLE,A1
+    定义成INFO,程序中,Logs.getLogger().info()方法是可以有输出的;Logs.getLogger().debug()方法将不会有任何输出.
+     
+    补充二: 
+    有关日志文件输出路径.
+    如果不指定路径,日志文件是输出在运行目录的,也就是应用服务器的bin目录下,
+    比如下面: 
+    log4j.appender.A1.File = SampleMessages.log4j
+    假设应用服务器用的是tomcat,那么SampleMessages.log4j文件会在tomcat安装目录的bin子目录下.
+    为了把日志文件统一存放,请使用绝对路径或相对路径,比如下面: 
+    log4j.appender.A1.File = ../logs/SampleMessages.log4j
+    这样日志文件将放在tomcat的logs目录内.

@@ -1,0 +1,6 @@
+三大框架:
+    Struts(1.x 2.x), Hibernate, Spring   --SSH
+    
+MVC: Model View Control
+web项目请求过程: jsp <---> 应用服务器 <---> 数据库服务器
+                 view <---> control <---> services <---> (dao, model[javabean, 组件]) <---> DB

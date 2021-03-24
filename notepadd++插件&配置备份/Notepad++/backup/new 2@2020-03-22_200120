@@ -1,0 +1,14 @@
+cd /home/gjy/wks/recsys/recsys_web
+nohup java -jar recsys-noone-control-1.0-SNAPSHOT.jar 1>./nohup_out.txt 2>&1 &
+
+cd /home/gjy/wks/recsys//recsys_core/movie_based_rec
+nohup python3 movie_based_recall.py 1>./nohup_out.txt 2>&1 &
+
+cd /home/gjy/wks/recsys//recsys_core/model_based_rec
+nohup python3 prepare_comment_libsvm.py 1>./nohup_out.txt 2>&1 &
+nohup python3 model_based_fm_lr_rec.py 1>./nohup_out.txt 2>&1 &
+
+sudo /usr/local/nginx/sbin/nginx
+
+
+120.79.101.81

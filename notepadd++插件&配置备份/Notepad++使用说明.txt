@@ -1,0 +1,31 @@
+plugins: 备份的Notepad++安装插件
+    路径: Notepad++的安装目录. 如:"C:/Program Files (x86)/Notepad++"
+
+
+Notepad++: 备份的Notepad++配置
+    shortcuts.xml : Notepad++的录制的宏文件
+        路径:C:/Users/gjy/AppData/Roaming/Notepad++
+        其中的<Macro name="MacroName" Ctrl="no" Alt="no" Shift="no" Key="0">节点定义了一个宏操作;
+        可以手动将多个宏节点进行合并,来合并多次录制的宏.
+        
+    宏的录制:
+        以制做"给选定内容添加双引号为例":
+        "鼠标选中文本"  --> "Ctrl+H"调出替换界面(选中文本后替换界面的"选取范围内"复选框才被激活)
+                        -->替换配置:使用正则表达式.
+                                    查找目标:(.+)
+                                    替换为:"$1"
+                                    勾选: 选取范围内(因为我是要在选取范围内进行全部替换.)
+                        --> 点击"开始录制宏"
+                        --> 点击全部替换(选取范围内)
+                        --> 点击"停止录制宏"
+                        --> 点击"保存录制宏"
+                        --> OK
+        注: 在录制宏之前先保证功能正确.
+            多个操作可以录制成一个宏.
+            多次录制的宏可以通过手动合并"shortcuts.xml"文件的<Macro name=..>节点进行合并.
+            
+Notepad++配置运行命令:
+    1. Notepad++ ->"运行"菜单->"运行"按钮
+    2. 在弹出的窗口内输入要执行的命令
+        如: 通过pthon执行当前文件: "cmd /k cd /d "$(CURRENT_DIRECTORY)" & python "$(FILE_NAME)" & ECHO. & PAUSE & EXIT"
+    3. 点击"保存",随意取一个名字(如:"RunPython")

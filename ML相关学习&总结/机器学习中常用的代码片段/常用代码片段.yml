@@ -1,0 +1,57 @@
+数据处理:
+
+查看分类错误的项和错误的比率:
+    # predict.shape为(N, 1) 
+    predictErrWhere = np.where(predict != y_test) #获取分类错误的项的索引
+    errorRate = np.size(predictErrWhere, 1)/len(y_test) 
+
+缺失值检查:
+    # numpy检查各列的缺失率
+    colnumNum = np.size(data, axis=1)
+    for colnumIndex in np.arange(colnumNum):
+        colnumData = data[:, colnumIndex]
+        missRate = len(colnumData[np.isnan(colnumData)]) / len(colnumData)
+        print("colnum_%d missRate is %.3f" % (colnumIndex, missRate))
+        pass # 可对缺失率较大的特征进行处理
+
+    # pandas
+    data.isnull().any() # 统计data里每一列是否有空值
+    data.isnull().sum().sort_values(ascending=False) # 统计data里每一列中空值的数目
+    data.isnull().sum()/len(data.index) # 统计data里每一列中空值的比率
+
+获取缺失值所对应的行索引:
+    # pandas --获取哪些行缺失了"ColName"列
+    data["ColName"][data["ColName"].isnull()].index
+
+查看数据各列中可能的取值(不输出重复的值):
+    # pandas 可以输出取nan的情况
+    for colnumnName in data.columns:
+        colnumValues = data.loc[:, colnumnName].T.drop_duplicates().values
+        print(colnumnName, ":", colnumValues)
+    
+    # numpy data说明: 行:样本, 列:特征
+    # 注意: 因为np.nan != np.nan, 所以下面的代码没法输出取nan的值
+    for colnumnIndex in np.arange(np.size(data, axis=1)):
+        colData = data[:, colnumnIndex].T
+        colData = colData[~np.isnan(colData)]  # 过滤掉np.nan, 否则可能返回多个nan值
+        colnumValues = np.unique(colData)
+        print(colnumnIndex, ":",  colnumValues)
+
+np.isnan不能处理object的array:
+    np.isnan 可以应用于本机dtype的NumPy数组(例如np.float64)
+        In [99]: np.isnan(np.array([np.nan, 0], dtype=np.float64))
+        Out[99]: array([ True, False], dtype=bool)
+    但是在应用于对象数组时引发TypeError：
+        In [96]: np.isnan(np.array([np.nan, 0], dtype=object))
+        TypeError: ufunc "isnan" not supported for the input types...
+    解决方法: 
+        使用pd.isnull()来代替np.isnan();  None在对象数组中也将其视为空值!!
+        
+        
+目录,文件遍历:
+    # os.walk() 函数会递归的访问目录树
+    for dirpath, dirnames , filenames in os.walk(r"D:\myProject\JupyterWKS\myStudyProj"):
+        print(dirpath)
+        print(dirnames)
+        print(filenames)
+        

@@ -1,0 +1,77 @@
+#提问
+Python __init__ and self what do they do?
+
+I'm learning the Python programming language, 
+and I've come across certain things I don't fully understand. 
+I'm coming from a C background, but I never went far with that either.
+
+What I'm trying to figure out is:
+In a method:
+
+def method(self, blah):
+    def __init__(?):
+        ....
+    ....
+What does self do? what is it meant to be? and is it mandatory?
+
+What does the __init__ method do? why is it necessary? etc
+
+I think they might be oop constructs, but I don't know very much..
+
+
+#回答  	 	
+In this code:
+
+class A(object):
+    def __init__(self):
+        self.x = 'Hello'
+
+    def method_a(self, foo):
+        print self.x + ' ' + foo
+
+... the self variable represents the instance of the object itself. 
+Most object-oriented languages pass this as a hidden parameter to the methods defined on an object; 
+Python does not. You have to declare it explicitly. 
+When you create an instance of the A class and call its methods, 
+it will be passed automatically, as in ...
+
+a = A()               # We do not pass any argument to the __init__ method
+a.method_a('Sailor!') # We only pass a single argument
+The __init__ method is roughly what represents a constructor in Python. 
+When you call A() Python creates an object for you, 
+and passes it as the first parameter to the __init__ method. 
+Any additional parameters (e.g., A(24, 'Hello')) will also get passed as arguments
+--in this case causing an exception to be raised, since the constructor isn't expecting them.
+	 		 	
+It's worth pointing out that the first argument need not necessarily be called self, 
+it just is by convention. 
+
+
+问答2:
+Yep, you are right, these are oop constructs.
+init is the constructor for a class. 
+The self parameter refers to the instance of the object (like this in C++).
+
+class Point:
+    def __init__(self, x, y):
+        self._x = x
+        self._y = y
+The init method gets called when memory for the object is allocated:
+
+x = Point(1,2)
+It is important to use the self parameter inside an object's method 
+if you want to persist the value with the object. 
+If, for instance, you implement the init method like this:
+
+class Point:
+    def __init__(self, x, y):
+        _x = x
+        _y = y
+Your x and y parameters would be stored in variables on the stack 
+and would be discarded when the init method goes out of scope. 
+Setting those variables as self._x sets those variables as members of the Point object 
+(accessible for the lifetime of the object).
+
+ 	
+Underscores are used to indicate those class members are "private". 
+Client code should not depend on them. They may change in the future. It's just a convention.

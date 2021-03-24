@@ -1,0 +1,1090 @@
+
+物理组件:
+    数据文件
+    控制文件
+    日志文件
+
+
+逻辑组件:
+    ---------------数据库---------------
+        -----------表空间1-----------   由数据文件组成
+             ---------段1----------      [数据段\索引段\回退段\临时段]--对应表
+                 -----区1-----            对应表上的记录
+                  -数据块1-              对应记录中的字段
+                  -数据块2-
+                  ........
+                -----区2-----
+                  -数据块1-
+                  -数据块2-
+                  ........
+            ---------段2----------      
+                 -----区1-----
+                  -数据块1-
+                  -数据块2-
+                  ........
+                -----区2-----
+                  -数据块1-
+                  -数据块2-
+                  ........
+            
+         -----------表空间2-----------
+             ---------段1----------      
+                 -----区1-----
+                  -数据块1-
+                        .
+                        .
+
+
+模式 --用户创建的数据库对象的总称
+
+我Win10上oracle数据库的用户名&密码:
+    sys:gujiayuan
+    system:gujiayuan
+    scott:tiger
+    
+忘记密码的找回密码的方法:
+    sqlplus /nolog
+    connect /as sysdba;
+    ALTER USER sys IDENTIFIED BY gujiayuan; //修改sys用户的密码
+    ALTER USER system IDENTIFIED BY gujiayuan; //修改system用户的密码
+    SELECT username FROM dba_users; //查询所有用户名
+    ALTER USER scott IDENTIFIED BY gujiayuan; //修改scott用户的密码
+    ALTER USER scott ACCOUNT UNLOCK; 
+    另外:我的电脑上PLSQL Developer需要使用管理员权限打开才能连接上oracle.
+    
+
+
+创建表空间的语法:
+    CREATE TABLESPACE tablespacename DATAFILE 'filename' SIZE  [K|M] [AUTOEXTEND [OFF|ON]];
+
+
+Oracle服务器由oracle数据库和oracle实例组成。
+Oracle实例由系统全局内存结构和用于管理数据库的后台进程组成。 
+
+数据库信息存储于SGA,由多个数据库进程共享.
+系统全局区(SGA)内存结构:
+    共享池:
+        语法分析,编译,执行
+        包括:
+            库缓存.
+            数据字典缓存.
+        直接影响数据库的性能
+
+    数据缓冲区:
+        暂存从磁盘读入的数据,所有用户共享.
+        直接影响数据库的读取速度.
+
+    日志缓冲区:
+        暂存数据库的修改信息, 当积累到一定数量后写入日志文件中.
+
+
+
+后台进程:
+    PMON: 进程监控
+        清理故障进程.
+        释放所有当前挂起的锁定.
+        释放故障进程的资源.
+    SMON: 系统监控进程
+        在实例失败之后,重新打开数据库时自动恢复实例.
+        整理数据文件的自由空间.
+        释放不再使用的临时段.
+    DBWR: 数据写入进程
+        将修改后的缓冲区数据写入数据文件.
+    LGWR: 日志写入进程
+        系统有多个日志文件，该进程以循环的方式将数据写入文件
+
+    CKPT: 进程检查进程
+        该进程在检查点出现时，对全部数据文件的标题进行修改，指示该检查点。 
+
+    ....
+
+
+会话:    用户与服务器的单个连接
+
+
+程序全局区(PGA):
+    包含单个服务器进程所需的数据和控制信息,是非共享的, 在创建会话时自动分配,在会话结束时释放.
+
+
+实例进程:
+    用户进程:
+    服务器进程:
+    后台进程:
+
+
+Oracle 中的 SYSTEM 用户和 SYS 用户具有管理权限。
+每个用户都有一个默认表空间和一个临时表空间
+
+
+权限:
+    系统权限: 允许(或限制)用户执行某些数据库的操作(如创建表)
+    对象权限: 允许(或限制)用户对数据库对象执行特定操作(如对表进行增删改查)
+
+角色: 一组相关权限的组合.
+
+
+服务器端配置信息 listener.ora, 客户端tnsnames.ora
+
+
+
+约束：确保输入的数据满足指定的要求，否则将拒绝相应的数据修改
+
+
+数据完整性：
+    实体完整性：
+        主键： 唯一、非空
+        唯一约束： 唯一，可空
+        序列： 自动编号，不可指定
+    域完整性：
+        数据类型限制
+        检查约束
+        默认约束
+        非空约束
+        外键约束
+    引用完整性：
+        外键引用
+        检查约束
+    自定义完整性：
+        xxx
+
+
+外键只能引用主表主键或主表唯一约束字段。
+主键所在的表即主表，外键所在的表即从表。
+
+从表的外键字段上出现的任何数据在主表的主键(或unique)字段上必须得有。(因为从表的外键依赖与主表的主键)
+主表的主键字段上出现的数据在从表的外键字段中可有，可无，可重复。
+---简言之：被依赖者必须存在，依赖者才能存在。
+
+
+Oracle常用数据类型：
+字符型：
+    Char: 固定长度非Unicode字符数据
+    Nchar: 固定长度Unicode字符数据
+    Varchar/varchar2:  可变长度非Unicode字符数据
+    Nvarchar/Nvarchar2:  可变长度Unicode字符数据
+大对象：
+    Clob: 单字节字符数据
+    nclob: 多字节字符数据
+    Blob:  二进制数据
+    Bfile: 文件中的二进制数据，只读访问
+日期时间：
+    Date： 日期和时间
+数字数据：
+    Int/Number(m)： 整数
+    Float/Real/Number(m,n): 数字
+
+
+
+约束名命名：
+    主键(primary key)约束:    PK_xxx
+    唯一(unique key)约束： UQ_xxx
+    默认(default key)约束：DF_xxx
+    检查(check key)约束： CK_xxx
+    外键(foreign key)约束：FK_xxx
+
+
+DML（数据操作语言）
+    ——查询、插入、删除和修改数据库中的数据；
+    ——SELECT、INSERT、 UPDATE 、DELETE等；
+DCL（数据控制语言）
+    ——用来控制存取许可、存取权限等；
+    ——GRANT、REVOKE 等；
+DDL（数据定义语言）
+    ——用来建立数据库、数据库对象和定义其列
+    ——CREATE TABLE 、DROP TABLE 等
+变量说明、流程控制、功能函数
+    ——定义变量、判断、分支、循环结构等
+    ——日期函数、数学函数、字符函数、系统函数等
+
+
+数据库中所有数据字典表都存储在SYS模式中,sys用户用来维护系统信息和管理实例.
+system是默认的系统管理员,该用户拥有Oracle管理工具使用的内部表和视图.
+通常通过system用户管理数据库用户,权限和存储等.
+每个用户有三个身份:(Normal, sysoper, sysdba)
+    1. dbName as normal
+    2. dbName as open
+    3. dbName as sysdba
+    ---sysdba身份登陆时不需要密码, 当忘记normal身份的密码时可以用sysdba身份登陆重设密码.
+    sysdba身份创建的表,normal身份是无法操作的.
+
+任何用户的sysdba身份都可以创建其他用户.
+
+
+sql注释 单行注释:--xxx  多行注释:/*xxx*/
+
+
+oracle配置文件:安装目录/..../NETWORK/ADMIN  listener.ora tnsnames.ora
+
+
+
+
+
+
+
+
+**用户**
+
+创建用户:
+    create user user_gjy identified by pwd_gjy default talespace users temporary tablespace temp;
+
+为用户分配权限或角色(赋予系统权限):
+    grant CONNECT  to user_gjy; --允许用户userName在tableName表中
+
+授予用户操作表的权限(赋予对象权限):
+    grant select on tableName to user_gjy;
+
+回收用户权限或角色:
+    revoke CONNECT from user_gjy;
+
+
+更改和删除用户:
+    更改口令:
+        alter user user_gjy identified by pwd_gjy;
+    删除用户:
+        drop user user_gjy cascade;
+
+
+**表**
+CREATE  TABLE  stuInfo_table    /*-创建学员信息表-*/
+(
+ stuName  VARCHAR2(20)  NOT  NULL ,  --姓名，非空（必填）
+ stuNo   CHAR(6)  NOT  NULL,   --学号，非空（必填）
+ stuAge  number  NOT  NULL,  --年龄，INT类型默认为4个字节
+ stuID  number(18,0),     --身份证号
+ stuSeat   number --座位号，唯一
+ stuAddress   varchar2(200)  --住址，允许为空，即可选输入
+) ;
+
+**添加约束**
+ALTER TABLE stuInfo_table 
+     ADD CONSTRAINT PK_stuNo PRIMARY KEY (stuNo);
+ALTER TABLE stuInfo_table 
+    ADD CONSTRAINT UQ_stuID UNIQUE (stuID);
+ALTER TABLEalter table stuInfo_table 
+  modify(stu_address varchar2(200) default '地址不详');
+ALTER TABLE stuInfo_table 
+    ADD CONSTRAINT CK_stuAge 
+        CHECK(stuAge >= 15 AND stuAge <= 40);
+ALTER TABLE stuMarks
+   ADD CONSTRAINT FK_stuNo          
+       FOREIGN KEY(stuNo) REFERENCES stuInfo_table(stuNo);
+
+**删除约束**
+ALTER  TABLE  stuInfo_table  
+     DROP  CONSTRAINT  DF_stuAddress
+
+**插入行**
+INSERT  [INTO] <表名>  [列名列表] VALUES <值列表>
+--具有缺省值的列，可以使用DEFAULT（缺省）关键字来代替插入的数值
+
+
+Sequence：
+    CREATE SEQUENCE emp_sequence  
+    INCREMENT BY 1  -- 每次加几个
+    START WITH 1    -- 从1开始计数 -- 不设置最大值 
+    NONOMAXVALUECYCLE    -- 一直累加，不循环 
+    CACHE 10; 
+
+一旦定义了emp_sequence，你就可以用CURRVAL，NEXTVAL。
+CURRVAL=返回 sequence的当前值  
+NEXTVAL=增加sequence的值，然后返回 sequence 值。
+比如：emp_sequence.CURRVAL， emp_sequence.NEXTVAL  
+
+
+**更新记录**
+UPDATE <表名> SET <列名 = 更新值,…> [WHERE <更新条件>]  ---无where时会更新表的所有记录
+
+
+**通配符**
+'_' 一个字符
+'%' 任意长度的字符串
+
+查询当前用户名下所有表:
+    select * from all_tables where owner='SCOTT'; --用户名必须大写
+
+系统表user_tables记录了系统中有哪些表，及其信息。
+    如：select table_name,tablespace_name from user_tables;
+
+
+删除记录 delete, truncate:
+delete from tableName Where xxxx;
+---无where时会删除表的所有记录, 有从表引用时,要先删除从表中的引用记录.
+
+truncate from tableName Where xxxx;
+---truncate只能删除没有从表的表,且不可回滚.(直接截断表,效率远高于delete)
+
+
+
+
+select:
+    列名称                表名            过滤条件        排序条件
+    select colx,coly  from tableName  where xxx         order by  colName;
+
+    select语句中的常用关键字:
+        select [*, 字段列表, 函数, 表达式]
+        from [表名列表, 视图列表, 结果集]
+        where 分组前条件
+        group by 分组
+        having 分组后条件
+        order by 排序 [字段名 排序类型, ...] 
+
+        列别名: 字段 as 字段别名--  SELECT name AS "名字", age AS "年龄" FROM ... 
+        表别名: 表名 表别名 -- SELECT name AS "名字", age AS "年龄" FROM table_user user ...s
+        命名列 : 别名=字段名表达式--  SELECT '姓名'=FirstName+'.'+LastName FROM ...
+        ASC: 升序-- SELECT FROM ... ORDER BY .. ASC .. 
+        DESC: 降序-- SELECT FROM ... ORDER BY .. DESC ..
+        伪列: rownum/rowid: --查询结果的前rownum条 SELECT FROM ... WHERE rownum<=10
+        having: 
+        拼接 : || -- SELECT '姓名:' || name || ', 年龄' || age FROM ...
+
+
+函数:
+    日期函数:
+        add_months(date, increment)
+        months_between(date1, date2)
+        last_day(date)
+        round(number, [integer])
+        next_day(date, week)
+        trunc(date, [fmt])
+        extract(fmt from date)
+
+
+    字符函数:
+    Select initcap('hEllo woRlD') from dual;    --Hello World
+    Select lower('FUN') from dual;    --fun
+    Select upper('sun') from dual;    --SUN
+    Select ltrim( 'xyzadams','xyz') from dual;    --zadams (去掉左边的x或y或z--不一定要是连续的xyz)
+    Select rtrim('xyzadams','ams') from dual;     --xyzad
+    Select replace('jack and jue' ,'j','bl') from dual; --black and blue
+    Select instr ('worldwide','d') from dual;     --5
+    Select substr('abcdefg',3,2) from dual;     --cd
+    Select concat ('Hello',' world') from dual;     --Hello world
+ 
+    转换函数:
+    to_char()  --SELECT TO_CHAR(字段名,'C99999') FROM ...;　
+    to_date()  --SELECT TO_DATE('2005-12-06', 'yyyy-mm-dd') FROM dual;
+    to_number() --SELECT TO_NUMBER('100') FROM dual;
+    例:
+    SELECT TO_CHAR(sysdate,'YYYY"年"fmMM"月"fmDD"日" HH24:MI:SS') FROM dual;　
+
+    NVL(expr1, expr2): 相当于 expr1!=nnull? expr1: expr2;
+    NVL2 (expr1, expr2, expr3): 相当于 expr1!=null? expr2: expr3;
+    NULLIF(expr1, expr2): 相当于 expr1==expr2? null: expr1;
+
+
+
+
+一次性将一张表的内容(或部分内容)插入另一张表:
+INSERT INTO <目的表名>(目的表列名)
+    SELECT <源表列名>
+    FROM <源表名>;
+
+用一张表的内容(或部分内容)创建另一张表:
+Create table <目的表名>(目的表列名)
+    As 
+    Select <源表列名> from <源表名>;
+
+
+
+
+函数:
+
+存储过程:
+
+事务:
+
+游标:(行标, 列标)
+
+
+
+查询出表中的第N~M条记录(按fieldName字段查):--第N~M条记录亦即剔除前N条记录后的前M-N条记录.
+SELECT * FROM tableName WHERE rownum<=(M-N) 
+    AND fieldName NOT IN (SELECT fieldName FROM tableName WHERE rownum<=N);
+
+
+
+--分支
+case [...]
+    when ... then ...
+    when ... then ...
+    ......
+    else ...
+end 
+
+--将工资分级
+select empno, ename, case
+    when sal > 3000 then '高等薪水'
+    when sal > 1500 then '中等薪水'
+    else '低等薪水'
+end as sal_type from emp;
+
+
+
+--
+select empno, ename, case sal
+    when 5000 then '你有5K'
+    when 3000 then '你有3K'
+end as sal_type from emp;
+
+
+
+
+聚合函数: sum avg max min count
+如果在一个查询中出现了聚合函数,同时出现了没有用聚合函数聚合的字段,那么没有用聚合函数聚合的字段必须出现在group by中.
+--因为聚合函数只产生一条结果,而查询字段可能查询到多条结果.--结果无法整合到一个结果集中.
+--有了这条规定后, 所有没有在聚合函数使用的字段全部用于进行分组,这时为每一个组产生一条聚合结果.
+
+ 
+
+
+
+表设计的三个范式:
+    第一范式: 1NF  --确保每列的原子性
+        如果每列都是不可再分的最小数据单元（也称为最小的原子单元），则满足第一范式(1NF)
+
+    第二范式: 2NF  --要求每个表只描述一件事情
+        如果一个关系满足1NF，并且除了主键以外的其他列，都依赖与该主键，则满足第二范式(2NF)
+
+    第三范式: 3NF
+        如果一个关系满足2NF，并且除了主键以外的其他列都不传递依赖于主键列，则满足第三范式（3NF） 
+ 
+
+
+联结查询:
+    内联结:  --查询公共信息
+        语法1.  select ... from tableName1 [inner] join tableName2
+                    on ...
+                    [inner] join tableName3  --嵌套
+                    on ...
+        语法2：    select ... from  tableName1, tableName2 ...
+
+
+    外联结: --查询主表的信息，和匹配表的补充信息
+        --左外联结   (LEFT JOIN)
+            语法.  select ... from tableName1 left outer join tableName2 ... 
+        --右外联结   (RIGHT JOIN)
+            语法.  select ... from tableName1 right outer join tableName2 ...
+            
+        --完整外联结(FULL JOIN)：
+            语法： select ... from tableName1 full outer join tableName2 
+                        on ...
+
+        补充: oracle左联结或右联结的简写语法
+            select ... from tableName1, tableName2 where tableName1.fieldx_t1=tableName2.fieldx_t2(+) ...
+            --对'+'的理解：+表示补充，即带+号的表是匹配表。如果加号写在左表，右表就是全部显示。
+
+    交叉联结(CROSS JOIN):  --产生迪卡尔积
+        语法1： select ... from tableName1 cross join tableName2 ...
+                select ... from tableName1, tableName2 ...
+
+多表查询时, 当多个表中有相同名称的字段时, 要通过字段的完整性约束来访问字段. --表名.字段名
+
+
+
+
+
+
+
+函数:
+    to_date()
+    to_upper()
+
+
+数据库字典怎么写
+UML建模
+类图
+时序图
+物理模型图
+
+
+
+
+子查询
+    嵌套子查询: --父查询依赖于子查询, 先执行子查询-->再执行父查询
+        --如果使用关系运算符(在没有使用特殊关键字的情况下),子查询只能有唯一的结果(单查询).
+        --Eg: 查询所有出邮电出版社出版的书籍
+        select * from titles where pub_id =any 
+            (select pub_id from publishers where pub_name='邮电出版社');
+
+    相关子查询: --子查询依赖与被查询的记录, 先执行父查询(但不执行where)->再遍历父查询的结果集,并根据结果集中的每一条结果执行子查询,得到子查询结果集-->最后按照where对比父子查询的结果集,确定父查询的最终结果集----待商榷
+        --Eg: 查询价格大于所属类型平均价格的书籍.--子查询依赖与被查询书籍的类型
+        select * from titles t where price > 
+            (select avg(price) from titles where type = t.type); --t.type表示的不是字段,而是父查询的值
+        嵌套子查询的子查询语句可以单独执行,而相关子查询的子查询语句不可单独执行.
+
+IN子查询
+EXISTS子查询
+
+作用于关系运算符的关键字:
+    ANY/SOME: select name, age form  user where name =any ("name1", "name2"); --相当于查询name为name1或name2的姓名和年龄
+    ALL: select ... where age <all (select age from user); --相当于查询年龄小于user表中最小年龄的记录
+
+
+
+distinct 去重
+
+
+
+
+同义词
+    私有同义词
+        只能在其模式内访问,不能与当前模式中的对象同名
+        CREATE SYNONYM emp FOR SCOTT.emp; 为scott模式的emp表(SCOTT.emp)创建一个别名emp.
+
+    公有同义词
+        可被所有数据库的用户访问
+        CREATE PUBLIC SYNONYM emp_syn FOR SCOTT.emp
+
+    --创建或替换现有的同义词
+    CREATE OR REPLACE SYNONYM emp_syn FOR SCOTT.emp;
+
+    --删除同义词
+    DROP SYNONYM emp;  --删除私有同义词
+    DROP PUBLIC SYNONYM emp_syn;  --删除公有同义词
+
+
+
+序列
+    序列是用于生成唯一、连续序号的对象. 可升序或降序
+    CREATE SEQUENCE toys_seq
+        START WITH 10
+        INCREMENT BY 10
+        MAXVALUE 2000
+        MINVALUE 10
+        NOCYCLE
+        CACHE 10;
+
+    通过序列的伪列来访问序列的值
+        NEXTVAL 返回序列的下一个值
+        CURRVAL 返回序列的当前值
+        --INSERT INTO toys (toyid, toyname, toyprice) VALUES ( toys_seq.NEXTVAL, 'TWENTY', 25);
+
+
+视图
+    视图可以视为“虚拟表”或“存储的查询”.
+    创建视图所依据的表称为“基表”
+    CREATE [OR REPLACE] [FORCE] VIEW
+        view_name [(alias[, alias]...)] 
+          AS select_statement
+          [WITH CHECK OPTION]
+          [WITH READ ONLY];
+
+      在视图上也可以使用修改数据的DML语句,如INSERT、UPDATE和DELETE.
+      视图上的DML语句有如下限制：
+          只能修改一个底层的基表
+        如果修改违反了基表的约束条件，则无法更新视图
+        如果视图包含连接操作符、DISTINCT 关键字、集合操作符、聚合函数或 GROUP BY 子句，则将无法更新视图
+        如果视图包含伪列或表达式，则将无法更新视图
+    --建议只在视图上进行查询操作.
+
+
+索引: 用以提高 SQL 语句执行的性能
+    CREATE INDEX 语句创建索引
+    在逻辑上和物理上都独立于表的数据
+    Oracle 自动维护索引
+
+    索引类型:
+        唯一索引, 位图索引, 基于函数的索引, ...
+
+    --创建标准索引
+    CREATE INDEX item_index ON itemfile (itemcode) TABLESPACE index_tbs;
+
+    Oracle 自动在表的主键列上创建唯一索引.
+
+    user_indexes视图包含了用户的所有索引.
+    通过user_ind_colnmns视图可以查看索引对应的字段:    select * from user_ind_columns;
+
+
+获取索引的信息:
+    与索引有关的数据字典视图有:
+        USER_INDEXES --用户创建的索引的信息
+        USER_IND_PARTITIONS --用户创建的分区索引的信息
+        USER_IND_COLUMNS --与索引相关的表列的信息
+
+
+
+
+
+
+
+
+
+
+
+BBSusers（用户表），BBSsection（版块表），BBStopic（主贴表），BBSreply（跟帖表）
+create table BBSusers(U_ID Number CONSTRAINT pk_U_ID primary key not null, 
+                      UName Varchar2(32) not null,
+                      UPassword Varchar2(16) default '888888',
+                      UEmail Varchar2(32) default 'p@p.com' check(UEmail like '_%@_%._%'),
+                      UBirthday Date not null,
+                      USex Char(2) default '男' check(USex='男' or USex='女') not null,
+                      UClass Number check(UClass in (1,2,3)),
+                      UStatement Varchar2(255),
+                      URegDate Date not null,
+                      UState Number check(UState in (1,2,3,4)),
+                      UPoint Number default 20 check(UPoint>=0));
+
+
+create table BBSsection(S_ID Number CONSTRAINT pk_S_ID primary key not null, 
+                      SName Varchar2(32) not null,
+                      SMasterID Number not null,
+                      SStatement Varchar2(255),
+                      SClickCount Number check(SClickCount>=0),
+                      STopicCount Number default 0 check(STopicCount>=0),
+                      CONSTRAINT fk_SMasterID foreign key(SMasterID) references BBSusers(U_ID)
+                      );
+
+
+create table BBStopic(T_ID Number primary key not null, 
+                      TNumber Varchar2(32) check(TNumber like 't_______') not null,
+                      TSID Number not null,
+                      TUID Number not null,
+                      TTopic Varchar2(255) not null,
+                      TContents Varchar2(2000) not null,
+                      TTime Date not null,
+                      TClickCount Number default 0 check(TClickCount>=0),
+                      TFlag Number check(TFlag in(1,2,3)) not null,
+                      TLastCLickT Date not null,
+                      CONSTRAINT fk_TSID foreign key(TSID) references BBSsection(S_ID),
+                      CONSTRAINT fk_TUID foreign key(TUID) references BBSusers(U_ID)
+                      );
+
+
+create table BBSreply(R_ID Number primary key not null, 
+                      RNumber Varchar2(32) check(RNumber like 'r_______') not null,
+                      RTID Number not null,
+                      RSID Number not null,
+                      RUID Number not null,
+                      RTopic Varchar2(255) not null,
+                      RContents Varchar2(2000) not null,
+                      RTime Date not null,
+                      RClickCount Number default 0 check(RClickCount>=0),
+                      CONSTRAINT fk_RTID foreign key(RTID) references BBStopic(T_ID),
+                      CONSTRAINT fk_RSID foreign key(RSID) references BBSsection(S_ID),
+                      CONSTRAINT fk_RUID foreign key(RUID) references BBSusers(U_ID)
+                      );
+
+
+也可以在表创建好之后再添加约束:
+    一般约束:
+    alter table tableName 
+      add constraint 约束名 约束类型 具体的约束说明;
+
+    默认约束:
+    alter table tableName
+      modify(字段 类型 default XXX);
+
+    非空约束:
+    alter table tableName
+      modify(字段 类型 not null);
+
+    外键约束:
+    alter table 从表名 
+      add constraint fk_外键名 
+      foreign key(外键字段名) references 主表名(主表字段名);
+      --外键引用的主表字段要么是主键,要么是唯一性约束的字段.
+
+    删除约束:
+     一般:
+     alter table 表名
+       drop 约束名;
+
+    添加字段:
+    alter table 表名
+      add 字段名 类型;
+
+    删除字段:
+    alter table 表名
+      drop column 字段名;
+
+
+    先删约束再删字段.
+
+
+
+
+按页查询:
+    --pageNum当前页数(从0算起), pageSize每页显示多少条
+    select * from tableName fieldName not in 
+        (select fieldName from tableName where rownum<= pageNum*pageSize)
+        AND rownum <= pageSize;
+
+
+
+
+
+/******************  高级Oracle  *******************************/    
+
+--------存储过程-------
+存储过程特点：
+    作为PL/SQL语句执行
+    在规格说明中不包含return
+    不返回任何值
+    可以包含return语句,但是不能用于返回值.
+
+程序包是对相关过程,函数,变量,游标和异常等对象的封装
+程序包由规范和主体两部分组成.
+    规范:    声明程序包中公共对象. 包括类型,变量,常量,异常,游标规范和子程序规范等
+    主体:     声明程序包私有对象和实现包规范中声明的子程序和游标.
+
+
+程序包规范:
+CREATE [OR REPLACE] PACKAGE package_name IS | AS
+        [public item declarations]
+        [subprogram specification]
+END [package_name];
+
+程序包主体:
+CREATE [OR REPLACE] PACKAGE BODY package_name IS | AS
+        [private item declarations]
+        [subprogram bodies]
+[BEGIN initialization]
+END [package_name];
+
+
+eg:
+--myPack包规范
+CREATE OR REPLACE PACKAGE myPack IS
+    PROCEDURE proc_test(var VARCHAR2); --过程声明
+    FUNCTION fun_test(vat VARCHAR2) RETURN VARCHAR2; --函数声明
+end myPack; --myPack包规范结束
+
+--myPack包主体
+CREATE OR REPLACE PACEAGE BODY myPack 
+AS
+
+    --过程实现
+    PROCEDURE proc_test(var VARCHAR2) 
+    IS 
+        --这是进行变量声明
+    BEGIN
+        --实现
+        ...
+    END proc_test;
+
+    --函数实现
+    FUNCTION fun_test(var VARCHAR2) RETURN VARCHAR2 
+    IS
+        --这是进行变量声明
+    BEGIN
+        ...
+    END fun_test;
+
+END myPack; --myPack包主体结束
+
+
+包编译运行之后， 在Packages中会出现我们创建的包--其中包含了对应的存储过程和函数等。
+
+如何调用过程包：
+eg:
+1.
+declare 
+    str varchar2;
+begin
+    myPack.pro_test('xxx');
+    str := myPack.fun_test('xxx'); 
+end;
+
+2.
+select myPack.fun_test('xxx') ...
+
+
+
+user_objects视图包含用户创建的子程序和程序包的信息。
+    eg:
+    SELECT object_name, object_type FROM USER_OBJECTS 
+        WHERE object_type IN ('PROCEDURE', 'FUNCTION', 'PACKAGE', 'PACKAGE BODY');
+
+user_source视图存储子程序和程序包的源代码：
+    eg:
+    SELECT line, text FROM user_source WHERE name="test";
+
+
+user_procedures 视图包含了存储过程的信息：
+    eg:
+    SELECT * FROM user_procedures WHERE name="myprocedures";
+
+
+
+------触发器------
+触发器的特点：
+    在数据库中以独立的对象存储
+    触发器是由一个事件来启动运行(自动地隐式运行)
+        oracle事件指的是对数据库的表进行的insert,update及delete操作或对视图进行类似的操作。
+    触发器不能接收参数
+
+oracle将触发器的功能扩展到触发oracle,如数据库的启动与关闭等
+
+触发事件：引起触发器被触发的事件
+    DML语句(insert,update,delete语句对表或视图执行数据处理操作)
+    DDL语句(如create,alter,drop语句在数据库中创建，修改，删除模式对象)
+    数据库系统事件(如系统启动或退出,异常错误), 用户事件(如登录或退出数据库)
+
+触发时间：退该trigger是在触发事件发生之前(before)还是之后(after)触发。
+
+触发操作： 即该trigger被触发之后的目的和意图, 正是触发器本身要做的事情(PL/SQL块)
+
+触发对象： 包括表，视图，模式，数据库等。 只有在这些对象上满足触发条件时才触发操作
+
+触发条件： 由when子句指定一个逻辑表达式(true or false)
+
+触发频率： 说明触发器内定义的动作被执行的次数
+    语句级(statement)触发器： 是指当某触发事件发生时，该触发器只执行一次
+    行级(row)触发器： 是指当某触发事件发生时，对受到该操作影响的每一行数据，触发器都单独执行一次。
+
+触发器语法：
+CREATE [OR REPLACE] TRIGGER trigger_name    --创建触发器
+{BEFORE | AFTER}    --触发时机
+{INSERT | DELETE | UPDATE [OF colnum [, colnum ...]]} --触发操作
+    [OR {INSERT | DELETE | UPDATE [OF column [, column ...]]} ...]
+ON [schema.]table_name | [schema.]view_name    --触发对象
+[REFERENCING {OLD [AS] old | NEW [AS] new | PARENT AS parent}]    --引用新旧值
+[FOR EACH ROW]    --触发频率
+[WHEN condition] --触发条件
+pl/sql_block | CALL procedure_name; --触发操作
+
+
+条件谓词
+[when condition]:
+    当在触发器的触发操作为多个触发事件(insert,update,delete)的组合时, 为了分别对不同的事件进行不同的处理操作
+    inserting: 当触发事件为insert时，取值为true, 否则为false
+    updating [(column_1, column_2, ..., column_x)] :当触发事件是update时，若修改了column_x列，则取值为true, 否则为false.
+    deleting: 当触发事件是delete时，则取值为true， 否则为false.
+
+新旧值：
+    当触发器被触发时，需要记录被插入，更新或删除的记录中的列值(更新前的旧值，更新后的新值)。
+    获取新旧值：
+        :NEW 修饰符访问操作完成后 列的值
+        :OLD 修改符访问操作完成前 列的值 
+
+     特性    insert     update     delete
+     :OLD     NULL     实际值     实际值
+     :NEW     实际值     实际值     NULL
+
+     --触发器的PL/SQL块中应用相关的名称时，必须在它们之前冒号(:), 但在when子句中则不能加冒号
+
+before:
+    可用于实现如下需求：
+        记录删除日志：当对某一张表进行删除操作前，记录被删除的数据到日志表中
+        对表操作时间限制： 在非工作时间不能对表操作
+        多个事件触发对应不同的事件处理：对表的多个字段修改、删除操作进行触发
+
+after:
+    可用于实现如下需求：
+        级联修改主外键关系：修改主表的同时对从表进行修改
+        
+
+
+
+
+eg: 用触发器实现对users表进行删除之前的备份(备份到tr_users_log).
+--create table users_log as select * from users where 1=0; --创建一张结构与users相同的表
+create or replace trigger tr_users_log 
+    before delete 
+    on users
+    for each row
+begin
+    --备份
+    insert into users_log(column_1, column_2,...)
+        values(:OLD.column_1, :OLD.column_2, ...);
+end;
+
+
+eg: 对工作时间的限制.
+create or replace trigger users_notdo 
+    before insert or update or delete 
+    on users
+    for each row
+begin
+    --工作时间才可以操作
+    if (to_char(sysdate, 'day') in ('星期六', '星期日') 
+        or to_char(sysdate, 'HH24:MI') no between '09:00' and '18:00') 
+    then 
+        raise_application_error(-20001, '当前是非工作时间,不可操作数据库');
+    end if;
+end;
+
+
+eg: 条件谓词, 对多种事件触发对应不同的事件处理
+create or replace trigger tr_users_toodo
+    before update of age, name
+        or delete 
+    on users 
+    for each row
+begin
+    case
+        when updating('age') then 
+            if :new.age > 130 then
+                raise_application_error(-20002, 'age is too old');
+            end if;
+
+        when updating('name') then
+            ...
+
+        when deleting then
+            ...
+end;
+
+
+
+eg: 修改主表(users)的同时对从表(homes)进行修改
+create or replace trigger tr_users_deId
+    before update of userid
+    on users 
+    for each row
+begin
+    update homes set id = :new.userid where id=:old.userid;
+end;
+
+
+
+
+
+
+-------游标-------
+
+
+
+
+
+--------PL/SQL------
+支持所有SQL数据类型
+支持NULL值
+支持%TYPE和%ROWTYPE属性类型
+
+[declare]
+    --声明语句
+begin
+    --执行语句
+[exception]
+    --异常处理语句
+end;
+
+
+
+--constant定义常量
+set serveroutout on : 设置输出语句为开启状态
+show serveroutout : 查看当前serveroutput状态
+
+
+%TYPE : 引用变量和数据库列的数据类型
+
+%ROWTYPE : 提供表示表中一行的记录类型
+
+eg:
+var_name tablename.column%TYPE;
+var_name2 userName.tableName%ROWTYPE; 
+
+
+
+eg:
+declare
+    uage users.age%TYPE;
+    u_users users%ROWTYPE;
+begin
+    uage := &uage;
+    select * into u_users from users where age = uage;
+
+    dbms_output.put_line('姓名'||u_users.name||',年龄'||u_users.age);
+[exception]
+    --异常处理语句
+end;
+
+
+
+-----条件控制----
+IF:
+    IF condition THEN
+        ...
+    ELSIF condition2 THEN
+        ...
+    ELSIF condition3 THEN
+        ...
+    ELSE
+        ...
+    END IF; 
+
+CASE:
+    CASE xxx
+        WHEN x1 THEN ...;
+        WHEN x2 THEN ...;
+        WHEN x3 THEN ...;
+        ELSE ...;
+    END CASE;
+
+
+-----循环控制----
+LOOP:    
+    LOOP
+        ...
+        --EXIT WHEN condition --当条件满足时退出循环
+    END LOOP;
+
+
+
+WHILE:  
+    WHILE condition LOOP
+        ...
+    END LOOP;
+
+FOR:
+    FOR counter IN [RECERSE] value1..valueN
+    LOOP
+        ...
+    END LOOP;
+
+
+-----顺序控制----
+GOTO:
+NULL:
+
+
+
+
+eg:
+declare 
+    user_id nubmer;
+    moneys number;
+begin
+    user_id := &user_id;
+    select money into moneys from users where user=user_id;
+
+    IF moneys<2000 THEN
+        update users set money=moneys+500 where user=user_id;
+    ELSIF moneys<3000 THEN
+        update users set money=moneys+400 where user=user_id;
+    ELSIF moneys<4000 THEN
+        update users set money=moneys+300 where user=user_id;
+    ELSE
+        update users set money=moneys+200 where user=user_id;
+    END IF; 
+
+end;
+
+
+
+
+
+
+
+单双引号:
+    oracle中字符串使用单引号表示.
+    双引号:
+    1. 字符串(单引号)中的双引号仅仅被当作一个普通字符进行处理
+        SQL> select 'hh24"小时""mi"分"""ss"秒"' AS RESULT from dual;
+        RESULT
+        -------------------------
+        hh24"小时""mi"分"""ss"秒"
+    2. 在to_char的格式字符串中,可使用双引号将非法的格式符包装起来,避免出现ORA-01821: date format not recognized错误.
+    也就是说，去掉双引号和其包含的字符后,剩下的应该是一个合法的格式串。
+    to_char在处理格式字符串时,会忽略双引号：
+        SQL> select to_char(sysdate, 'hh24"小时"mi"分"ss"秒"') AS RESULT from dual;
+        RESULT
+        --------------
+        17小时18分58秒
+    3. 使用双引号严格区分大小写,如果不加的话会默认是大写.
+
+
+
+
+

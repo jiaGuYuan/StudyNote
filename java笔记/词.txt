@@ -1,0 +1,55 @@
+﻿this static package import overloaded method 
+protected extends super access inheritance
+base class derived modifier 
+abstract interface implements final polymorphism casting overridden method 
+try catch finally throw throws exception error
+Exception RuntimeException ArithmeticException IllegalArgumentException 
+ArrayIndexOutOfBoundsException NullPointerException ClassNotFoundException
+NumberFormatException IOException FileNotFoundException EOFException
+language integer character buffer math parse equals compare replace
+blloean Boolean byte Byte char Characher short Short int Integer 
+long Long float Float double Double
+utility date calendar random list link hash map vector 
+equal ceil向上取整 floor向下取整 round四舍五入
+
+capacity 
+Collection 
+ArrayList AbstractList 
+input output file directory stream write read source destination 
+
+Internet Protocol net socket server client port accept 
+
+Enumeration synchronized collection iterator list set map  comparavle synchronized 
+InputStream OutputStream 
+
+modifier declared 
+
+create identified default tablespace temporary 
+grant connect resource sequence select  update  listener 
+configuration assistant manager agent 
+primary unique check foreign 
+
+driver connection manager statement prepared result create execute query
+
+tokenizer alert 
+
+
+deflater inflater compress transient 
+serialized transient extermalizable 
+
+seralizeable externalizable 
+
+charset title style doctype body div border color solid dashed double dotted 
+bottom top left right 
+shadow overflow hidden radius margin scroll 
+display none block 
+window  document location  history status screen  returnValue 
+
+onclick   onblur 
+
+
+standalone schema servlet
+request response protocol content 
+
+context generic parameter session request dispatcher 
+remote redirect refresh forward 

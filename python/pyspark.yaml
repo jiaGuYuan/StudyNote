@@ -1,0 +1,14 @@
+Pipeline:
+    DataFrame: 结构化的数据
+    pipeline的组建: 
+        Transformer: 将DataFrame转化为另外一个DataFrame的算法,通过实现transform()方法
+        Estimator: 将DataFrame转化为一个Transformer的算法,通过实现fit()方法
+        Pipeline: 由多个Transformer和一个Estimator组成
+            在pipeline里面有两个阶段,一个是transformer, 一个是estimator; 在transformer阶段,就会用到transform()这个方法,在Estimator阶段,就会用到fit()这个方法;
+        Parameter: Tansformer和Estimator共用同一个声明参数的API
+        
+        Transformer.transform()和Estimator.fit()都是无状态的
+        每一个Transformer和Estimator的实例都有唯一的ID在声明参数的时候非常有用
+        
+查看列的可能取值:
+    spark_df.select("colName").dropDuplicates().show(30)

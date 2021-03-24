@@ -404,6 +404,7 @@ export SPARK_WORKER_WEBUI_PORT=18081
 ```
 
 2. 启动容器时，指定端口映射
+
 ```
 docker run -itd -P -p 50070:50070 -p 8088:8088 -p 8080:8080 -p 8081:8081 \
 --privileged --name master -h master --network hadoop-network --ip 172.20.0.6 \
@@ -414,6 +415,99 @@ docker run -itd -P -p 18081:18081 --privileged --name slave01 -h slave01 \
 --add-host master:172.20.0.6 --add-host slave02:172.20.0.8  slave01:v1.0 /usr/sbin/init
 ```
 
+## zookeeper搭建高可用集群
+为了spark集群的高可用性，使用zookeeper来实现。
+1. 下载zookeeper，https://archive.apache.org/dist/zookeeper/zookeeper-3.4.5/。在master机器上操作2-5步骤
+2. 解压到/usr/local/zookeeper下。
+3. 创建2个目录，一个data目录，一个日志目录
+![](images_attachments/20210324153842670_14126.png)
+
+4. 配置
+进入conf目录下， 复制zoo_sample.cfg一份改名zoo.cfg, 并添加下面内容：
+```
+dataDir=/usr/local/zookeeper/data
+server.0=master:2888:3888
+server.1=slave01:2888:3888
+server.2=slave02:2888:3888
+```
+5. 切换到/usr/local/zookeeper/data目录下，创建myid文件，并在文件内写0
+```
+cd /usr/local/zookeeper/data
+echo 0 >> myid
+```
+6. 将/usr/local/zookeeper整个目录复制到slave01、slave02
+7. 登录slave01、slave02节点，修改 /usr/local/Zookeeper/zookeeper/data/myid的值，分别改为1,2
+
+```
+#  slave01上
+cd /usr/local/Zookeeper/zookeeper/data/
+echo 1 >> myid
+
+# slave02上
+cd /usr/local/Zookeeper/zookeeper/data/
+echo 2 >> myid
+```
+8. 分别在三个节点上启动zookeeper
+```
+cd /usr/local/Zookeeper/zookeeper/
+bin/zkServer.sh start
+```
+9. 分别在终端输入jps查看进程是否启动成功，如果有QuorumPeerMain就成功
+
+10. zookeeper安装启动成功，下面配置spark。
+```
+export JAVA_HOME=/usr/local/jdk1.8.0_261
+export HADOOP_CONF_DIR=/usr/local/hadoop-3.2.2/etc/hadoop
+export SPARK_DAEMON_JAVA_OPTS="-Dspark.deploy.recoveryMode=ZOOKEEPER Dspark.deploy.zookeeper.url=master:2181,slave01:2181,slave02:2181 -Dspark.deploy.zookeeper.dir=/usr/local/zookeeper/data"
+export SPARK_DAEMON_MEMORY=512m
+export SPARK_WORKER_OPTS="-Dspark.worker.cleanup.enabled=true -Dspark.worker.cleanup.appDataTtl=259200"
+```
+备注：1. Dspark.deploy.zookeeper.url的master:2181,slave01:2181,slave02:2181，分别配置成你集群计算机名称的地址；
+           2. 因为zookeeper已经配置了spark的ip，因此 spark-env.sh的SPARK_MASTER_IP、SPARK_MASTER_HOST注释掉
+```
+#export SPARK_MASTER_IP=xxxx01
+#export SPARK_MASTER_HOST=xxxx01
+```
+
+11. 启动spark集群
+在master上进入spark目录
+```
+cd /usr/local/spark-3.0.2-bin-hadoop3.2
+#先关闭spark服务
+./sbin/stop-all.sh
+#启动spark服务
+./sbin/start-master.sh
+./sbin/start-slaves.sh
+```
+然后在slave01上启动一个备用spark master
+```
+cd /usr/local/spark-3.0.2-bin-hadoop3.2
+./sbin/start-master.sh
+```
+
+## 其他
+启动成功后，可以在sparkui页面上查看集群状态信息。
+url是xxxx0:7077.  ip是master服务器ip，端口默认7077
+如果是阿里云服务器， ip对应的是master服务器的公网ip，端口默认8080
+
+输入上面地址就能查看sparkui页面
+
+### 常用端口【默认】
+50070：HDFSwebUI的端口号
+8485:journalnode默认的端口号
+9000：非高可用访问数rpc端口
+8020：高可用访问数据rpc
+8088：yarn的webUI的端口号
+8080：master的webUI，Tomcat的端口号
+7077：spark基于standalone的提交任务的端口号
+8081：worker的webUI的端口号
+18080：historyServer的webUI的端口号
+4040：application的webUI的端口号
+2181：zookeeper的rpc端口号
+9083：hive的metastore的端口号
+60010：Hbase的webUI的端口号
+6379：Redis的端口号
+8080：sparkwebUI的端口号
 
 
 

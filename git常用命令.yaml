@@ -27,12 +27,24 @@ git使用远程覆盖本地:
     
 
 Git鼓励大量使用分支: 
-查看分支: git branch
-创建分支: git branch <name>
-切换分支: git checkout <name>
-创建+切换分支: git checkout -b <name>
-合并某分支到当前分支: git merge <name>
-删除分支: git branch -d <name>
+    查看分支: git branch
+    创建分支: git branch <name>
+    切换分支: git checkout <name>
+    创建+切换分支: git checkout -b <name>
+    合并某分支到当前分支: git merge <name>
+    删除分支: git branch -d <name>
+
+
+清理历史记录(只保留最后一个版本):
+    git checkout --orphan latest_branch # 将当前分支切换到 latest_branch
+    git add -A                          # 把所有文件添加到当前分支
+    git commit -am "commit message"     # 设置commit注释
+    git branch -D master                # 删除主分支master(此时只剩下latest_branch)
+    git branch -m master                # 将latest_branch重命名为master
+    git push -f origin master           # 强制push,用当前内容冲刷掉git的内容(此处无法反悔)
+    git branch --set-upstream-to origin/master master # 重新初始化分支结构
+
+
 
 
 

@@ -11,6 +11,9 @@
         },
         {
             "name": "WSGI"
+        },
+        {
+            "name": "gRPC"
         }
     ],
     "version": "1"

@@ -611,15 +611,33 @@ windows下使用cl进行编译:
     1. 在cmd中运行"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\vcvars32.bat", 会自动配置相关环境变量
     2. 使用cl命令进行编译
             /I 指定头文件包含目录
-            
+ 
+WSL:
+    '\\wsl$\': 访问wsl目录
+ 
 用户管理:
     创建用户: useradd UserName
     设置用户密码: passwd UserName
     ...
 
-ssh执行远程命令:
-    # 通过ssh执行远程命令要注意:当命令多于一个时最好用引号括起来,否则在有的系统中除了第一个命令,其它都是在本地执行的.
-    ssh root@10.10.10.23 'cd /my_wks && find "./log" -maxdepth 1 -type f -name "*.log" | xargs grep "Warning"'
+
+ssh:
+    ssh执行远程命令:
+        # 通过ssh执行远程命令要注意:当命令多于一个时最好用引号括起来,否则在有的系统中除了第一个命令,其它都是在本地执行的.
+        ssh root@10.10.10.23 'cd /my_wks && find "./log" -maxdepth 1 -type f -name "*.log" | xargs grep "Warning"'
+
+    默认登陆用户配置:
+        使用"ssh hostIP"登陆远程主机时,默认使用的是与当前用户名同名的用户进行登陆
+        本地和远程登陆用户名不一致时,可通过"~/.ssh/config "文件进行远程登录用户配置.
+        ```
+        Host hostname
+        user username_test
+
+        Host hostname2
+        user username_dev
+        ```
+        假设当前处于hostname的username_test用户下, 此时"ssh hostname2"等价于"ssh username_dev@hostname2".
+        最后修改的最重要的一点记住权限问题:config文件的权限同组用户严格为不能写权限.
 
           
 进入内核模块目录:

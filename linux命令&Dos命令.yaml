@@ -61,10 +61,25 @@ find:
         
 
     将当前目录及其子目录(但排除./copy_outdir子目录)下的所有".o"文件移动到"./copy_outdir":
-        find . -path "./copy_outdir" -prune -o -name "*.o" -exec mv  {} ./copy_outdir/ \; 
+        find . -path "./copy_outdir" -prune -o \( -name "*.o" -exec mv  {} ./copy_outdir/ \; \)
         注: -path "./copy_outdir" 指定寻找目录或文件路径的范本样式
-            -prune 表示排除(不寻找找文件或目录的范本样式)
+            -prune 表示排除(不寻找的文件或目录的范本样式)
             -path "./copy_outdir" -prune: 表示排除"./copy_outdir"目录
+            Note:
+                从当前目录排除'./prune_dir'后的其他位置找出所有'.o'后缀的文件
+                    find . -path "./prune_dir" -prune -o -name "*.o" -print
+                    等价于
+                    find . -path "./prune_dir" -prune -o \( -name "*.o" -print \) # 重点理解这个就行
+                    等价于
+                    find . \( \( -path "./prune_dir" -prune \) -o \( -name "*.o" -print \) \) # 等价于
+                    find . \( \( -path "./prune_dir" -a -prune \) -o \( -name "*.o"  -a -print \) \) # -a默认省略
+                    
+                说明:
+                    查找过程中,如果是当前目录下的prune_dir,则-o后面的语句不会执行;
+                               如果是当前目录下的其它文件或目录,则-o后面的语句会执行.
+                    逻辑运算符优先级:
+                        a || b && c <==> a || (b && c)
+                    
 
     删除掉当前目录及子目录下的所有"*.cxx"后缀的文件:
         find . -name "*.cxx" -type f -print -exec rm -rf {} \;
@@ -81,7 +96,7 @@ find:
 
     find命令选项:
         -o 是或者的意思  ---与||类似的短路求值.find . xxx -o yyy  如果 -o 之前的xxx为true那么-o之后的内容将不会将执行
-        -a 是而且的意思  ---与&&类似的短路求值.find . xxx -a yyy;  如果 -o 之前的xxx为false那么-o之后的内容将不会将执行
+        -a 是而且的意思(默认-a可以省略)  ---与&&类似的短路求值.find . xxx -a yyy;  如果 -o 之前的xxx为false那么-o之后的内容将不会将执行
         -not 是相反的意思
 
 

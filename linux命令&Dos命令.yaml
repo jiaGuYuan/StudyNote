@@ -126,17 +126,40 @@ find:
     寻找当前目录下文件小于1M并且文件类型是一般文件的文件:
         find ./ -size -1M -a -type f
      
-    -o 是或者的意思
-    -a 是而且的意思
-    -not 是相反的意思
-    根据上面再从find的寻找方式中任意组合你乐意的方式.
-    find /etc -not -perm mode(222)
-    find /etc -not -perm -mode(-222)
-    find /etc -not -perm +mode(+222)
-    #-perm是按文件权限来查找文件
-    mode是完全匹配所对应的权限,如果不包括suid/sgid/sticky
-    -mode是权限位转化为二进制之后的1必须全部匹配,+mode则需要其中任何一个1被匹配.
-    -mode应该包含mode,+mode则包含-mode.
+    按修改时间查找文件:
+        [a|c|m]min: [最后访问|最后状态修改|最后内容修改]min; 计量单位是分钟
+        [a|c|m]time: [最后访问|最后状态修改|最后内容修改]time; 计量单位是天(即24H)
+        
+        ----(+n)---------|------------(n)--------------|---------(-n)----|当前
+         (n+1)*24H之前   |     n*24H ~ (n+1)*24H之间   |     n*24h之内   |
+
+        -mtime -n: 查找距现在 0 ~ n*24H 内修改过的文件
+        -mtime n:  查找距现在 n*24H ~ (n+1)*24H 内修改过的文件
+        -mtime +n: 查找距现在 (n+1)*24H 前修改过的文件
+
+        eg: 
+            find ./ -mtime -2 -name "*.log" # 查找2天内修改的log文件
+            find ./ -mtime +2 -name "*.log" # 查找最后一次修改时间超过2天的log文件
+            find ./ -mmin  -10  -name "*.log" # 查找10分钟内修改的log文件
+
+        linux 文件的几种时间 (以 find 为例):
+            atime 最后一次访问时间, 如 ls, more 等, 但 chmod, chown, ls, stat 等不会修改些时间, 使用 ls -utl 可以按此时间顺序查看;
+            ctime 最后一次状态修改时间, 如 chmod, chown 等状态时间改变但修改时间不会改变, 使用 stat file 可以查看;
+            mtime 最后一次内容修改时间, 如 vi 保存后等, 修改时间发生改变的话, atime 和 ctime 也相应跟着发生改变.
+            注意: linux 里是不会记录文件的创建时间的, 除非这个文件自创建以来没有发生改变, 那么它的创建时间就是它的最后一次修改时间.
+
+    参数说明:
+        -o 是或者的意思
+        -a 是而且的意思
+        -not 是相反的意思
+        根据上面再从find的寻找方式中任意组合你乐意的方式.
+        find /etc -not -perm mode(222)
+        find /etc -not -perm -mode(-222)
+        find /etc -not -perm +mode(+222)
+        #-perm是按文件权限来查找文件
+        mode是完全匹配所对应的权限,如果不包括suid/sgid/sticky
+        -mode是权限位转化为二进制之后的1必须全部匹配,+mode则需要其中任何一个1被匹配.
+        -mode应该包含mode,+mode则包含-mode.
 
 Systemd & systemctl:
     Systemd为系统的启动和管理提供一套完整的解决方案. Systemd是系统的第一个进程(PID=1),其他进程都是它的子进程.

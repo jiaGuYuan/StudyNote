@@ -86,10 +86,7 @@ find:
             -name "*.cxx": 搜索满足"*.cxx"的文件(目录也是文件)
             -type f: 搜索文件(不包括目录)
             -exec rm -rf {} \; : -exec "command" \;表示对find附加命令"command", "{}"表示find找到的文件
-            
-            
-            
-            
+                 
     避开多个文件夹:
         find /usr/sam \( -path /usr/sam/dir1 -o -path /usr/sam/file1 \) -prune -o -print
         注: 括号"()"内两侧有空格

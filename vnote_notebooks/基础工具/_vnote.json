@@ -11,6 +11,15 @@
         },
         {
             "name": "RabbitMQ"
+        },
+        {
+            "name": "Nginx"
+        },
+        {
+            "name": "FastAPI"
+        },
+        {
+            "name": "K8S"
         }
     ],
     "version": "1"

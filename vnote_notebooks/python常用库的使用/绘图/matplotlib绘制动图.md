@@ -122,3 +122,16 @@ plt.show()
 # 生成gif动图,需要安装 ImageMagicK
 # anim.save('./test_animation.gif',writer='imagemagick')
 ```
+
+
+## 鼠标事件
+```
+MouseEvent:
+x, y
+    mouse x and y position in pixels from left and bottom of canvas
+    基于画布左下角计算的像素值（会受到画布大小的影响）
+
+xdata, ydata
+    mouse x and y position in data coordinates, if the mouse is over an axes
+    基于axes左上角计算的坐标值（不会受到画布缩放的影响）
+```

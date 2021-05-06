@@ -119,7 +119,8 @@ class OrderedSet {
           }
       }
 
-  private:
+  // private:
+  public:
       ListOfT m_list;
       SetOfListIter m_set;   
 };
@@ -165,4 +166,22 @@ void orderset_test(){
   for (int val : out_set)
       std::cout << val << " ";
   std::cout << std::endl;
+
+  out_set.clear();
+  for (int i=0; i<1000000; i++) {
+     out_set.append(i);
+  };
+  std::cout << out_set.m_list.size() << ", " << out_set.m_set.size() << std::endl;
+
+  for (int i=0; i<1000000; i++) {
+     if (i%8==0) {
+      out_set.remove(i);
+     }
+  };
+  std::cout << out_set.m_list.size() << ", " << out_set.m_set.size() << std::endl;
+
+  for (int i=0; i<1000000; i++) {
+     out_set.append(i);
+  };
+  std::cout << out_set.m_list.size() << ", " << out_set.m_set.size() << std::endl;
 }

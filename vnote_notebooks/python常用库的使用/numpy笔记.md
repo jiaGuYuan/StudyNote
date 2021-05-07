@@ -47,3 +47,27 @@ lst[0:-1] #[1,2,3]不包含最后一个元素
 lst[0:] #[1,2,3,4]包含最后一个元素
 ```
 
+## Where 函数
+1. where()函数可以用于获取满足条件的值的索引
+2. where() 函数是一个根据条件返回数组中的值的有效方法。只需要把条件传递给它，它就会返回一个使得条件为真的元素的列表。
+
+```python
+# np.where(cond) # 返回满足条件cond的元素的索引
+# np.where(cond,x,y) # 满足条件cond输出x，不满足输出y
+
+my_array = np.array([[0, 1, 2],
+                     [3, 4, 5],
+                     [6, 7, 8]])
+
+# 获取值小于5的元素的索引
+indexes = np.where(my_array<5) # [第一个维度的索引, 第二个维度的索引, ...]
+indexes # list(zip(*indexes))
+
+my_array = np.where(my_array<5, my_array, 100) #条件cond将作用于my_array的每个元素
+print(my_array)
+
+# 为True的元素人第二个参数中取,为False的元素从第三个参数中取
+np.where([[True, False], [True, True]], 　
+         [[1111, 22222], [3333, 4444]], 
+         [[6666, 77777], [8888, 9999]]) 
+```

@@ -23,7 +23,7 @@ def pyplot_pause(plot, interval):
     """
     在交互式matplotlib中,每次更新时窗口都会弹出到前面; 导致其他软件无法正常使用.
     使用该函数代替plt.pause()可以保持matplotlib交互时更新图像的Z顺序.
-    该函数要求首先处于交互模式plt.ion()，然后至少调用一次plt.show()
+    该函数要求首先处于交互模式plt.ion()，然后至少调用一次plt.show()。
     参考: https://codingdict.com/questions/173381
     """
     backend = plot.rcParams['backend']

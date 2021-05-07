@@ -80,8 +80,8 @@ json.loads(json_data, strict=False)
 ## 将list按第一个维平铺开
 ```
 import itertools
-lst = [[1, 2], [3, 4]]
-list(itertools.chain(*lst)) # [1, 2, 3, 4]
+lst = [[1, 2], [3, 4, 5]]]
+list(itertools.chain(*lst)) # [1, 2, 3, 4, 5]
 ```
 
 ## 使用列表推导式对list进行过滤

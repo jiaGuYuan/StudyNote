@@ -1,3 +1,5 @@
+[toc]
+
 # VS开发环境配置
 [VS远程开发环境配置](https://blog.csdn.net/qq_45224600/article/details/104944858)
 
@@ -96,3 +98,19 @@ vscode上安装Remote Development插件，并进行远程配置。
 
 
 “cpp_test-VSCode工程模板”是我WSL上的一个工程模板。
+
+
+# VSCode + CMake
+## 环境配置
+[CMake安装](https://blog.csdn.net/qq_35398033/article/details/106457777)
+[VSCode CMake插件](https://blog.csdn.net/jiasike/article/details/107474368)
+
+初次使用cmake构建工程时
+`ctrl+shift+p`调出命令框，搜索"cmake:quick"执行'CMake: Quick Start'命令--会创建'CMakeLists.txt'文件
+![](images_attachments/20210505145603649_11500.png)
+之后再次构建时可通过底部状态栏快速构建
+![](images_attachments/20210505145858454_16388.png)
+
+
+## CMake & CMakeLists.txt
+

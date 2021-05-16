@@ -7,3 +7,9 @@
 *.ipynb_checkpoints
 *.vswp
 */C&CPP/cplusplus_tutorial/*
+/java笔记/其他/*
+*.CHW
+*.chw
+*.CHM
+*.chm
+*.pdf

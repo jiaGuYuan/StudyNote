@@ -1,0 +1,99 @@
+@font-face {
+ font-family: "Fira Mono";
+ font-weight: normal;
+ font-style: normal;
+ src: local('"Fira Mono"'), url('fonts/fira.ttf') format('truetype');
+}
+
+<script>
+    MathJax.Hub.Config({
+        "HTML-CSS": {
+            /*preferredFont: "TeX",*/
+            /*availableFonts: ["TeX", "STIX"],*/
+            styles: {
+                scale: 100,
+                ".MathJax_Display": {
+                    "font-size": "100%",
+                }
+            }
+        }
+    });
+</script>
+    
+/*以下为我添加的: 参考https://www.zhihu.com/question/40012144 万欣的回答*/
+/* Markdown */
+div#notebook {
+    font-family: "Microsoft YaHei Mono", "san francisco", "PingFangSC-Medium";
+    line-height: 20px;
+    -webkit-font-smoothing: antialiased !important;
+}
+
+/* Markdown - h1 */
+div#notebook h1 {
+    color: #007aff;
+}
+
+/* Markdown - h2 */
+div#notebook h2 {
+    color: #007aff;
+}
+
+/* Markdown - h3 */
+/*div#notebook h3 {
+    color: #007aff;
+}*/
+
+/* Markdown - quote */
+div#notebook blockquote{
+    background-color: #f8f8f8;
+    color: #505050;
+    padding: 8.5px;
+    margin: 0.5em -0.5em 0.5em -0.4em;
+}
+
+/* Markdown - code in paragraph */
+div#notebook p code, div#notebook li code {
+    font-family: "Microsoft YaHei Mono", "Consolas", "PingFangSC-Medium";
+    font-size: 1em !important;
+    color: #111111;
+    border: 0.5px solid #cfcfcf;
+    border-radius: 2px;
+    background-color: #f7f7f7;
+    padding: .1em .2em;
+    margin: 0px 2px;
+}
+
+/* Markdown - code */
+div.text_cell_render pre {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+    line-height: 1.21429em;
+    padding: 8.5px;
+    margin: 0.5em -0.5em 0.5em -0.4em;
+}
+div.text_cell_render code {
+    background: #f7f7f7;
+}
+
+/* Code */
+div.CodeMirror pre {
+    font-family: "Microsoft YaHei Mono", "Consolas", "PingFangSC-Medium";
+    font-size: 13pt;
+    line-height: 110%;
+    -webkit-font-smoothing: antialiased !important;
+}
+
+/* Code - output */
+div.output pre {
+    font-family: "Microsoft YaHei Mono", "Consolas", "PingFangSC-Medium";
+    line-height: 20px;
+    -webkit-font-smoothing: antialiased !important;
+}
+
+/* Code - comment */
+span.cm-comment {
+    font-family: "Microsoft YaHei Mono", "san francisco", "PingFangSC-Medium" !important;
+    font-size: 12pt;
+    font-style: normal !important;
+}

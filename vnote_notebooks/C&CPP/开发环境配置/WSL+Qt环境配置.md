@@ -19,7 +19,7 @@ sudo apt-get install mesa-common-dev
 sudo apt-get upgrade
 
 ## 图形界面配置
-直接通过MobaXterm就可以执行带UI的应用。
+直接通过MobaXterm就可以执行带UI的应用(因为mobaxterm自带xserver)。
 相关报错及处理方法：
 1. QXcbConnection: Could not connect to display XXX
 ![](images_attachments/20210504133037245_22371.png)
@@ -34,3 +34,7 @@ sudo apt-get upgrade
 ```
 powershell.exe -Command "Set-NetFirewallProfile -DisabledInterfaceAliases \"vEthernet (WSL)\""
 ```
+
+VSCode+X11+GUI配置参考:
+[win10上WSL+vscode+xserver](https://blog.csdn.net/dinghua4921/article/details/101731738/)
+[vscode + remote x11插件 +xserver 终端实现远程GUI显示](https://www.jianshu.com/p/66875a1f294b)

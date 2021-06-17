@@ -1,5 +1,13 @@
 [toc]
 
+# VSCode python通过"sys.path.append"导入的包无法跳转的问题
+![](images_attachments/20210614154800121_692.png)
+**解决方法**：
+添加".env"文件，配置PYTHONPATH变量，添加自定义包的搜索路径
+![](images_attachments/20210614155014421_12483.png)
+
+![](images_attachments/20210614155112052_16601.png)
+
 # VS开发环境配置
 [VS远程开发环境配置](https://blog.csdn.net/qq_45224600/article/details/104944858)
 

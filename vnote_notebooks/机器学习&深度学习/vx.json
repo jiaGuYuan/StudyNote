@@ -1,0 +1,91 @@
+{
+    "created_time": "2020-04-25T19:32:39Z",
+    "files": [
+        {
+            "attachment_folder": "",
+            "created_time": "2020-05-07T10:45:23Z",
+            "id": "0",
+            "modified_time": "2020-05-07T10:45:23Z",
+            "name": "数据清洗&特征处理.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2020-05-14T11:50:42Z",
+            "id": "0",
+            "modified_time": "2020-05-14T11:50:42Z",
+            "name": "Tensorflow2.x.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2020-05-14T11:50:50Z",
+            "id": "0",
+            "modified_time": "2020-05-14T11:50:50Z",
+            "name": "神经网络_NN.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2020-05-15T01:11:30Z",
+            "id": "0",
+            "modified_time": "2020-05-15T01:11:30Z",
+            "name": "常用算法&模型&评价指标.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2020-05-15T05:53:26Z",
+            "id": "0",
+            "modified_time": "2020-05-15T05:53:26Z",
+            "name": "Tensorflow1.x_基础.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2020-05-18T04:35:40Z",
+            "id": "0",
+            "modified_time": "2020-05-18T04:35:40Z",
+            "name": "基本数学知识_统计&概率&优化.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2020-06-23T10:07:48Z",
+            "id": "0",
+            "modified_time": "2020-06-23T10:07:48Z",
+            "name": "NLP.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2020-08-20T02:47:09Z",
+            "id": "0",
+            "modified_time": "2020-08-20T02:47:09Z",
+            "name": "sklearn常用模型.md",
+            "tags": [
+            ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2020-12-23T01:48:09Z",
+            "id": "0",
+            "modified_time": "2020-12-23T01:48:09Z",
+            "name": "存储.md",
+            "tags": [
+            ]
+        }
+    ],
+    "folders": [
+    ],
+    "id": "0",
+    "modified_time": "2021-06-17T15:37:31Z",
+    "version": "1"
+}

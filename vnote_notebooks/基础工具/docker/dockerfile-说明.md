@@ -3,22 +3,24 @@
 # Dockerfile的基本结构
 ## FROM: 指定基础镜像，必须为第一个命令
 格式:
+```
     FROM <image>
     FROM <image>:<tag>
     FROM <image>@<digest>
+```
 
 ## MAINTAINER: 维护者信息
 格式:
-    MAINTAINER <name>
+    `MAINTAINER <name>`
 
 ## RUN: 构建镜像时在镜像容器中执行的命令
 两种命令执行方式
 1. shell执行
 格式：
-    RUN <command>
+    `RUN <command>`
 2. exec执行
 格式：
-    RUN ["executable", "param1", "param2"]
+    `RUN ["executable", "param1", "param2"]`
 
 注：
     RUN指令创建的中间镜像会被缓存, 并会在下次构建中使用。
@@ -28,16 +30,16 @@
 ## ADD：将上下文路径中的文件添加到容器中
 tar类型文件会自动解压(网络压缩资源不会被解压)，可以访问网络资源，类似wget
 格式：
-    ADD <src>... <dest>
-    ADD ["<src>", ... "<dest>"] 用于支持包含空格的路径
+    `ADD <src>... <dest>`
+    `ADD ["<src>", ... "<dest>"]` 用于支持包含空格的路径
 
 PS: 上下文路径是指使用'docker build'命令构建镜像的目录
 
 ## COPY：将上下文路径中的文件拷贝文件到容器中
 不会自动解压文件，也不能访问网络资源.
 格式：
-    COPY <src>... <dest>
-    COPY ["<src>", ... "<dest>"] 用于支持包含空格的路径
+    `COPY <src>... <dest>`
+    `COPY ["<src>", ... "<dest>"]` 用于支持包含空格的路径
 
 
 ## CMD：构建容器后调用，也就是在容器启动时才进行调用
@@ -62,30 +64,30 @@ PS: 上下文路径是指使用'docker build'命令构建镜像的目录
 
 ## LABEL：用于为镜像添加元数据
 格式：
-    LABEL <key>=<value> <key>=<value> <key>=<value> ...
+    `LABEL <key>=<value> <key>=<value> <key>=<value> ...`
 
 注：
 　　推荐将所有的元数据通过一条LABEL指令指定，以免生成过多的中间镜像。
 
 ## ENV：设置环境变量
 格式：
-    ENV <key> <value>  # 只能指定单个环境变量
-    ENV <key>=<value> <key2>=<value2> ...  # 可同时设置多个变量, 反斜线可以用于续行, 创建空格时使用引号
+    `ENV <key> <value>`  # 只能指定单个环境变量
+    `ENV <key>=<value> <key2>=<value2> ..`.  # 可同时设置多个变量, 反斜线可以用于续行, 创建空格时使用引号
 
 
 ## EXPOSE：指定于外界交互的端口
 格式：
-    EXPOSE <port> [<port> ...]
+    `EXPOSE <port> [<port> ...]`
 
 
 ## VOLUME：用于指定持久化目录(目录挂载)
 格式：
-    VOLUME ["/path/to/dir"]
+   ` VOLUME ["/path/to/dir"]`
 
 
 ## WORKDIR：工作目录，类似于cd命令
 格式：
-    WORKDIR /path/to/workdir
+    `WORKDIR /path/to/workdir`
 
 注：
 　　通过WORKDIR设置工作目录后, Dockerfile中其后的命令RUN、CMD、ENTRYPOINT、ADD、COPY等命令都会在该目录下执行。
@@ -93,13 +95,15 @@ PS: 上下文路径是指使用'docker build'命令构建镜像的目录
 
 ## USER:指定运行容器时的用户名或 UID
 格式:
+```
 　　USER user/uid
 　　USER user/uid:group
 　　USER user/uid:gid
+```
 
 ## ARG：用于指定传递给构建运行时的变量
 格式：
-    ARG <name>[=<default value>]
+    `ARG <name>[=<default value>]`
 
 ## ONBUILD：用于设置镜像触发器
 格式：

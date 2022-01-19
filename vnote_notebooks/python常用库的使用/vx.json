@@ -108,6 +108,15 @@
             "name": "文件相关.md",
             "tags": [
             ]
+        },
+        {
+            "attachment_folder": "",
+            "created_time": "2021-10-28T14:03:32Z",
+            "id": "0",
+            "modified_time": "2021-10-28T15:57:58Z",
+            "name": "python中的坑.md",
+            "tags": [
+            ]
         }
     ],
     "folders": [
@@ -116,6 +125,9 @@
         },
         {
             "name": "绘图"
+        },
+        {
+            "name": "logging"
         }
     ],
     "id": "0",

@@ -1,4 +1,31 @@
 # python中的坑
+## in操作遇上生成器
+使用in操作判断对象是否在生成器中时, 相当于连续调用next(gen_obj)直接找到相等的元素或迭代器终止.
+**结论**: 不要使用in操作判断对象是否在生成器中.
+
+```python
+def gen_func_test():
+    for i in range(5):
+        print(f'i = {i}')
+        yield i
+
+gen_obj = gen_func_test()
+print(3 in gen_obj) # 会多次触发gen_obj执行
+# print(next(gen_obj))
+```
+![](images_attachments/126051026805.png)
+
+PS: iter函数返回的是一个生成器.
+```python
+it = iter([1, 2, 1, 3])
+print(type(it)) # <class 'list_iterator'>
+print(3 in it) # True
+print(next(it)) # Exception StopIteration
+```
+![](images_attachments/2801146018772.png)
+
+
+
 ## 多重列表初始化中的坑(可变类型&不可变类型)
 ```
     注意: 使用乘法扩充的列表,进行针对元素的是浅复制(类似与C++的引用)

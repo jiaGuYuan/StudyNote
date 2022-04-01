@@ -239,6 +239,7 @@ df_resetIdx = pd.concat([df1, df2], axis=0, ignore_index=True)
 
 
 ## 数据透视表(pd.pivot_table)可以实现与分组(df.groupby)类型的功能
+类似分组聚合功能
 pd.pivot_table(df, values=[要透视的列], index=[作为索引的列], 
                aggfunc=对透视数据进行的操作, 
                dropna=数据透视时是否删除nan)
@@ -264,9 +265,135 @@ df3 = df.groupby('colA').agg(lambda items:items.tolist())
 df3
 ```
 ![](images_attachments/20200602130144139_28513.png)
+### 分组聚合(分组透视)
+```
+data = {
+    'class': ['one', 'one', 'one', 'one', 'one', 'one', 'one', 'one', 'two', 'two'],
+    'name': ['A', 'A', 'A', 'B', 'B', 'B', 'C', 'C', 'A', 'A'],
+    'course': ['语文', '数学', '英语', '语文', '数学', '英语', '语文', '数学', '数学', '英语'],
+    'score': [90, 95, 96, 87, 99, 98, 59, 88, 95, 59],
+    'time': [60, 80, 65, 70, 70, 65, 55, 60, 65, 50]
+}
+long_df = pd.DataFrame(data)
+long_df
+# 透视
+pivot_df = long_df.pivot_table(index=['class'], columns='course' , 
+               values=['score', 'time'], aggfunc='mean', fill_value=0)
+pivot_df
 
+pivot_df.columns = [ls if isinstance(ls, str) else '_'.join(l for l in ls if l) for ls in pivot_df.columns.values]
+pivot_df
+```
 
+![](images_attachments/5628827246901.png)
 
+# 一行拆多行
+
+# 行转列(长表变宽表)
+```
+data = {
+    'name': ['A', 'A', 'A', 'B', 'B', 'B', 'C', 'C'],
+    'course': ['语文', '数学', '英语', '语文', '数学', '英语', '语文', '数学'],
+    'score': [90, 95, 96, 87, 99, 98, 59, 88],
+    'time': [60, 80, 65, 70, 70, 65, 55, 60]
+}
+long_df = pd.DataFrame(data) # 长df
+long_df
+
+# 行转列
+mulit_level_df = long_df.set_index(['name', 'course']) # 列转index
+mulit_level_df
+wide_df = mulit_level_df.unstack(level=1, fill_value=None) # 将指定层次的index转为column
+wide_df
+
+# 行转列
+# wide_df = long_df.pivot(index='name', columns='course', values=['score', 'time'])
+
+# 列索引扁平化
+wide_df.columns = [ls if isinstance(ls, str) else '_'.join(l for l in ls if l) for ls in wide_df.columns.values]
+wide_df
+```
+
+![](images_attachments/4842655216735.png)
+
+#### 一个更复杂的例子
+
+```
+data = {
+    'class': ['one', 'one', 'one', 'one', 'one', 'one', 'one', 'one', 'two', 'two'],
+    'name': ['A', 'A', 'A', 'B', 'B', 'B', 'C', 'C', 'A', 'A'],
+    'course': ['语文', '数学', '英语', '语文', '数学', '英语', '语文', '数学', '数学', '英语'],
+    'score': [90, 95, 96, 87, 99, 98, 59, 88, 95, 59],
+    'time': [60, 80, 65, 70, 70, 65, 55, 60, 65, 50]
+}
+long_df = pd.DataFrame(data)
+long_df
+
+# Note: 为df.pivot构建(index, columns)组成的惟一entries
+long_df['id'] = long_df.apply(lambda row: (row['class'], row['name']), 
+                         axis=1, result_type="reduce")
+wide_df = long_df.pivot(index='id', columns='course', values=['score', 'time']).reset_index()
+wide_df
+wide_df.columns = [ls if isinstance(ls, str) else '_'.join(l for l in ls if l) for ls in wide_df.columns.values]
+wide_df
+wide_df[['class', 'name']] = wide_df[['id']].apply(lambda row: row['id'], axis=1, result_type='expand')
+wide_df
+
+wide_df = wide_df.drop(columns=['id']).set_index(['class', 'name'])
+wide_df
+
+# PS:  使用'class'+'name'构建'id'列,是为了避免pd.pivot报如下错误．
+# ValueError: Index contains duplicate entries, cannot reshape
+# df.pivot中的index和columns参数都只能传入单个列名，且参数index与columns的组合必须是惟一的
+```
+![](images_attachments/5205052029760.png)
+```
+# df.pivot中的index和columns参数都只能传入单个列名，且参数index与columns必须是惟一的
+data = {
+    'name': ['A', 'A', 'B', 'B'],
+    'course': ['语文', '数学', '语文', '数学'],
+    'score': [90, 95, 96, 87]
+}
+long_df = pd.DataFrame(data)
+wide_df = long_df.pivot(index='name', columns='course', values=['score']).reset_index() # ok
+wide_df
+# =================================
+
+# error: df.pivot中参数index与columns的组合不是惟一的
+data = {
+    'name': ['A', 'A', 'A', 'B'],
+    'course': ['语文', '数学', '语文', '数学'],
+    'score': [90, 95, 96, 87]
+}
+long_df = pd.DataFrame(data)
+# ValueError: Index contains duplicate entries, cannot reshape
+wide_df = long_df.pivot(index='name', columns='course', values=['score']).reset_index() # error
+wide_df
+```
+
+# 列转行(宽表变长表)
+```
+data = {
+ 'class': ['one', 'one', 'one', 'two'],
+ 'name': ['A', 'B', 'C', 'A'],
+ '数学': [95.0, 99.0, 88.0, 95.0],
+ '英语': [96.0, 98.0, None, 59.0],
+ '语文': [90.0, 87.0, 59.0, None]
+}
+wide_df = pd.DataFrame(data)
+wide_df
+
+# 将 DataFrame 从宽格式转为长格式
+long_df = wide_df.melt(id_vars=['class', 'name'], 
+             value_vars=["数学", "英语", "语文"],
+             var_name='course', value_name='score')
+long_df
+```
+**df.melt**说明
+id_vars: 固定的列(可理解为"从宽格式转为长格式"过程中的index)
+value_vars: 要取消透视的列(即要转换成行的列)
+var_name/value_name: 取消透视后,值展开对应的两个列名
+![](images_attachments/2618356239570.png)
 
 ## 对Series计算平均值时,列中的nan对平均值无影响
 ```

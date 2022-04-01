@@ -1,4 +1,13 @@
 # logging使用&坑
+1. logging中的logger是有层次结构的.
+2. '子logger'的日志记录是会向'父logger'传播的(当propagate为False时,不传播).
+3. logger可以设置Level, 可以设置多个Filter 
+  3.1 当调用记录不符合'调用logger'的level时/或被'调用logger'的filter拒绝时,日志记录不会被创建.
+  3.2 日志记录在传播过程中不符合logger的level时/或被logger的filter拒绝时,日志记录结束.
+4. 一个logger可以设置多个handler; handler可以设置Level, 也可以设置多个Filter.
+  4.1 日志记录不符合handler的level时/或被handler的filter拒绝时,日志记录结束.
+
+![](images_attachments/925401006456.png)
 [参考](https://www.cnblogs.com/telecomshy/p/10630888.html)
 ```
 import logging
@@ -207,3 +216,173 @@ def test_010():
 if __name__ == '__main__':
     test_010()
 ```
+
+
+第二段示例
+```
+import logging
+import sys
+import time
+
+
+def test_001():
+    # logger.LEVEL阻断logRecord传播
+    """
+    root (INFO, [handler_INFO])
+      |- child (WARN, [handler_WARN])
+    """
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_handler = logging.StreamHandler()
+    fmt = logging.Formatter("%(name)s-%(levelname)s: %(message)s")
+    root_handler.setLevel(logging.INFO)
+    root_handler.setFormatter(fmt)
+    root_logger.addHandler(root_handler)
+    print(root_logger.handlers)
+    
+    child_logger = logging.getLogger("child")
+    child_logger.setLevel(logging.WARN)
+    child_handler = logging.StreamHandler()
+    child_handler.setLevel(logging.WARN)
+    child_handler.setFormatter(fmt)
+    child_logger.addHandler(child_handler)
+    print(child_logger.handlers)
+    # 日志输出了2次(一条属于root_logger,一条属于child_logger).
+    # 但是root_logger输出的记录中name还是子logger的
+    child_logger.warning('log record warning')
+    
+    # 日志输出了0次(日志记录在child_logger处被child_logger.LEVEL阻止了).
+    child_logger.info('log record info')
+    
+def test_002():
+    # handler.LEVEL阻断logRecord传播
+    """
+    root (INFO, [handler_INFO])
+      |- child (WARN, [handler_WARN])
+          |- child.logger (INFO, [handler_INFO])
+    """
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_handler = logging.StreamHandler()
+    fmt = logging.Formatter("%(name)s-%(levelname)s[%(lineno)d]: %(message)s")
+    root_handler.setLevel(logging.INFO)
+    root_handler.setFormatter(fmt)
+    root_logger.addHandler(root_handler)
+    print(root_logger.handlers)
+    
+    child_logger = logging.getLogger("child")
+    child_logger.setLevel(logging.WARN)
+    child_handler = logging.StreamHandler()
+    child_handler.setLevel(logging.WARN)
+    child_handler.setFormatter(fmt)
+    child_logger.addHandler(child_handler)
+    print(child_logger.handlers)
+    
+    logger = child_logger.getChild('logger')
+    logger.setLevel(logging.INFO)
+    logger_handler = logging.StreamHandler()
+    logger_handler.setLevel(logging.WARN)
+    logger_handler.setFormatter(fmt)
+    logger.addHandler(logger_handler)
+    print(logger.handlers)
+    
+    # 日志输出了3次(一条属于logger, 一条属于child_logger, 一条属于root_logger,).
+    logger.warning('log record warning')
+    
+    # 日志输出了1次(日志记录在child_logger处被child_logger.LEVEL阻止了).
+    logger.info('log record info')
+
+def test_003():
+    # handler.LEVEL阻断logRecord传播
+    """
+    root (INFO, [handler_INFO])
+      |- child (INFO, [handler_INFO, handler_WARN])
+          |- child.logger (INFO, [handler_INFO])
+    """
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_handler = logging.StreamHandler()
+    fmt = logging.Formatter("%(name)s-%(levelname)s[%(lineno)d]: %(message)s")
+    root_handler.setLevel(logging.INFO)
+    root_handler.setFormatter(fmt)
+    root_logger.addHandler(root_handler)
+    print(root_logger.handlers)
+    
+    child_logger = logging.getLogger("child")
+    child_logger.setLevel(logging.INFO)
+    
+    child_handler1 = logging.StreamHandler()
+    child_handler1.setLevel(logging.INFO)
+    child_handler1.setFormatter(fmt)
+    child_logger.addHandler(child_handler1)
+    
+    child_handler2 = logging.StreamHandler()
+    child_handler2.setLevel(logging.WARN)
+    child_handler2.setFormatter(fmt)
+    child_logger.addHandler(child_handler2)
+    print(child_logger.handlers)
+    
+    logger = child_logger.getChild('logger')
+    logger.setLevel(logging.INFO)
+    logger_handler = logging.StreamHandler()
+    logger_handler.setLevel(logging.WARN)
+    logger_handler.setFormatter(fmt)
+    logger.addHandler(logger_handler)
+    print(logger.handlers)
+    
+    # 日志输出了4次(1条属于logger, 2条属于child_logger, 1条属于root_logger,).
+    logger.warning('log record warning')
+    
+    # 日志输出了2次(1条属于logger, 1条属于child_logger; 日志记录在child_logger处被hander2.LEVEL阻止了).
+    logger.info('log record info')
+
+def test_004():
+    # logger.filter
+    """
+    root (INFO, [handler_INFO])
+      |- child (INFO, [handler_INFO], myfilter)
+    """
+    def myfilter(record):
+        if record.role == "admin":
+            return True
+        else:
+            return False
+        
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_handler = logging.StreamHandler()
+    fmt = logging.Formatter("%(name)s-%(levelname)s[%(lineno)d]: %(message)s")
+    root_handler.setLevel(logging.INFO)
+    root_handler.setFormatter(fmt)
+    root_logger.addHandler(root_handler)
+    print(root_logger.handlers)
+    
+    child_logger = logging.getLogger("child")
+    child_logger.setLevel(logging.INFO)
+    child_handler = logging.StreamHandler()
+    child_handler.setLevel(logging.INFO)
+    child_handler.setFormatter(fmt)
+    child_logger.addHandler(child_handler)
+    print(child_logger.handlers)
+    child_logger.addFilter(myfilter)
+    # 日志输出了2次(1条属于child_logger, 1条属于root_logger).
+    child_logger.info('An info message with %s', 'some parameters',
+                extra={"role":"admin"})
+    
+    # 日志输出了0次(日志记录在child_logger处被child_logger.filter阻止了).
+    child_logger.info('An info message with %s', 'some parameters',
+                extra={"role":"hacker"})
+    
+
+
+if __name__ == '__main__':
+    test_004()
+```
+
+
+# 推荐用法
+1. 不使用Logger的层次结构. 为'要使用的logger'配置handler,但将propagate设置为False. 即将logger当作无层次结构作用.
+
+2. 使用logger的层次结构, 不为'使用logger'配置handler, 将propagate设置为True. 所有的handler配置在root中.
+在子logger中配置level/filter等.
+![](images_attachments/3285806026622.png)

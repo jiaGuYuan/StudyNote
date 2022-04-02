@@ -289,7 +289,8 @@ pivot_df
 
 # 一行拆多行
 
-# 行转列(长表变宽表)
+# 行列转换
+## 行转列(长表变宽表)
 ```
 data = {
     'name': ['A', 'A', 'A', 'B', 'B', 'B', 'C', 'C'],
@@ -316,7 +317,7 @@ wide_df
 
 ![](images_attachments/4842655216735.png)
 
-#### 一个更复杂的例子
+### 一个更复杂的例子
 
 ```
 data = {
@@ -371,7 +372,7 @@ wide_df = long_df.pivot(index='name', columns='course', values=['score']).reset_
 wide_df
 ```
 
-# 列转行(宽表变长表)
+## 列转行(宽表变长表)
 ```
 data = {
  'class': ['one', 'one', 'one', 'two'],
@@ -395,6 +396,60 @@ value_vars: 要取消透视的列(即要转换成行的列)
 var_name/value_name: 取消透视后,值展开对应的两个列名
 ![](images_attachments/2618356239570.png)
 
+## dataframe差集(允许存在重复的行)
+参考: [dataframe-shanchu-yige.html](https://www.opsask.com/post/4487/dataframe-shanchu-yige.html)
+**Note: 组内编号**
+```
+import pandas as pd
+
+def df1_exclude_df2(df1: pd.DataFrame, df2: pd.DataFrame):
+    """功能: 从df1中剔除在df2中出现的行('相等行'最多被剔除的次数为其在df2中出现的次数)
+         df1        |     df2        |  df1_exclude_df2(df1, df2)
+         col1  col2 |     col1  col2 |   col1  col2
+      0   1    10   |  0   1    10   | 4  1    10
+      1   1    10   |  1   2    11   |
+      2   2    11   |  2   1    10   |
+      3   3    12   |  3   3    12   |
+      4   1    10   |  4   3    11   |
+    :return:
+    """
+    if set(df1.columns) - set(df2.columns):
+        print("Error: df2应当包含df1中的所有列")
+        return None
+    
+    # 添加名为'group_num'的新列, 新列为分组后的组内编号
+    new_df1 = df1.assign(group_num=df1.groupby([*df1]).cumcount())
+    new_df2 = df2.assign(group_num=df2.groupby([*df2]).cumcount())
+    
+    # 通过组内编号限制'原本取值相等的行'的关联行为(限制'原本相等行'的关联次数)
+    df = new_df1.merge(new_df2, on=[*new_df1], how='left', indicator=True)
+    res_df = df1[df['_merge']=='left_only']
+    
+    # 如果需要从df1和df2获取不匹配的行，可使用外部合并 -- 要求df1&df2的columns相同
+    # out = new_df1.merge(new_df2, on=[*new_df1], indicator=True, how='outer')
+    # df1_filter = (out.query('_merge == "left_only"').drop(['group_num','_merge'], axis=1))
+    # df2_filter = (out.query('_merge == "right_only"').drop(['group_num','_merge'], axis=1))
+    # print(df1_filter)
+    # print(df2_filter)
+    return res_df
+
+if __name__ == "__main__":
+    data1 = {
+        "col1": [1, 1, 2, 3, 1],
+        "col2": [10, 10, 11, 12, 10]
+    }
+    df1 = pd.DataFrame(data1)
+    
+    data2 = {
+        "col1": [1, 2, 1, 3, 3],
+        "col2": [10, 11, 10, 12, 11]
+    }
+    df2 = pd.DataFrame(data2)
+    res_df = df1_exclude_df2(df1, df2)
+    print(res_df)
+```
+
+# 其它
 ## 对Series计算平均值时,列中的nan对平均值无影响
 ```
 datax = {'colA':['A', 'B', 'C', 'A', 'B'], 

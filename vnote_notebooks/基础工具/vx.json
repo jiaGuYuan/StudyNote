@@ -23,6 +23,9 @@
         },
         {
             "name": "zookeeper"
+        },
+        {
+            "name": "gdb"
         }
     ],
     "id": "0",

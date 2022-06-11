@@ -33,9 +33,9 @@ xargs: 在不同命令中传递参数
 
     
 创建软连接: ln
-    ln -s 源文件 目标文件(要创建的软连接文件)
+    ln -s 源文件 目标文件(创建的软连接文件)
     -s 选项,表示创建软连接.软连接类似win的快捷方式,删除软连接不会影响原文件
-    eg: ln -s srcfileName createLinkfileName  #createLinkfileName-->srcfileName
+    eg: ln -s srcfileName createLinkfileName  #srcfileName<==createLinkfileName
     
 find:
     当前目录及子目录下查找所有以.txt和.pdf结尾的文件:
@@ -593,7 +593,7 @@ gdb定位ap_proc挂死:
     
     其它解压:
         unzip filename.zip -d out_dir
-        tar xvf filaname.tar
+        tar -C out_dir -xvf filaname.tar
         gtar zxvf filaname.tar.gz
         gzip -d filename.gz
     

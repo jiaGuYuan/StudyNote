@@ -30,7 +30,7 @@ MySQL第一次启动后会创建超级管理员账号root@localhost,初始密码
     安装好mysql后首次直接使用' mysql -u username -p'登陆会报错'ERROR 1045 (28000): Access denied...'
     需要先使用skip-grant-table方式登录,修改密码后再以正常方式登录
     1. 修改配置使mysql可以用skip-grant-table方式登录
-        vim /etc/my.cnf 在[mysql]节点下skip-grant-table
+        vim /etc/my.cnf 在[mysqld]节点下添加一行: skip-grant-tables
     2. service mysqld stop
     3. service mysqld start
     4. mysql -u root [敲回车进入]

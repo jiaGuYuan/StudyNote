@@ -46,7 +46,7 @@ ctrl-c  # 中断
 ![py-bt正常输出堆栈信息](images_attachments/206631189078.png)
 
 
-## 使用gdb调用 conda的python环境时, 在启动gdb调度时需要正确指定python路径
+## 使用gdb调用 conda的python环境时, 在启动gdb调试时需要正确指定python路径
 eg: 需要调试的程序是从conda的python3.6环境启动的.
       但在gdb中指定的python3.6使用的并不是需要被调试的那个环境.
 ![](images_attachments/2553254207111.png)

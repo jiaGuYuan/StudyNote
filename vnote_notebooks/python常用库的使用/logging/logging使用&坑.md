@@ -8,6 +8,9 @@
   4.1 日志记录不符合handler的level时/或被handler的filter拒绝时,日志记录结束.
 
 ![](images_attachments/925401006456.png)
+
+## 自定义上下文 -LoggerAdapter
+
 [参考](https://www.cnblogs.com/telecomshy/p/10630888.html)
 ```
 import logging

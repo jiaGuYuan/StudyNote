@@ -1,5 +1,5 @@
 # simpy resources
-
+以下测试使用 simpy version: 4.0.1
 参考文档:
 [resources.html](https://simpy.readthedocs.io/en/latest/topical_guides/resources.html)
 
@@ -75,7 +75,7 @@ env.run()
 
 
 ## Stores
-items放item, put_queue放请求
+items放可用的item, put_queue放请求
 store.items: 当前可用的物品列表. capacity限制的是store.items的大小
 store.put_queue: 挂起的*put*请求队列
 store.get_queue: 挂起的*get*请求队列
@@ -117,3 +117,18 @@ resource相关操作的演示
 
 其他说明
 ![](images_attachments/5120255167425.png)
+
+## 关于PriorityStore -- 继承自Store
+
+items: 当前可用的物品列表,  capacity限制的是store.items的大小
+put_queue: 存放当前pending的put请求.
+PriorityStore的优先级排序能力是通过最小堆管理其可用的物品列表(items)而获得的.
+priorityStore的put_queue并不具备按优先级排序的能力,
+物品只有从put_queue(pending队列)进入可用的物品列表(items)后,其优先级才能发挥作用(高优先级在items列表中插队,而被优先消费); 
+若priorityStore的capacity设置为1,则其按优先级排序的功能失效,退化为普通的Store.
+
+[priority_store.py](images_attachments/5034800170094/priority_store.py)
+
+
+![](images_attachments/4236615230970.png)
+

@@ -1,5 +1,55 @@
 # numpy笔记
 
+## 关于axis
+当我们要对某个ndarray进行np.sum/np.max等方式的处理时, 我们可以想象axis是我们要针对的纬度.
+最直观的体现就在于, 比如一个shape为(a,b,c)的矩阵mtx. 
+如果我用np.sum(mtx)处理, 那么当axis = 0的时候,输出的shape就为(b,c); 同理,当axis=2的时候,输出的shape就成为(a,b).
+
+```
+import numpy as np
+# data.shape == (3,2,3)
+data = np.array([[[1,2,3],
+				      [4,5,6]],
+				     [[7,8,8],
+				      [10,11,3]],
+				     [[1,5,7],
+				      [5,3,1]]])
+
+output = np.max(data, axis=1)
+# 根据第一段，我们知道output.shape一定是(3,3)
+# output[i,j] = np.max([data[i, axis_k, j] for axis_k in range(data.shape[axis])])
+```
+![](images_attachments/2533752220967.png)
+
+理解: np.sum/np.max等函数的axis表示的是要操作的维度(该维度在操作后将消失).
+shape: (X, Y, Z) --axis=1--> shape: (X, Y)
+[numpy_axis.py](images_attachments/1415237249393/numpy_axis.py)
+
+```
+# 新的理解
+import numpy as np
+# data.shape == (3,2,3)
+data = np.array([[[1,2,3],
+				      [4,5,6]],
+				     [[7,8,8],
+				      [10,11,3]],
+				     [[1,5,7],
+				      [5,3,1]]])
+output = np.max(data, axis=1)
+
+# axis=N 即消去第N个维度 ==等价于== 保留前N-1个维度, 直接对第N个维度的元素(元素是N+1维)进行操作, 操作结果是原第N个维度消失.
+# shape: (A, B, C, D) ==axis=1==> (A, C, D)
+# output1.shape: (3,3)
+output1 = np.sum(data, axis=1)  # 消去了第1个维度
+print(output1)
+print("===")
+tmp = np.add([data[0][0], data[1][0], data[2][0]],
+             [data[0][1], data[1][1], data[2][1]])
+print(np.array(tmp))
+print("**********")
+```
+![](images_attachments/2438304007261.png)
+
 ## 广播(Broadcasting)
 广播是一种强大的机制，它允许numpy在执行算术运算时使用不同形状的数组.
 将两个数组一起广播遵循以下规则：

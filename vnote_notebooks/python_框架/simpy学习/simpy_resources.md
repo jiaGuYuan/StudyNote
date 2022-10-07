@@ -79,9 +79,9 @@ items放可用的item, put_queue放请求
 store.items: 当前可用的物品列表. capacity限制的是store.items的大小
 store.put_queue: 挂起的*put*请求队列
 store.get_queue: 挂起的*get*请求队列
-1. put_req = store.put(xxx) 会将数据放入store.items或 将请求放入store.get_queue; 当有空闲容量时直接将数据放入store.items,当槽位被占满时将请求放入store.get_queue.
+1. put_req = store.put(xxx) 会将数据放入store.items或 将请求放入store.put_queue; 当有空闲容量时直接将数据放入store.items,当槽位被占满时将请求放入store.put_queue.
 2. yield put_req: 会阻塞,直到store有空位可以存入put_req对应的item
-3. get_req = store.get() 会直接生成对应可用数据的请求(当store.items中有数据时), 此时 yield get_req可直接获取到对应的数据; 或将生成的请求放入pending get队列(当store.items中没有可用数据时), 此时yield get_req将阻塞,直到有可用的数据. 
+3. get_req = store.get() 会直接生成对应可用数据的请求(当store.items中有数据, 且此时get_queue没有其它已经在等待的请求时), 此时 yield get_req可直接获取到对应的数据; 或将生成的请求放入pending get队列(当store.items中没有可用数据时), 此时yield get_req将阻塞,直到有可用的数据. 
 4. store会自动处理items/put_queue/get_queue的相关转换
 [simpy_store.py](images_attachments/5034800170094/simpy_store.py)
 
@@ -117,6 +117,7 @@ resource相关操作的演示
 
 其他说明
 ![](images_attachments/5120255167425.png)
+
 
 ## 关于PriorityStore -- 继承自Store
 

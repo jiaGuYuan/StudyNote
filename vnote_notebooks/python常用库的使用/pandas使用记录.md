@@ -1,5 +1,15 @@
 # pandas使用记录
 
+## 显示设置
+```
+# 显示所有列
+pd.set_option('display.max_columns', None)
+# 不限制宽度
+pd.set_option('display.width', None)
+# 显示所有行
+pd.set_option('display.max_rows', None)
+```
+
 ## Series的map(),apply()方法
 **map(func)方法工作在Series对象(即DataFrame的单列或单行)之上**。
 迭代Series对象的每一个**元素**，并对其运行函数func(也就是说函数func的实参是Series对象的元素).

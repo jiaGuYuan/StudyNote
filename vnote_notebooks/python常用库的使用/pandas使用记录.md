@@ -10,6 +10,33 @@ pd.set_option('display.width', None)
 pd.set_option('display.max_rows', None)
 ```
 
+## 遍历dataframe
+![](images_attachments/572104909247512.png)
+简单对上面三种方法进行说明：
+iterrows():  按行遍历，将df的每行迭代为(index, Series)对，可以通过row[col]对元素进行访问。
+itertuples():  按行遍历，将df的每行迭代为元组，可以通过row.col对元素进行访问，比iterrows()效率高。
+iteritems(): 按列遍历，将df的每列迭代为(列名, Series)对，可以通过row[index]对元素进行访问。
+
+
+```
+import numpy as np
+import pandas as pd
+df = pd.DataFrame(np.random.randint(0, 100, size=(100, 4)), columns=list('ABCD'))
+print(df)
+
+
+# 按row遍历df. 迭代时返回(index, rowSeries)
+for idx, row_ser in df.iterrows():
+    print(row_ser['A'], row_ser['B'])
+
+
+# 按row遍历df. 迭代时返回row的命名元组
+for named_tuple in df.itertuples():
+    print(named_tuple.A, named_tuple.B)
+
+# 一般情况下 df.itertuples() 比 df.iterrows()速度更快
+```
+
 ## Series的map(),apply()方法
 **map(func)方法工作在Series对象(即DataFrame的单列或单行)之上**。
 迭代Series对象的每一个**元素**，并对其运行函数func(也就是说函数func的实参是Series对象的元素).

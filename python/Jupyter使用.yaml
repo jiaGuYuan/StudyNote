@@ -111,8 +111,12 @@ conda包管理:
         pip --default-timeout=100 install jieba==3.5.3
     
     下载whl包: 
-        # 有参数可以指定平台和版本
-        pip download PKG_NAME  # 会自动下载依赖的whl
+        # 下载指定的包及相关依赖whl, 会按照执行环境的平台&py版本进行下载
+        pip download PKG_NAME
+        
+        # 可以指定平台和py版本.  指定平台时需要同时指定--only-binary参数
+        pip3 download --only-binary=:all: --python-version=3.7  cx-Oracle==6.4.1
+        可以指定多个--platform, 其取值可用: manylinux1_x86_64, linux_x86_64, any, win_amd64
         
     问题:
         安装python包时报错:

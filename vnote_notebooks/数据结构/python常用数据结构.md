@@ -175,6 +175,8 @@ dic.values() # 提供value的可迭代视图
 
 
 # heapq
+[heapq.html](https://docs.python.org/zh-cn/3/library/heapq.html)
+
 python heapq是一个最小堆
 常用函数
 heap = [] # 创建一个空的堆
@@ -215,7 +217,68 @@ heapq.nsmallest(2, lst) # 返回lst中最大小的n个元素
 list(heapq.merge([1,3,5,7], [0,2,4,8], [5,10,15,20], [], [25])) # 将多个已排序的迭代器,合并成一个排序结果(要求:输入的迭代器是已排序好的)
 list(heapq.merge([1, 2, 3], [1, -2, -4], key=lambda item: abs(item))) 
 ```
+## Note:
+### 堆排序 
+可以通过将所有值推入堆中然后每次弹出一个最小值项来实现(结果是**不稳定**的)。
+```
+def heapsort(iterable):
+    h = []
+    for value in iterable:
+        heappush(h, value)
+    return [heappop(h) for i in range(len(h))]
 
+heapsort([1, 3, 5, 7, 9, 2, 4, 6, 8, 0])
+```
+这类似于 sorted(iterable)，但与 sorted() 不同的是这个实现是**不稳定**的。
+
+堆元素可以为元组。 这适用于将比较值（例如任务优先级）与跟踪的主记录进行赋值的场合:
+
+
+### 使用堆实现优先队列的说明
+优先队列 是堆的常用场合，并且它的实现包含了多个挑战：
+排序稳定性：你该如何令相同优先级的两个任务按它们最初被加入时的顺序返回？
+如果优先级相同且任务没有默认比较顺序，则 (priority, task) 对的元组比较将会中断。
+如果任务优先级发生改变，你该如何将其移至堆中的新位置？
+或者如果一个挂起的任务需要被删除，你该如何找到它并将其移出队列？
+
+针对前两项挑战的一种解决方案是将条目保存为包含优先级、条目计数和任务对象 3 个元素的列表。 
+条目计数可用来打破平局，这样具有相同优先级的任务将按它们的添加顺序返回。 
+并且由于没有哪两个条目计数是相同的，元组比较将永远不会直接比较两个任务。
+
+其余的挑战主要包括找到挂起的任务并修改其优先级或将其完全移除。 找到一个任务可使用一个指向队列中条目的字典来实现。
+
+移除条目或改变其优先级的操作实现起来更为困难，因为它会破坏堆结构不变量。 因此，一种可能的解决方案是将条目标记为已移除，再添加一个改变了优先级的新条目:
+
+```
+pq = []                         # list of entries arranged in a heap
+entry_finder = {}               # mapping of tasks to entries
+REMOVED = '<removed-task>'      # placeholder for a removed task
+counter = itertools.count()     # unique sequence count
+
+def add_task(task, priority=0):
+    'Add a new task or update the priority of an existing task'
+    if task in entry_finder:
+        remove_task(task)
+    count = next(counter)
+    entry = [priority, count, task]
+    entry_finder[task] = entry
+    heappush(pq, entry)
+
+def remove_task(task):
+    'Mark an existing task as REMOVED.  Raise KeyError if not found.'
+    entry = entry_finder.pop(task)
+    entry[-1] = REMOVED
+
+def pop_task():
+    'Remove and return the lowest priority task. Raise KeyError if empty.'
+    while pq:
+        priority, count, task = heappop(pq)
+        if task is not REMOVED:
+            del entry_finder[task]
+            return task
+    raise KeyError('pop from an empty priority queue')
+
+```
 # queue
 基本FIFO队列, 先进先出
 ```

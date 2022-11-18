@@ -25,6 +25,9 @@
     "folders": [
         {
             "name": "mysql"
+        },
+        {
+            "name": "oracle"
         }
     ],
     "id": "89",

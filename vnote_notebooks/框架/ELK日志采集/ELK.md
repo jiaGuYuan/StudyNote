@@ -1,7 +1,7 @@
 # ELK
 
 
-[ELK helm包](https://github.com/elastic/helm-charts/tree/v8.5.1)
+[ELK helm包](https://github.com/elastic/helm-charts/)
 
 [学习视频](https://www.bilibili.com/video/BV1mE411f7w6)
 

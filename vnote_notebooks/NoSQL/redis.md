@@ -78,6 +78,7 @@
     LPUSH keyName value1
     LPUSH keyName value2
     LRANGE keyName 0 10
+    LLEN keyName  # 查看长度
     Redis列表命令: https://www.runoob.com/redis/redis-lists.html
 ```
 4. set(集合):
@@ -101,6 +102,10 @@
     ZINCRBY keyName increment setMember1 # 给集合成员setMember1的分数加上增量increment
 ```
     Redis有序集合命令: https://www.runoob.com/redis/redis-sorted-sets.html
+
+# 查看key的内存占用
+`MEMORY USAGE`
+
 
 ## Note(注意点)
 ### redis中值的类型是bytes--字节类型

@@ -10,6 +10,9 @@ pd.set_option('display.width', None)
 pd.set_option('display.max_rows', None)
 ```
 
+# DF多条件筛选
+df[(df[col01]==1) & (df[col02]==2)]   #  注意这里的括号不能省略
+
 ## 遍历dataframe
 ![](images_attachments/572104909247512.png)
 简单对上面三种方法进行说明：
@@ -42,7 +45,7 @@ for named_tuple in df.itertuples():
 迭代Series对象的每一个**元素**，并对其运行函数func(也就是说函数func的实参是Series对象的元素).
 返回: 一个与调用map函数的Series所有相同index的新的Series对象。
 ```
-data = {'colA':['xxAAAAAxxx', 'xBBBBBx', 'xxxCCCCCCxx', 'AAAAA', DDDy], 
+data = {'colA':['xxAAAAAxxx', 'xBBBBBx', 'xxxCCCCCCxx', 'AAAAA', 'DDDy'], 
         'colB':[11, 22, 33, 22, 9]}
 df = pd.DataFrame(data)
 strip_f = lambda s: s.strip("xy")  # 去掉前后的字符'x'或'y'
@@ -275,7 +278,7 @@ df_resetIdx = pd.concat([df1, df2], axis=0, ignore_index=True)
 ![](images_attachments/20200602124505047_14853.png)
 
 
-## 数据透视表(pd.pivot_table)可以实现与分组(df.groupby)类型的功能
+## 数据透视表(pd.pivot_table)可以实现与分组(df.groupby)类型的功能(行转列)
 类似分组聚合功能
 pd.pivot_table(df, values=[要透视的列], index=[作为索引的列], 
                aggfunc=对透视数据进行的操作, 
@@ -325,7 +328,7 @@ pivot_df
 ![](images_attachments/5628827246901.png)
 
 # 一行拆多行
-
+## df.explode (列转行)
 # 行列转换
 ## 行转列(长表变宽表)
 ```
@@ -1076,8 +1079,8 @@ df['orders_code'].str.contains('202009') # 订单号中是否包含"202009"
 ![](images_attachments/20210223095529469_11032.png)
 
 
-
-
+## 统计每个班级中的排名第二的学生信息
+[pandas rand](https://zhuanlan.zhihu.com/p/87593543)
 
 
 

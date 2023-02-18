@@ -6,7 +6,7 @@ i. 从develop分支拉取最新代码创建自己的本地开发分支gjy_dev
      0. git branch gjy_dev
      1. git fetch --all # 获取分支信息
      2. git reset --hard origin/develop
-     3. git pull
+     3. git pull origin develop
 ii. 开发者在其开发分支上(gjy_dev)，完成编码后commit
     git add <filename, ...>
     git commit -m "just do it"

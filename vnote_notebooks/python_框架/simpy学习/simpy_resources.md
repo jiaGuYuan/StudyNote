@@ -118,6 +118,11 @@ resource相关操作的演示
 其他说明
 ![](images_attachments/5120255167425.png)
 
+## 关于PriorityResources
+res.queue: 挂起的请求事件队列 -- 对请求的优先级排序(插队)在此队列完成。
+[priority_resources.py](images_attachments/5034800170094/priority_resources.py)
+![](images_attachments/374122018248685.png)
+![](images_attachments/254890519249387.png)
 
 ## 关于PriorityStore -- 继承自Store
 
@@ -130,6 +135,10 @@ priorityStore的put_queue并不具备按优先级排序的能力,
 
 [priority_store.py](images_attachments/5034800170094/priority_store.py)
 
-
 ![](images_attachments/4236615230970.png)
 
+
+
+Note: PriorityStore的优先级排序能力是通过最小堆管理其可用的物品列表(items)而获得的.
+![](images_attachments/268992918236552.png)
+![](images_attachments/125030719245942.png)

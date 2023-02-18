@@ -26,6 +26,9 @@
         },
         {
             "name": "gdb"
+        },
+        {
+            "name": "Ansible"
         }
     ],
     "id": "133",

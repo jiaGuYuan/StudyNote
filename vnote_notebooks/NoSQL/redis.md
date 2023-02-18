@@ -62,6 +62,12 @@
     SET keyName "redisTest"
     GET keyName 
 ```
+SET keyName value [EX seconds] [PX milliseconds] [NX|XX] 
+设置 key 为保持字符串 value. 如果 key 已经拥有一个值,它将被覆盖; 无论其类型如何,成功的SET操作将丢弃与密钥关联的任何先前生存时间 :
+* EX seconds  -- 设置指定的过期时间，以秒为单位。
+* PX milliseconds  -- 设置指定的过期时间，以毫秒为单位。
+* NX -- 仅在密钥不存在时设置密钥。
+* XX -- 仅在密钥已存在时才设置密钥。
     redis字符串命令: https://www.runoob.com/redis/redis-strings.html
 2. hash(哈希):
 ```redis
@@ -87,6 +93,7 @@
     SADD keyName setMember2
     SMEMBERS keyName
     SCARD keyName  # 获取列表长度
+
 ```
 5. zset(有序集合): 
 ```redis

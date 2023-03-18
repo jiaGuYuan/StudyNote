@@ -102,7 +102,14 @@ MySQL第一次启动后会创建超级管理员账号root@localhost,初始密码
 
 问题:
     1.要使用远程访问: 需要注释掉配置文件中的地址绑定(/etc/mysql/mysql.conf.d/mysqlc.cnf):
-    #bind-address           = 127.0.0.1
+        #bind-address           = 127.0.0.1
+        并设置用户的远程访问权限; 
+        mysql8.0以前的版本可以使用grant在授权的时候隐式的创建用户; mysql8.0以后所以必须先创建用户,然后再授权
+        # mysql8.0之前版本
+        GRANT ALL PRIVILEGES ON *.* TO 'user_name'@'%' IDENTIFIED BY 'password';
+        # mysql8.0及之后版本
+        CREATE USER 'user_name'@'%' IDENTIFIED BY 'password';
+        GRANT ALL PRIVILEGES ON *.* TO 'user_name'@'%';        
     
     
 SELECT prod_name

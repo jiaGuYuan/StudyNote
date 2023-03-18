@@ -16,6 +16,9 @@
             "name": "gRPC"
         },
         {
+            "name": "ELK日志采集"
+        },
+        {
             "name": "web框架"
         }
     ],

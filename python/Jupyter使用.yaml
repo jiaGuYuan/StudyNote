@@ -109,6 +109,7 @@ conda包管理:
         如: pip install jieba==3.5.3 -i https://pypi.tuna.tsinghua.edu.cn/simple
     –-default-timeout: 修改默认超时,网络不好时可使用
         pip --default-timeout=100 install jieba==3.5.3
+    --no-cache-dir: 不使用本地缓存
     
     下载whl包: 
         # 下载指定的包及相关依赖whl, 会按照执行环境的平台&py版本进行下载

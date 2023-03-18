@@ -1,5 +1,5 @@
 # redis
-
+安装参考: [安装](https://anggo.ro/note/installing-redis-in-ubuntu-wsl/)
 ## 服务&配置
 开启服务: redis-server
 客户端：redis-cli

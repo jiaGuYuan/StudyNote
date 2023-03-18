@@ -1,7 +1,8 @@
 # 异步IO之asyncio
 [asyncio.html](https://docs.python.org/zh-cn/3/library/asyncio.html)
 [asyncio-task.html#coroutine](https://docs.python.org/zh-cn/3/library/asyncio-task.html#coroutine)
-通过 async/await 语法来声明 协程 是编写 asyncio 应用的推荐方式
+[学习视频](https://www.bilibili.com/video/BV1ST4y1m7No)
+通过 async/await 语法来声明 协程(coroutine) 是编写 asyncio 应用的推荐方式
 asyncio中`协程`可用来表示两个紧密关联的概念:
 * 协程函数: 定义形式为 async def 的函数;
 * 协程对象: 调用 协程函数 所返回的对象。
@@ -49,10 +50,10 @@ if __name__ == '__main__':
 ## 可等待对象
 如果一个对象可以在 await 语句中使用，那么它就是`可等待`对象。许多 asyncio API 都被设计为接受可等待对象。
 
-`可等待`对象有三种主要类型: 协程, 任务 和 Future.
+`可等待`对象有三种主要类型: 协程(coroutine), 任务(task) 和 Future.
 协程: Python 协程属于`可等待`对象，因此可以在其他协程中被等待
 任务: 用来`并行的`调度协程, 当一个协程通过 asyncio.create_task() 等函数被封装为一个 任务，该协程会被自动调度执行:
-Future: 是一种特殊的 低层级 可等待对象，表示一个异步操作的 最终结果。
+Future: 是一种特殊的 低层级 可等待对象，表示一个异步操作的 最终结果; 是Task的基类。
 ```
 import asyncio
 
@@ -72,6 +73,10 @@ async def main():
 asyncio.run(main())
 
 ```
+
+### await可等待的对象 & event loot可调度的最小单元
+await可等待 coroutine/task/future, 但asyncio event_loop调度的最小单元是future/task(task也是一个future). 所以在await coroutine时会将coroutine将换成future再进行调度.
+![](images_attachments/133592701221145.png)
 
 ## 任务
 ### 创建任务
@@ -95,3 +100,4 @@ for i in range(10):
     # 为了防止永远保留对已完成任务的引用, 使每个任务在完成后从集合中删除自己的引用
     task.add_done_callback(background_tasks.discard)
 ```
+

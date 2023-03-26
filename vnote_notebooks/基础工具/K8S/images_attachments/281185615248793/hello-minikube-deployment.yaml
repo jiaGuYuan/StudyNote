@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: hello-minikube
+  name: hello-minikube
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-minikube
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: hello-minikube
+    spec:
+      containers:
+      - image: kicbase/echo-server:1.0
+        name: echo-server
+        resources: {}
+status: {}

@@ -20,6 +20,9 @@ minikube pause
 # 停止集群  -- 停止VM或容器(以此来停止一个K8S集群),但是会完整的保留数据--可被start命令重新启动
 minikube stop
 
+# 查看状态
+minikube status
+
 ## 删除一个本地 Kubernetes 集群(--all:删除所有集群) -- 该命令会删除对应的VM,并且会删除所有相关的文件
 #minikube delete --all
 

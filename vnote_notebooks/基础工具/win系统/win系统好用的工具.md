@@ -17,6 +17,8 @@
 * procexp64
 * Fiddler Everywhere
 * aida64_硬件监控
-* MSI Afterburner -- 监控硬件信息
+* MSI Afterburner -- 监控硬件信息(小飞机)
 * MindMaster
 * Oracle VM VirtualBox
+* PotPlayer
+* SourceInsight

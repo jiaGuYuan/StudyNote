@@ -91,7 +91,7 @@ eg: git rebase --interactive 6394dc
 3. 选择与压缩
 执行上述命令后在编辑窗口中对提交列表进行合并操作, 展示的提交列表中最新提交在最下面.
 squash [s]: 保留提交的修改, 压缩commit log.
-f: 保留提交的修改, 删除commit log.
+**f: 保留提交的修改, 删除commit log.**
 drop [d]: 删除提交的修改(相当有没有进行此次提交).
  
 ![](vx_images/510862920239387.png)
@@ -132,13 +132,14 @@ git使用远程覆盖本地:
     
 
 Git鼓励大量使用分支: 
+```
     查看分支: git branch
     创建分支: git branch <name>
     切换分支: git checkout <name>
     创建+切换分支: git checkout -b <name>
     合并某分支到当前分支: git merge <name>
     删除分支: git branch -d <name>
-
+```
 
 清理历史记录(只保留最后一个版本):
     git checkout --orphan latest_branch # 将当前分支切换到 latest_branch

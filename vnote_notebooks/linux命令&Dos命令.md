@@ -565,38 +565,41 @@ gdb定位ap_proc挂死:
 
 
         
-   
-打包并压缩文件:
-    tar -zcvf 压缩包名 要打包压缩的文件
-    其中:
-        z: 调用gzip压缩命令进行压缩
-        c: 打包文件
-        v: 显示运行过程
-        f: 指定文件名
-        p: 保留权限
-        比如: 加入test目录下有三个文件分别是:aaa.txt bbb.txt ccc.txt,如果我们要打包test目录并指定压缩后的压缩包名称为test.tar.gz.
-        可以使用命令:tar -zcvf test.tar.gz aaa.txt bbb.txt ccc.txt
-                      或:tar -zcvf test.tar.gz /test/
+  
+### 打包并压缩文件:
+```
+tar -zcvf 压缩包名 要打包压缩的文件
+其中:
+    z: 调用gzip压缩命令进行压缩
+    c: 打包文件
+    v: 显示运行过程
+    f: 指定文件名
+    p: 保留权限
+    比如: 加入test目录下有三个文件分别是:aaa.txt bbb.txt ccc.txt,如果我们要打包test目录并指定压缩后的压缩包名称为test.tar.gz.
+    可以使用命令:tar -zcvf test.tar.gz aaa.txt bbb.txt ccc.txt
+                    或:tar -zcvf test.tar.gz /test/
                       
     其它压缩:
         zip filaname.zip filename
         tar cvf filename.tar filename
         gtar zcvf filename.tar.gz filename
         gzip filename //将产生文件filename.zip
+```
+### 解压文件:
+```
+tar [-xvf] 压缩文件
+其中:x:代表解压
+示例:
+1 将/test下的test.tar.gz解压到当前目录下可以使用命令:tar -xvf test.tar.gz
+2 将/test下的test.tar.gz解压到根目录/usr下:tar -xvf xxx.tar.gz -C /usr(- C代表指定解压的位置)
 
-解压文件:
-    tar [-xvf] 压缩文件
-    其中:x:代表解压
-    示例:
-    1 将/test下的test.tar.gz解压到当前目录下可以使用命令:tar -xvf test.tar.gz
-    2 将/test下的test.tar.gz解压到根目录/usr下:tar -xvf xxx.tar.gz -C /usr(- C代表指定解压的位置)
-    
-    其它解压:
-        unzip filename.zip -d out_dir
-        tar -C out_dir -xvf filaname.tar
-        gtar zxvf filaname.tar.gz
-        gzip -d filename.gz
-    
+其它解压:
+    unzip filename.zip -d out_dir
+    tar -C out_dir -xvf filaname.tar
+    gtar zxvf filaname.tar.gz
+    gzip -d filename.gz
+```
+ 
 开机自启动配置:
     假如我们装了一个zookeeper,我们每次开机到要求其自动启动该怎么办?:
         1.新建一个脚本zookeeper

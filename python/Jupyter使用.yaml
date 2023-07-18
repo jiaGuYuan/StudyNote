@@ -119,6 +119,14 @@ conda包管理:
         pip3 download --only-binary=:all: --python-version=3.7  cx-Oracle==6.4.1
         可以指定多个--platform, 其取值可用: manylinux1_x86_64, linux_x86_64, any, win_amd64
         
+        # 使用docker下载包
+        docker run -it centos7-miniconda
+        pip3 download pandas==1.4.2
+        tar -zcvf /tmp/pandas142.tar pandas1.4.2/
+        docker cp 容器ID:/tmp
+        tar -xvf /tmp/pandas142.tar
+        
+        
     问题:
         安装python包时报错:
             Retrying with flexible solve.

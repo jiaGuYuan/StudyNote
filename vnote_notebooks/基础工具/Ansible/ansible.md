@@ -326,12 +326,36 @@ playbook文件
   hosts: debug_hosts
   gather_facts: yes 
   tasks: 
-    - debug: var=ansible_enp0s3.ipv4.address
-    - debug: var=ansible_enp0s8.ipv4.address
-    - debug: var=ansible_default_ipv4.address
-    - debug: var=(var_ansible_default_ipv4_addr)  # 获取变量的值
+    - name: ansible_enp0s3.ipv4.address
+      debug: var=ansible_enp0s3.ipv4.address
+    - name: ansible_enp0s3.ipv4.address
+      debug: var=ansible_enp0s8.ipv4.address
+    - name: ansible_enp0s3.ipv4.address
+      debug: var=ansible_default_ipv4.address
+    - name: ansible_enp0s3.ipv4.address
+      debug: var=(var_ansible_default_ipv4_addr)  # 获取变量的值
+    - name: inventory_hostname
+      debug: var=inventory_hostname
+    - name: ansible_hostname
+      debug: var=ansible_hostname
+    - name: test...loop
+      debug: # 使用debug module来打印信息
+        msg: "Loop->{{ item }}"
+      with_items: # 将值逐个传入item (与debug同级)
+        - "a"
+        - "b"
+        - "c"
+    - name: test2...loop
+      debug:
+        msg: "Loop->{{ item }}"
+      with_items: "{{ query('inventory_hostnames', 'k8s_worker') }}"
+
+# lookup(proc_func, op_obj_list, wantlist=true） #  结果类似python的map函数 [proc_func(obj) for obj in op_obj_list]  <==等价于==> query(proc_func, op_obj_list)
 ```
-执行playbook获取返回结果: `ansible-playbook -i .test_hosts debug.yaml`
+执行playbook获取返回结果: `ansible-playbook -i ./test_hosts debug.yaml`
+
+我们可以使用setup模块获取被管理机器的所有facts信息，可以使用filter来查看指定的信息。setup模块获取的整个facts信息被包装在一个JSON格式的数据结构中，ansible_facts是最外层的值。我们可以通过以下Ansible Ad-Hoc命令查看facts信息：
+`ansible -i ./test_hosts debug_hosts -m setup`
 
 
 ## 执行shell

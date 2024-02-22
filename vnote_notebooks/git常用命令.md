@@ -122,6 +122,93 @@ drop [d]: 删除提交的修改(相当有没有进行此次提交).
 git commit --amend
 ```
 
+
+## 代码导出操作
+### 导出修改但未提交的代码文件
+1. 查看当前修改但还没提交(commit)的文件
+```
+$ git diff --name-only
+# 输出如下
+extra/tmp.txt
+t/unit/test_canvas.py
+```
+
+2. 导出当前修改但还没提交(commit)的代码
+```
+# cp --parents参数会在目标目录创建对应的子目录
+git diff --name-only | xargs -I {} cp --parents {} D:/temp/code/
+```
+
+3. 查看两次commit之间修改的文件
+ 
+```
+$ git log
+commit 1cd7be70d15d3b82c09525a7a58eb074ec6dc225 (HEAD -> master)
+Date:   Wed May 10 21:26:43 2023 +0800
+my-test02 添加文件: data/data01.txt, 修改文件: file01.txt
+
+commit 5fbc93e66ab62ccfcb6f6428bf181189e15975ea
+Date:   Wed May 10 21:25:28 2023 +0800
+my-test01 添加文件: file01.txt
+
+commit 691d305398c59966d7cad428e2afcceb67a52aab (origin/master, origin/HEAD)
+Date:   Thu May 26 12:07:06 2022 +0300
+base-test 添加文件: file00.txt
+   
+# 获取(691d3053, 1cd7be70]之间的commit修改的文件名(半开半闭, 不包括COMMITXX修改的文件)
+$ git diff --name-only 691d3053 1cd7be70
+# 输出如下
+file01.txt
+data/data01.txt
+```
+
+git-diff 参数说明:
+--diff-filter=[(A|C|D|M|R|T|U|X|B)... [*]]
+大写字母表示正向选择: 仅选择 已添加(A)、已复制(C)、已删除(D)、已修改(M)、已重命名(R)、类型(即常规文件、符号链接、子模块等)已更改(T)、未合并(U)、是未知(X)，或者他们的配对已损坏(B). 
+可以使用过滤字符的任意组合（包括无）。*将(All-or-none)添加到组合中时，如果比较中有任何文件与其他条件匹配，则选择所有路径；如果没有符合其他条件的文件，则不会选择任何内容。
+此外，**这些大写字母可以小写以排除**。例如 --diff-filter=ad排除添加和删除的路径.
+
+
+## 归档指定分支或commit的代码
+git-archive命令语法
+```
+git archive [--format=<fmt>] [--list] [--prefix=<prefix>/] [<extra>]
+	      [-o <file> | --output=<file>] [--worktree-attributes]
+	      [--remote=<repo> [--exec=<git-upload-archive>]] <tree-ish>
+	      [<path>…​]
+```
+	      
+### 示例
+1. 归档当前分支指定commit的完整代码
+
+```shell
+# --format指定打包格式,不指定时根据'--output'指定的文件名推断
+git archive --format tar.gz --output "./output.tar.gz" HEAD
+
+# 通过指定path可以只归档指定的部分文件(示例只归档两个文件)
+git archive --format tar.gz --output "./output.tar.gz" HEAD file01.txt data/data01.txt
+```
+
+2. **归档 COMMITXX~COMMITYY之间所有修改的前后代码**
+
+```
+# 获取(COMMITXX, COMMITYY]之间修改的文件(半开半闭, 不包括COMMITXX修改的文件)
+git diff --name-only COMMITXX COMMITYY
+
+# 归档COMMITXX的相关文件(需要排除掉COMMITXX~COMMITYY之间添加的文件--否则会报错' fatal：pathspec 'xx' did not match any files')
+git archive --output "./COMMITXX.zip" COMMITXX  $(git diff --diff-filter=a --name-only COMMITXX COMMITYY)
+
+# 归档COMMITYY的相关文件(需要排除掉COMMITXX~COMMITYY之间删除的文件)
+git archive --output "./COMMITYY.zip" COMMITYY  $(git diff --diff-filter=d --name-only COMMITXX COMMITYY)
+
+```
+
+3. **导出某次commit修改文件的前后代码**
+```
+git archive --output "./before.zip" COMMIT_ID^1  $(git diff --diff-filter=a --name-only COMMIT_ID^1 COMMIT_ID)
+git archive --output "./after.zip" COMMIT_ID  $(git diff --diff-filter=d --name-only COMMIT_ID^1 COMMIT_ID)
+```
+
 ## 其它操作
 克隆一个远程库到本地:
     git clone git@github.com:jiaGuYuan/learngit.git

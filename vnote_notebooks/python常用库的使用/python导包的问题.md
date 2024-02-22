@@ -66,6 +66,7 @@ if __name__ == '__main__':
 
 ```
 **结论**:
+0. relative import实际上是先通过model.__package__计算出它的绝对路径,然后再进行absolute import. 所以它只能在package里面的module中使用,当它作为'main module load'时将会报错.
 1. 作为入口的模块('__main__'), 不能使用相对导包
    如: `python my_module/test2.py` ==> ERROR
 

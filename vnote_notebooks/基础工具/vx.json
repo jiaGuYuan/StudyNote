@@ -28,7 +28,22 @@
             "name": "gdb"
         },
         {
+            "name": "helm"
+        },
+        {
+            "name": "WSL"
+        },
+        {
             "name": "Ansible"
+        },
+        {
+            "name": "网络"
+        },
+        {
+            "name": "win系统"
+        },
+        {
+            "name": "开发工具"
         },
         {
             "name": "win工具"

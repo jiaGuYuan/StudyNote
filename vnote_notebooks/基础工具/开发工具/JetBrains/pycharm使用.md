@@ -54,27 +54,64 @@
     * 当前位置递归折叠: Alt Shift +　　 当前位置展开: Alt Shift -
     * 当前位置展开N层: Alt N (N为1,2,3,4)
     * 全部位置展开N层: Alt Shift N
-![](images_attachments/20200618164019367_25280.png =500x)
 
+![](images_attachments/422223102231108.png)
 
 
 ### 远程环境配置
-
 File-->Setting
-
 添加远程解释器
 
-![添加远程解释器](pycharm使用.assets/image-20200512002723204.png) 
+![添加远程解释器](images_attachments/34583102240578.png)
 
-![远程解释器配置](pycharm使用.assets/image-20200512002909033.png)
+![远程解释器配置](images_attachments/258343002247444.png)
 
-![img](pycharm使用.assets/1U%[SMQ9ML44ZH_@ZKCZJ.png)
-
-![image-20200512002952145](pycharm使用.assets/image-20200512002952145.png)
+![](images_attachments/487822902253898.png)
 
 
+![](images_attachments/340262802258762.png)
 
 ## windows创建pyspark项目
-![](images_attachments/20200814145900171_13722.png =800x)
+![](images_attachments/119513202233612.png)
 
 
+## JetBrains配置&缓存目录迁移
+Intellij,pycharm,phpstorm等jetbrains系列的软件, 会有一个缓存目录,默认放在C盘(`${USER_HOME}/AppData/Roaming/JetBrains` & `${USER_HOME}/AppData/Local/JetBrains`). 
+长时间使用后占用空间很大, 所以想要迁移到其它盘.
+**迁移方法**:
+1. 打开'软件安装目录/bin/idea.properties'文件, 修改如下注释的5处
+```
+# Use ${idea.home.path} macro to specify location relative to IDE installation home.
+# Use ${xxx} where xxx is any Java property (including defined in previous lines of this file) to refer to its value.
+# Note for Windows users: please make sure you're using forward slashes: C:/dir1/dir2.
+
+JETBRAINS_CONF_PATH=E:/Software/JetBrains  # 迁移目录主位置
+#---------------------------------------------------------------------
+# Uncomment this option if you want to customize a path to the settings directory.
+#---------------------------------------------------------------------
+# idea.config.path=${user.home}/.PyCharm/config
+idea.config.path=${JETBRAINS_CONF_PATH}/.PyCharm/config  # 基于迁移目录主位置
+
+#---------------------------------------------------------------------
+# Uncomment this option if you want to customize a path to the caches directory.
+#---------------------------------------------------------------------
+# idea.system.path=${user.home}/.PyCharm/system
+idea.system.path=${JETBRAINS_CONF_PATH}/.PyCharm/system  # 基于迁移目录主位置
+
+#---------------------------------------------------------------------
+# Uncomment this option if you want to customize a path to the user-installed plugins directory.
+#---------------------------------------------------------------------
+idea.plugins.path=${idea.config.path}/plugins # 插件
+
+#---------------------------------------------------------------------
+# Uncomment this option if you want to customize a path to the logs directory.
+#---------------------------------------------------------------------
+idea.log.path=${idea.system.path}/log    # 日志
+```
+![](images_attachments/502563202242559.png)
+
+2. 在完成第一步修改配置路径后, 重启软件, 选择导入配置, 会自动将配置迁移到新的目录
+以PyCharm为例: 通过'Beyond Compare'对比可知 迁移后的'idea.config.path'对应`${USER_HOME}/AppData/Roaming/JetBrains/Pycharm`
+迁移后的'idea.system.path'对应`${USER_HOME}/AppData/Local/JetBrains/Pycharm`
+3. 完成迁移后可删除原来的配置`${USER_HOME}/AppData/Roaming/JetBrains` & `${USER_HOME}/AppData/Local/JetBrains`
+注: [关于Roaming&Local目录](https://www.bilibili.com/video/BV1G84y1P7UM/)

@@ -1,5 +1,5 @@
 # redis
-
+安装参考: [安装](https://anggo.ro/note/installing-redis-in-ubuntu-wsl/)
 ## 服务&配置
 开启服务: redis-server
 客户端：redis-cli
@@ -55,9 +55,9 @@
     TTL keyName  # 秒
     PTTL keyName # 毫秒
 
-##  五种数据类型: 
+#  数据类型: 
 ![](images_attachments/20210105172322041_12836.png)
-1. string(字符串):
+## string(字符串):
 ```redis
     SET keyName "redisTest"
     GET keyName 
@@ -69,7 +69,8 @@ SET keyName value [EX seconds] [PX milliseconds] [NX|XX]
 * NX -- 仅在密钥不存在时设置密钥。
 * XX -- 仅在密钥已存在时才设置密钥。
     redis字符串命令: https://www.runoob.com/redis/redis-strings.html
-2. hash(哈希):
+
+## hash(哈希):
 ```redis
     HMSET keyName hashKey1 "hashValue1" hashKey2 "hashValue2" #在keyName上创建一个hash:hashKey1=>"hashValue1",...
     HGET keyName hashKey1
@@ -79,7 +80,8 @@ SET keyName value [EX seconds] [PX milliseconds] [NX|XX]
     HDEL keyName hashKey1
 ```
     redis哈希命令: https://www.runoob.com/redis/redis-hashes.html
-3. list(列表):
+
+##  list(列表):
 ```redis
     LPUSH keyName value1
     LPUSH keyName value2
@@ -87,7 +89,8 @@ SET keyName value [EX seconds] [PX milliseconds] [NX|XX]
     LLEN keyName  # 查看长度
     Redis列表命令: https://www.runoob.com/redis/redis-lists.html
 ```
-4. set(集合):
+
+## set(集合):
 ```redis
     SADD keyName setMember1
     SADD keyName setMember2
@@ -95,7 +98,8 @@ SET keyName value [EX seconds] [PX milliseconds] [NX|XX]
     SCARD keyName  # 获取列表长度
 
 ```
-5. zset(有序集合): 
+
+##  zset(有序集合): 
 ```redis
     https://www.runoob.com/redis/redis-sets.html
     zset与set一样不允许重复的成员;但zset的每个元素会关联一个double类型的分数(分数是可重复的).
@@ -109,6 +113,93 @@ SET keyName value [EX seconds] [PX milliseconds] [NX|XX]
     ZINCRBY keyName increment setMember1 # 给集合成员setMember1的分数加上增量increment
 ```
     Redis有序集合命令: https://www.runoob.com/redis/redis-sorted-sets.html
+
+## Streams类型
+
+### 创建一个streams类型的key
+格式: `XADD key *|ID field val`
+示例
+```
+# 向streams类型的keyName(queue)中插入数据(*自动生成ID, field, value)
+127.0.0.1:6379> XADD queue * name zhangsan
+"1682139151492-0"
+127.0.0.1:6379>
+127.0.0.1:6379> XADD queue * name lisi
+"1682139158593-0"
+```
+
+### 查看streams类型的元素
+格式: `XREAD [COUNT count] [BLOCK milliseconds] STREAMS key [key ...] ID [ID ...]`
+示例
+```
+# 查看streams类型的keyName(queue), [最多显示5个元素],从指定ID(0-0)开始展示
+127.0.0.1:6379> XREAD STREAMS COUNT 5 queue 0-0
+1) 1) "queue"
+   2) 1) 1) "1682139151492-0"
+         2) 1) "name"
+            2) "zhangsan"
+      2) 1) "1682139158593-0"
+         2) 1) "name"
+            2) "lisi"
+            
+# 从指定的ID, 阻塞等待(BLOCK, 0表示不设置超时时间) 消息到来
+127.0.0.1:6379> XREAD COUNT 5 BLOCK 0 STREAMS queue 0-0
+```
+
+### 在streams类型的key上创建group  -- 同一个消息会发到多个消费组中
+格式: `XGROUP [CREATE key groupname ID|$ ...`
+示例
+```
+# 在keyName(queue)上创建消费者组(group01,group02), 0-0表示从头拉取消息 -- 同一个消费会发到多个组中
+127.0.0.1:6379> XGROUP CREATE queue group01 0-0
+127.0.0.1:6379> XGROUP CREATE queue group02 0-0
+```
+
+### 在group下绑定消费者   -- 消费组内的消息只会被组内的消费者消费一次
+格式: `XREADGROUP GROUP group consumer [COUNT count] [BLOCK milliseconds] [NOACK] STREAMS key [key ...] ID [ID ...]`
+示例
+```
+# 在 消费者组(group01) 下面添加 消费者(consumer01, consumer02) -- 组内的消息只会被组内的消费者消费一次
+# > 表示拉取最新数据
+127.0.0.1:6379> XREADGROUP GROUP group01 consumer01 COUNT 1 STREAMS queue >
+1) 1) "queue"
+   2) 1) 1) "1682139238443-0"
+         2) 1) "name"
+            2) "zhangsan"
+
+127.0.0.1:6379> XREADGROUP GROUP group01 consumer02 COUNT 1 STREAMS queue >
+1) 1) "queue"
+   2) 1) 1) "1682139242550-0"
+         2) 1) "name"
+            2) "lisi"
+
+# 查看 消费者组(group01)中的消费者(consumer01)未ACK的消息
+127.0.0.1:6379> XREADGROUP GROUP group01 consumer01 COUNT 5 STREAMS queue 0-0
+1) 1) "queue"
+   2) 1) 1) "1682139238443-0"
+         2) 1) "name"
+            2) "zhangsan"
+
+127.0.0.1:6379> XREADGROUP GROUP group01 consumer02 COUNT 5 STREAMS queue 0-0
+1) 1) "queue"
+   2) 1) 1) "1682139242550-0"
+         2) 1) "name"
+            2) "lisi"
+```
+
+
+### 标记组内已处理完成的消息
+格式: `XACK key group ID [ID ...]`
+示例
+```
+127.0.0.1:6379> XACK queue group01 1682139238443-0
+# 被确认消费的消息会被移除
+127.0.0.1:6379> XREADGROUP GROUP group01 consumer01 COUNT 5 STREAMS queue 0-0
+1) 1) "queue"
+   2) (empty array)
+```
+
+
 
 # 查看key的内存占用
 `MEMORY USAGE`
@@ -154,4 +245,3 @@ r = redis.Redis(connection_pool=pool, decode_responses=True)
         2. 改进业务代码,将字典数据显式转换为字符串,避免以后出现潜在问题(推荐)
 
 
-3. 

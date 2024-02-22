@@ -1,4 +1,30 @@
 # python
+元类MetaClass即创建类的类
+[【python】metaclass理解加入门](https://www.bilibili.com/video/BV13F411g7CD/)
+```
+class M(type):
+    def __new__(cls, name, bases, mem_dict):
+        # 创建M的对象时调用
+        print(f"使用Meta M创建一个类{name}")
+        return type.__new__(cls, name, bases, mem_dict)
+        
+    def __init__(self, name, bases, mem_dict):
+        # 创建M的对象时调用,对__new__返回的对象进行初始化
+        return type.__init__(self, name, bases, mem_dict)
+        
+    def __call__(cls, *args, **kwargs):
+        # M的对象进行调用时该函数才会被调用. 即M()()才会触发该函数
+        print("call")
+        return type.__call__(cls, *args, **kwargs)
+        
+A = type("A", (), {})  # 方式一: 通过type动态的创建一个类A
+
+A = M("A", (), {})  # 方式二: 通过M来控制类A的创建
+
+class A(metaclass=M):  # 方式三: 通过元类控制类A的创建过程 与方式二等价
+    pass
+
+```
 
 ## 元类 MetaClass
 动态语言和静态语言最大的不同，就是函数和类的定义，不是编译时定义的，而是运行时动态创建的。

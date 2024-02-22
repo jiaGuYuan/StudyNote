@@ -1,32 +1,52 @@
-## 开发流程
-```
-i. 从develop分支拉取最新代码创建自己的本地开发分支gjy_dev
-      在本地创建分支并切换到该分支: git checkout -b gjy_dev origin/develop
-  或 使用最新的develop代码覆盖自己的开发分支gjy_dev
-     0. git branch gjy_dev
-     1. git fetch --all # 获取分支信息
-     2. git reset --hard origin/develop
-     3. git pull origin develop
-ii. 开发者在其开发分支上(gjy_dev)，完成编码后commit
-    git add <filename, ...>
-    git commit -m "just do it"
-iii. 将gjy_dev分支变基到develop的最新节点上。
-    git pull --rebase origin develop
-    冲突处理：
-        0. git status
-        1. 解决冲突
-        2. git add <file>
-        3. git rebase --continue
-iv. 将开发分支提交到远程
-    # 关联本地分支&远程分支(不存在时会创建)
-    git push --set-upstream origin gjy_dev # [远程分支名为origin/gjy_dev]
-    -f: 强制覆盖远程 
-    
+## 使用远程develop分支代码覆盖自己的本地开发分支gjy_dev
+0. git branch gjy_dev
+1. git fetch --all # 获取分支信息
+2. git reset --hard origin/develop
+3. git pull origin develop
 
+
+## 开发流程(推荐)
+```
+使用rebase使用主分支提交记录保持线性
+在个人分支完成开发后合并到master
+
+在本地开发分支测试完成后，提交到远程分支进行正式测试
+# 创建并切换到本地开发分支debug
+git checkout -b debug
+
+# 本地开发并测试后提交修改
+git commit -m 'xxxx'
+
+# 如果此时远程main有变化,且希望提测时包含该变化
+git pull --rebase origin main
+
+# 将debug推送到远程origin/debug,以便提测
+git push --set-upstream origin debug   # push到远程分支提测
+提测通过后, 将debug合入master并保持提交记录线性
+# 获取最新的远程main修改并保持提交记录线性
+git pull --rebase origin main
+
+# === 如果需要将debug推送到远程debug ===
+git push  # 经常会因为远程无法进行Fast-forward而导致push被拒绝
+如果只有自己使用debug分支, 可强制推送/或重建远程分支 !!!
+    *. 强制推送: git push -f
+    *. 先删除远程debug分支再重新关联
+        git push --delete origin debug  # 删除远程分支debug
+        git push --set-upstream origin debug #  关联远程分支并推送
+        
+**合并debug分支修改到本地main，并推送到远程main**
+git checkout main
+git merge debug  # 合并本地debug分支到本地master, 此时应是Fast-forward.
+git push  # 如果此时提示无法Fast-forward，可先git pull --rebase
+删除远程debug分支
+git push --delete origin debug
+ 
 删除本地&远程分支:
     删除本地分支: git branch -d localBranchName
     删除远程分支: git push origin --delete remoteBranchName
     分支重命名: git branch -m old-branch new-branch 
+    
+
 ```   
 
 ## 合并分支

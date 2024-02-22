@@ -123,9 +123,11 @@ conda包管理:
         docker run -it centos7-miniconda
         pip3 download pandas==1.4.2
         tar -zcvf /tmp/pandas142.tar pandas1.4.2/
-        docker cp 容器ID:/tmp
+        docker cp 容器ID:/tmp/pandas142.tar ./
         tar -xvf /tmp/pandas142.tar
         
+        # 从包含存档的本地平面目录安装(并且不扫描索引), 参数: --find-links
+        python -m pip install --no-index --find-links=/offline_pkgs -r requirements_offline.txt
         
     问题:
         安装python包时报错:

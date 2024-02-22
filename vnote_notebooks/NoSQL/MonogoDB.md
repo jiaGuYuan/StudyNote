@@ -1,4 +1,37 @@
+```
+# 默认配置文件路径
+/etc/mongod.conf
+
+# 启动服务
+sudo systemctl start mongod
+# 验证MongoDB是否已成功启动
+sudo systemctl status mongod
+# 系统启动时自动启动服务
+sudo systemctl enable mongod
+# 停止MongoDB
+sudo systemctl stop mongod
+# 重新启动MongoDB
+sudo systemctl restart mongod
+# 停止MongoDB
+sudo service mongod stop
+# 删除软件包
+sudo apt-get purge mongodb-org*
+
+```
+
+## 在 WSL (Ubuntu 20.04) 上安装 MongoDB（版本 5.0）：
+[wsl-database: wsl安装mongodb](https://learn.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-database)
+[service mongod start启动失败问题](https://blog.csdn.net/dta0502/article/details/84647982)
+
+```
+sudo service mongodb status 用于检查数据库的状态。 如果没有正在运行的数据库，应该会看到 [Fail] 响应。
+sudo service mongodb start 用于开始运行数据库。 应会看到 [Ok] 响应。
+sudo service mongodb stop 用于停止运行数据库。
+```
+
+
 # MonogoDB
+
 MongoDB 将数据存储为一个文档，数据结构由键值(key=>value)对组成。
 MongoDB 文档类似于 JSON 对象。字段值可以包含其他文档，数组及文档数组。
 ![](images_attachments/20201231133043966_1254.png)

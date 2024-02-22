@@ -137,6 +137,23 @@ ansible all -m shell  -a 'getenforce'  # 查看SELINUX状态
 复杂操作可以写到脚本时，copy到远程执行，再把需要的结果拉回执行命令的机器
 ```
 
+单引号 & 双引号对shell执行结果的影响：
+```
+# error; 使用双引号时, 返回结果全是本机(执行命令所有的机器)的主机名; 因为$(hostname)会在本地解析, 实际发送至执行机的命令是'echo xxx'
+ansible all -m shell -a "echo $(hostname)"
+
+
+# ok; 使用单引号时, 返回结果是对应主机的主机名
+ansible all -m shell -a 'echo $(hostname)'
+```
+
+ansible执行命令使用的是二次解析, 第一次解析为本机解析，第二次在执行机器解析。
+当最外层是双引号时，会在本机获取$(hostname)结果，实际发送到执行机台的命令为'echo 本机主机名字符串'，而不是期望的'echo $(hostname)'。
+通过 `ansible all -vvv -m shell -a "echo $(hostname)"`可以查看实际改送到执行机的命令。
+当最外层是单引号时，本机不会实际获取$(hostname)结果, 实际发送到执行机台的命令为'echo $(hostname)'。
+-- 参数默认使用单引号就行了。
+
+
 ### script模块
 Script：在远程主机上运行ansible服务器上的脚本
 ```

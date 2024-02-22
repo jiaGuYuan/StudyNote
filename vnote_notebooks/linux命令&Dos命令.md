@@ -368,7 +368,7 @@ bash shell:
             ${varName%matchstr}: 从右向左进行最短匹配删除
                 例: echo ${vartest%:*gjy}  --从右向左进行最短匹配删除(":/home/gjy"被删除). 输出"/usr/local/bin:/usr/bin"
             ${varName%%matchstr}: 从右向左进行最长匹配删除
-                例: echo ${vartest%%/*bin}  --从右向左进行最长匹配删除(":/usr/bin:/home/gjy"被删除). 输出"/usr/local/bin"
+                例: echo ${vartest%%:*bin*}  --从右向左进行最长匹配删除(":/usr/bin:/home/gjy"被删除). 输出"/usr/local/bin"
         替换:
             ${变量名/旧字符串/新字符串}: 替换第一个匹配旧字符串为新字符串
                 例: echo ${vartest/bin/BIN}  --输出: "/usr/local/BIN:/usr/bin:/home/gjy"

@@ -1,9 +1,11 @@
-## 使用远程develop分支代码覆盖自己的本地开发分支gjy_dev
+## 使用远程分支覆盖本地
+```
+# 使用远程develop分支代码覆盖自己的本地开发分支gjy_dev
 0. git branch gjy_dev
 1. git fetch --all # 获取分支信息
 2. git reset --hard origin/develop
 3. git pull origin develop
-
+```
 
 ## 开发流程(推荐)
 ```
@@ -209,7 +211,8 @@ git archive --output "./before.zip" COMMIT_ID^1  $(git diff --diff-filter=a --na
 git archive --output "./after.zip" COMMIT_ID  $(git diff --diff-filter=d --name-only COMMIT_ID^1 COMMIT_ID)
 ```
 
-## 其它操作
+## clone&回退 操作
+```
 克隆一个远程库到本地:
     git clone git@github.com:jiaGuYuan/learngit.git
 
@@ -224,44 +227,43 @@ git archive --output "./after.zip" COMMIT_ID  $(git diff --diff-filter=d --name-
 
 回退到上一个版本: 
     git reset --hard HEAD^  (HEAD^^上上版本,HEAD~n前n个版本)
-        
-撤销修改: 
-    1.你对工作区的修改已经提交到了版本库(执行了git commit),这时需要进行版本回退操作.
-    2.你对工作区的文件的修改已经添加到版本库的暂存区时(执行了git add),但还没有提交到版本库时(没有git commit);
-        git reset HEAD file可以把暂存区的修改撤销掉(unstage),重新放回工作区.
-        git checkout -- file可以丢弃工作区的修改,使工作区(或工作区中的某些文件)恢复到上一次git add或git commit时的状态.
-    3.对于修改后还没有被放到暂存区(没有执行 git add)的文件,只要执行git checkout -- file就可以了.
-
-git使用远程覆盖本地:
-    git fetch --all
-    git reset --hard origin/master
-    git pull
-    
-
-Git鼓励大量使用分支: 
 ```
-    查看分支: git branch
-    创建分支: git branch <name>
-    切换分支: git checkout <name>
-    创建+切换分支: git checkout -b <name>
-    合并某分支到当前分支: git merge <name>
-    删除分支: git branch -d <name>
+      
+## 撤销修改
+```
+1. 你对工作区的修改已经提交到了版本库(执行了git commit),这时需要进行版本回退操作.
+2. 你对工作区的文件的修改已经添加到版本库的暂存区时(执行了git add),但还没有提交到版本库时(没有git commit);
+    git reset HEAD file可以把暂存区的修改撤销掉(unstage),重新放回工作区.
+    git checkout -- file可以丢弃工作区的修改,使工作区(或工作区中的某些文件)恢复到上一次git add或git commit时的状态.
+3. 对于修改后还没有被放到暂存区(没有执行 git add)的文件,只要执行git checkout -- file就可以了.
 ```
 
-清理历史记录(只保留最后一个版本):
-    git checkout --orphan latest_branch # 将当前分支切换到 latest_branch
-    git add -A                          # 把所有文件添加到当前分支
-    git commit -am "commit message"     # 设置commit注释
-    git branch -D master                # 删除主分支master(此时只剩下latest_branch)
-    git branch -m master                # 将latest_branch重命名为master
-    git push -f origin master           # 强制push,用当前内容冲刷掉git的内容(此处无法反悔)
-    git branch --set-upstream-to origin/master master # 重新初始化分支结构
+
+## 分支操作
+```
+# Git鼓励大量使用分支: 
+查看分支: git branch
+创建分支: git branch <name>
+切换分支: git checkout <name>
+创建+切换分支: git checkout -b <name>
+合并某分支到当前分支: git merge <name>
+删除分支: git branch -d <name>
+```
+
+## 清理历史记录(只保留最后一个版本):
+```
+git checkout --orphan latest_branch # 将当前分支切换到 latest_branch
+git add -A                          # 把所有文件添加到当前分支
+git commit -am "commit message"     # 设置commit注释
+git branch -D master                # 删除主分支master(此时只剩下latest_branch)
+git branch -m master                # 将latest_branch重命名为master
+git push -f origin master           # 强制push,用当前内容冲刷掉git的内容(此处无法反悔)
+git branch --set-upstream-to origin/master master # 重新初始化分支结构
+```
 
 
-
-
-
-查看信息:
+## 查看信息:
+```
 git:
     直接输入git将提示git的使用信息.
 
@@ -299,10 +301,11 @@ git show <tagname>:
 
 信息: 
 Fast-forward信息,Git告诉我们,这次合并是"快进模式",也就是直接把一个分支指向另一个分支的当前提交,所以合并速度非常快.
-
+```
 
 ## .gitignore文件规则
-语法规范（熟悉正则很容易理解）
+### 语法规范（熟悉正则很容易理解）
+```
     空行或是以#开头的行即注释行将被忽略；
     以斜杠 '/' 结尾表示目录；
     以星号 '*' 通配多个字符；
@@ -310,8 +313,10 @@ Fast-forward信息,Git告诉我们,这次合并是"快进模式",也就是直接
     以方括号 '[]' 包含单个字符的匹配列表；
     以叹号 '!' 表示不忽略(跟踪)匹配到的文件或目录；
     可以在前面添加斜杠 '/' 来避免递归,下面的例子中可以很明白的看出来与下一条的区别。
+```
 
-配置文件示例
+### 配置文件示例
+```
     # 忽略后缀为.a的文件
     *.a
     # 但不忽略 lib.a, 尽管已经在前面忽略了.a文件
@@ -334,14 +339,14 @@ Github 上为开发者提供了各种环境以及各种编程语言的 gitignore
     https://github.com/github/gitignore
 python模板:
     url:https://github.com/github/gitignore/blob/master/Python.gitignore
+```
     
     
-    
-问题:
-报错: error SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443
-    出现这种情况多半是因为设置了系统代理
-    取消全局代理即可
-    git config --global --unset http.proxy
-    git config --global --unset https.proxy
-
+# 问题:
+## 报错: error SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443
+出现这种情况多半是因为设置了系统代理, 取消全局代理即可
+```
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+```
 

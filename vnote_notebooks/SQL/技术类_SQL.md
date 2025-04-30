@@ -160,5 +160,13 @@ count(*)、count(主键 id) 和 count(1) 都表示返回满足条件的结果集
 按照效率排序的话，count(字段) < count(主键 id) < count(1)≈count(*) ;统计行数,推荐使用 count(*).
  
 
-
+## oracle 分组排序收集
+-- 分组-组内排序 - 收集
+-- 对classes为1的年级，按地区分组，并在组内按age排序，按记录的name按list返回
+```
+select regions, LISTAGG(name, ',') WITHIN GROUP(ORDER BY age) res_name_list
+FROM student_table
+WHERE classes=1
+GROUP BY regions;
+```
 

@@ -211,6 +211,8 @@ IO重定向:
 
     说明:如果是重定向到一个已打开的文件描述符,写需要写成 &fd.
 
+将输出信息同时输出到终端和文件中：command | tee output.txt
+
 查看进程:
     ps -ef | grep XXX
     或 ps -aux | grep XXX
@@ -360,12 +362,12 @@ bash shell:
     变量内容的删除&替换:
         删除:
             vartest="/usr/local/bin:/usr/bin:/home/gjy"
-            ${varName#matchstr}: 从左向右进行最短匹配删除
+            ${varName#matchstr}: 从左向右进行最短匹配删除(删除左侧，保留右侧)
                 例: echo ${vartest#/*bin:}  --从左向右进行最短匹配删除("/usr/local/bin:"被删除). 输出"/usr/bin:/home/gjy"
             ${varName##matchstr}: 从左向右进行最长匹配删除
                 例: echo ${vartest##/*bin:}  --从左向右进行最长匹配删除("/usr/local/bin:/usr/bin:"被删除). 输出"/home/gjy"
             
-            ${varName%matchstr}: 从右向左进行最短匹配删除
+            ${varName%matchstr}: 从右向左进行最短匹配删除(保留左侧，删除右侧)
                 例: echo ${vartest%:*gjy}  --从右向左进行最短匹配删除(":/home/gjy"被删除). 输出"/usr/local/bin:/usr/bin"
             ${varName%%matchstr}: 从右向左进行最长匹配删除
                 例: echo ${vartest%%:*bin*}  --从右向左进行最长匹配删除(":/usr/bin:/home/gjy"被删除). 输出"/usr/local/bin"
@@ -374,6 +376,10 @@ bash shell:
                 例: echo ${vartest/bin/BIN}  --输出: "/usr/local/BIN:/usr/bin:/home/gjy"
             ${变量名//旧字符串/新字符串}: 替换全部匹配的旧字符串为新字符串
                 例: echo ${vartest//bin/BIN} --输出: "/usr/local/BIN:/usr/BIN:/home/gjy"
+            ${变量名/#oldstr/newstr}: 替换开头一个
+                例: echo ${vartest/#bin/BIN} --输出: "/usr/local/BIN:/usr/bin:/home/gjy"
+            ${变量名/%oldstr/newstr}: 替换结尾一个
+                例: echo ${vartest/#bin/BIN} --输出: "/usr/local/bin:/usr/BIN:/home/gjy"
     
     
     
@@ -568,7 +574,7 @@ gdb定位ap_proc挂死:
   
 ### 打包并压缩文件:
 ```
-tar -zcvf 压缩包名 要打包压缩的文件
+tar -zcvf 压缩包名 要打包压缩的文件/目录
 其中:
     z: 调用gzip压缩命令进行压缩
     c: 打包文件
@@ -580,9 +586,9 @@ tar -zcvf 压缩包名 要打包压缩的文件
                     或:tar -zcvf test.tar.gz /test/
                       
     其它压缩:
-        zip filaname.zip filename
-        tar cvf filename.tar filename
-        gtar zcvf filename.tar.gz filename
+        zip filaname.zip file_dir_name
+        tar -zcvf filename.tar file_dir_name
+        gtar -zcvf filename.tar.gz file_dir_name
         gzip filename //将产生文件filename.zip
 ```
 ### 解压文件:

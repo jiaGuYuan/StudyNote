@@ -7,6 +7,18 @@
 3. git pull origin develop
 ```
 
+## 拉取远程分支代码到本地
+```
+# 拉取远程分支到本地 (关联)
+git branch -a # 查看分支
+git checkout -b 本地分支名 origin/远程分支名
+
+
+# 使用当前分支创建一个新的分支
+git checkout -b debug_branch
+git push --set-upstream origin debug_branch
+```
+
 ## 开发流程(推荐)
 ```
 使用rebase使用主分支提交记录保持线性
@@ -228,7 +240,15 @@ git archive --output "./after.zip" COMMIT_ID  $(git diff --diff-filter=d --name-
 回退到上一个版本: 
     git reset --hard HEAD^  (HEAD^^上上版本,HEAD~n前n个版本)
 ```
-      
+     
+## git使用本地分支(tmp_dev)强制覆盖(develop)  -- 不推荐
+```
+# 注: 使用该方式覆盖develop后，原develop分支的合入记录将消失(只能看到tmp_dev分支的log)
+1. git checkout develop  # 切换到develop分支
+2. git reset --hard tmp_dev(本地分支名)  # 将本地的develop分支重置成tmp_dev分支
+3. git push origin develop --force  # 将develop推送到远程仓库
+```
+ 
 ## 撤销修改
 ```
 1. 你对工作区的修改已经提交到了版本库(执行了git commit),这时需要进行版本回退操作.
@@ -302,6 +322,29 @@ git show <tagname>:
 信息: 
 Fast-forward信息,Git告诉我们,这次合并是"快进模式",也就是直接把一个分支指向另一个分支的当前提交,所以合并速度非常快.
 ```
+
+## 稀疏检出
+```
+echo "clone start time: `date +'%Y-%m-%d %H:%M:%S'`"
+mkdir ./code  && cd ./code
+git config --global http.proxy http代理IP
+git config --global https.proxy https代理IP
+git config --add core.compression -1
+
+# 稀疏检出, 排除不需要的目录
+git clone -b 分支名 --filter=blob:none --no-checkout GIT仓库地址
+git config core.sparsecheckout true
+
+cat > ./git/info/sparse-checkout <<-EOF
+/*              # 要保留的文件
+!/test_case/    # 不要的文件
+/test_case/data/data_demo/  # 要保留的文件
+EOF
+
+git checkout  # 检出
+echo "clone start time: `date +'%Y-%m-%d %H:%M:%S'`"
+```
+
 
 ## .gitignore文件规则
 ### 语法规范（熟悉正则很容易理解）

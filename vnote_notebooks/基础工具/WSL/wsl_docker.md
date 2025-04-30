@@ -1,6 +1,8 @@
 # wsl_docker
 环境: win10 + WSL2 + 'Docker Desktop'
 
+安装参考： [wsl-containers 安装参考](https://learn.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-containers)
+
 默认情况下，Docker Desktop for Window会创建如下两个发行版（distro)
 ![](images_attachments/17812617227553.png)
 其默认保存路径为: `C:\Users\xxx\AppData\Local\Docker\wsl`

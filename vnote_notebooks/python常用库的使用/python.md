@@ -1,5 +1,39 @@
 # python
 
+## reduce
+**reduce参数**：
+    function: 有两个参数的函数，必需
+    sequence: 可迭代对象, 必需
+    inital: 初始值, 可选
+
+**reduce的工作过程是**：
+在迭代sequence（tuple/list/dictionary/string等可迭代对象）的过程中，
+首先过前两个元素传给函数参数，函数处理后把得到的结果得第三个元素作为参数继续调用函数，直到sequence结束。
+如果传入了initial值，那么第一次调用函数传入的参数是initial和sequence的首个元素。
+关于initial的作用：
+1. 当需要改变计算结果的形态时(结果形态与迭代元素不同时)， 可通过传入initial来修改
+2. 可直接在传入的initial上进行操作，避免修改sequence的元素。
+```
+# 输入多个字典dict1: {key1: list_a, key2: list_b}, dict2: {key1: list_c, key3: list_d}, dict3: {key2:  list_e, key4: list_f}
+# 输出合并为 dict_sum: {key1: [list_a, list_c], key2: [list_b, list_e], key3: [list_d], key4: [list_f]}
+dict1 = {'key1': ['a', 'a'], 'key2': ['b', 'b']}
+dict2 = {'key1': ['c', 'c'], 'key3': ['d', 'd']}
+dict3 = {'key2': ['e', 'e'], 'key4': ['f', 'f']}
+
+from functools import reduce
+def key_merge(dict1, dict2):
+    # 直接修改reduce的第一个参数，并作为结果返回
+    for key in dict1:
+        if key in dict2:
+            dict1[key].append(dict2[key])
+    for key in set(dict2.keys()).difference(set(dict1.keys())):
+        dict1[key] = [dict2[key]]
+    return dict1
+
+initial = {}
+print(reduce(key_merge, [dict1, dict2, dict3], initial))
+```
+
 ## Python下划线命名模式
 ![](images_attachments/20210312094246392_31883.png)
 
@@ -191,4 +225,35 @@ export PYTHONSTARTUP=~/.pythonstartup.py # 每次启动 python 会先执行这�
 ```
 3. python终端tab代码补全
 
+
+## pickle
+[pickle.html](https://docs.python.org/zh-cn/3/library/pickle.html)
+默认情况下, pickle格式使用相对紧凑的二进制来存储，如果需要让文件更小，可以高效地压缩由pickle封存的数据。
+表示共享指针 -- 序列化的对象中对多次引用同一个对象只会序列化一次，其他的可共享指针。
+```
+import pickle
+data = {
+    'A': ['AAAAAAAAA' for _ in range(1000000)],
+    'B': ['BBBBBBBBB' for _ in range(1000000)],
+}
+df = pd.DataFrame(data)
+
+d = {
+    'X': df,
+    'Y': df,
+    'Z': df,
+}
+
+b_data = pickle.dumps(d)
+
+d2 = {
+    'X': df,
+    'Y': df.copy(),
+    'Z': df.copy(),
+}
+b_data2 = pickle.dumps(d2)
+
+len(b_data)
+len(b_data2)
+```
 

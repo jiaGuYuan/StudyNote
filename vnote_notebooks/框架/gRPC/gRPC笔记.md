@@ -13,6 +13,9 @@
 gRPC 默认使用 protocol buffers 结构数据序列化机制（当然也可以使用其他数据格式如 JSON）
 protocol buffers通过.proto文件定义服务。
 
+[Protobuf3-language-guide](https://colobu.com/2017/03/16/Protobuf3-language-guide)
+
+
 一个 RPC 服务通过参数和返回类型来指定可以远程调用的方; gRPC 通过 protocol buffers 接口定义语言来定义服务方法(定义参数和返回类型), 客户端和服务端均使用服务定义生成的接口代码.
 
 **gRPC tools**
@@ -57,8 +60,11 @@ message HelloReply {
 ```
 python -m grpc_tools.protoc -I./protos --python_out=./out_dir --grpc_python_out=. ./protos/helloworld.proto
 ```
-"helloworld.proto" ==> "elloworld_pb2.py"和 "helloworld_pb2_grpc.py"
+-I: 指定proto文件所在目录
+--grpc_python_out: 生成的grpc-python服务端源文件路径
+--python_out： 生成的grpc-python客户端源文件路径
 
+"helloworld.proto" ==> "elloworld_pb2.py"和 "helloworld_pb2_grpc.py"
 "helloworld_pb2_grpc.py"中定义了提供gRPC服务和注册gRPC服务相关的类,方法和对象 -- 对应.proto文件中的service定义。
 ```
 GreeterServicer, GreeterStub -- 用于提供gRPC服务(分别对应服务端类 与客户端类)

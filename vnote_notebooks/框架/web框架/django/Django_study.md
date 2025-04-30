@@ -20,6 +20,3 @@
     a_obj=a.objects.filter(a=1).[:30]
     a.object.filter(pk__in=list(a_obj)).update(b=2)
     ```
-2. 
-3. 
-3. 

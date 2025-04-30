@@ -11,6 +11,12 @@
          CONFIG SET dir "/data/redis_data"
 配置字段说明: [https://www.runoob.com/redis/redis-conf.html](https://www.runoob.com/redis/redis-conf.html)
 
+连接远程 redis：`redis-cli -h host -p port -a password`
+    如redis-server在本机[windows]上启动，在本机[windows]上连接可直接使用`redis-cli`；在WSL上连接则需要使用`redis-cli -h 本机IP`
+
+
+连接redis集群: `redis-cli -h HOST -p PORT -a PASSWORD -c`   # '-c' 参数
+
 ## redis 的启动、关闭 判断其是否在运行中
 * 检查后台进程是否正在运行
     ps -ef | grep redis
@@ -215,7 +221,7 @@ python-redis连接redis的提供了decode_responses参数，将它设置为True�
 1. 直接连接
 ```python
 # decode_responses=True: 解决获取的值类型是bytes字节问题
-r = redis.Redis(host='localhost', port='6379', db=0, decode_responses=True) # 在构建Redis对象时传递配置连接参数
+r = redis.Redis(host='localhost', port='6379', db=0, decode_responses=True, password='xxx') # 在构建Redis对象时传递配置连接参数
 ```
 2. 使用连接池
 ```
@@ -245,3 +251,65 @@ r = redis.Redis(connection_pool=pool, decode_responses=True)
         2. 改进业务代码,将字典数据显式转换为字符串,避免以后出现潜在问题(推荐)
 
 
+# url格式
+[redis url 格式](https://cloud.tencent.com/developer/article/1451666)
+```
+URI syntax
+Redis Standalone
+redis :// [: password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&database=database]]
+
+Redis Standalone (SSL)
+rediss :// [: password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&database=database]]
+
+Redis Standalone (Unix Domain Sockets)
+redis-socket :// path [?[timeout=timeout[d|h|m|s|ms|us|ns]][&database=database]]
+
+Redis Sentinel
+redis-sentinel :// [: password@] host1[: port1] [, host2[: port2]] [, hostN[: portN]] [/ database][?[timeout=timeout[d|h|m|s|ms|us|ns]] [&sentinelMasterId=sentinelMasterId] [&database=database]]
+```
+
+# 操作测试
+```
+import redis
+r = redis.StrictRedis(host='127.0.0.1', port=6379, db=1, password='xxx')
+r.keys()
+```
+
+## python 访问redis sentinel（哨兵）
+[参考](https://github.com/redis/redis-py/issues/1388)
+```
+import redis
+from redis.sentinel import Sentinel
+# !!! 注意: 参数中的password是redis密码，sentinel_kwargs中的password是哨兵密码
+sentinel = Sentinel([('127.0.0.1', 16379)], password='REDIS_PW', sentinel_kwargs={"password": "SENTINEL_PW"})
+master = sentinel.discover_master('mymaster')
+
+# 如果设置了哨兵密码，未指定sentinel_kwargs参数将报redis.sentinel.MasterNotFoundError错误
+# sentinel = Sentinel([('127.0.0.1', 16379)], password='REDIS_PW')
+# master = sentinel.discover_master('mymaster')
+```
+
+
+# celery 配置redis sentinel 为result_backend和broker
+[backends-and-brokers/redis.html](https://docs.celeryproject.org/en/stable/getting-started/backends-and-brokers/redis.html)
+```
+# redis以sentinel模式部署, 对应k8s svc名称为redis
+# 设置结果存储
+CELERY_RESULT_BACKEND = 'sentinel://:password@redis:26379/14'
+CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {
+    'master_name': "mymaster",
+    'sentinel_kwargs': {
+        'password': 'xxx',
+    }
+}
+
+# 代理人broker
+BROKER_URL = 'sentinel://:password@redis:26379/15'
+BROKER_TRANSPORT_OPTIONS = {
+    **CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS,
+    "max_retries": 3,
+    "interval_start": 0,
+    "interval_step": 0.2,
+    "interval_max": 0.5,
+}
+```

@@ -1,5 +1,8 @@
 # sql
 
+## 行转列 & 列转行
+[SQL行转列，列转行](https://zhuanlan.zhihu.com/p/66207434)
+
 ## 初始化环境
 ``` # sql
 -- 建表

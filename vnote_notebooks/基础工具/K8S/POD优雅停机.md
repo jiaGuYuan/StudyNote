@@ -2,7 +2,7 @@
 ![](images_attachments/50525811257170.png =600x)
 当 Kubernetes 杀死一个 pod 时，会发生以下 5 个步骤：
 1、 Pod 切换到终止状态并停止接收任何新流量，容器仍在 pod 内运行。
-2、 preStop 钩子是一个特殊的命令或 HTTP 请求被执行，并被发送到 pod 内的容器。
+2、 preStop 钩子是一个特殊的命令 或 一个对 Pod 中容器的 http 调用。
 3、 SIGTERM 信号被发送到 pod，容器意识到它将很快关闭。
 4、 Kubernetes 等待宽限期 (terminationGracePeriodSeconds)。此等待与 preStop hook 和 SIGTERM 信号执行并行（默认 30 秒）。因此，Kubernetes 不会等待这些完成。如果这段时间结束，则直接进入下一步。正确设置宽限期的值非常重要。
 5、向 pod 发送 SIGKILL 信号，然后移除 pod。如果容器在宽限期后仍在运行，则 Pod 被 SIGKILL 强行移除，终止完成。

@@ -1,5 +1,19 @@
 # pandas使用记录
 
+## 注意点(避坑)
+1. 将Series添加到df列时，pandas会将index对齐，可能得到非预期结果
+```
+df = pd.DataFrame(data={'A': ['a1', 'a2', 'a3'], 'B': [3, 2, 1]}).sort_values(by=['B'])
+# df[col] = pd.Series_obj 赋值时是按index对齐的
+df['X'] = pd.Series([1, 2, 3])  # 默认的index是[0, 1, 2]
+df['Y'] = pd.Series([1, 2, 3], index=df.index)
+```
+
+![df结果](images_attachments/485211910258794.png)
+
+另：注意 dataframe groupby apply操作时，group_keys参数的影响。
+建议: df['XX'] = df.groupby(by='xx', group_keys=False).apply(func)
+
 ## 显示设置
 ```
 # 显示所有列
@@ -1082,7 +1096,70 @@ df['orders_code'].str.contains('202009') # 订单号中是否包含"202009"
 ## 统计每个班级中的排名第二的学生信息
 [pandas rand](https://zhuanlan.zhihu.com/p/87593543)
 
+![](images_attachments/468945414246742.png)
+
+```
+def get_second(x):
+    return x[x.成绩.rank(method='dense', ascending=False) == 2]
+    
+df.groupby('班级').apply(get_second).reset_index(drop=True)
+```
+
+对相同成绩的排名处理(上图中, 一班的李四和王五的成绩都是30分)； 一般有三种处理方式:
+**顺序排名**: 成绩相同时，谁在前，谁排名靠前(如: 1, 2, 3, 4, 5)
+**跳跃排名**: 成绩相同时, 并列排名，其他元素的排名顺延 (如：1， 2， 2， 4， 5)
+**密集排名**: 成绩相同时，并列排名，其他元素的排名不顺延 (如: 1, 2, 2, 3, 4)
+
+**rank函数**：
+DataFrame.rank(axis=0, method='average', numeric_only=None, na_option='keep', ascending=True, pct-=False)
+用途: 沿着某个轴(0/1)计算对象的排名
+return: 以Series或者DataFrame的类型返回数据的排名(哪个类型调用返回哪个类型)
+参数说明:
+axis: 设置沿着哪个轴计算排名
+numeric_only: 是否仅计算数字型的columns
+na_option: nan是否参与排序及如何排序('keep', 'top', 'bottom')
+ascending: 设定升序排名还是降序排名
+pct: 是否以排名的百分比显示排名(所有排名与最大排名的百分比)
+method： 取值可以是average/first/min/max/dense
+-- first: 相同成绩按位置顺序排名 == 对应"顺序排名"
+-- min/max：相同成绩按排名取小值(或大值) == 对应"跳跃排名"
+-- dense: 成绩相同时，并列排名，其他元素的排名不顺延 == 对应"密集排名"
+
+# shift 实现偏移错位
+```
+# 排名, 并计算与前一名的差距
+data = {
+    "name": ['张三'， '李四'， '王五', '牛二']，
+    "score": [58, 90 ,72, 85],
+}
+df = pd.DataFrame(data)
+df = df.sort_values(by='score', ascending=False)  # 按得分从大到小排序
+df['pre_score'] = df['score'].shift(1)  # 前一名的得分
+df['diff'] = df['pre_score'] - df['score']  # 与前一名的差距
+```
+
+# pandas 不同版本兼容性问题
+## dataframe groupby group_keys参数
+```
+df = pd.DataFrame({'Animal': ['Falcon', 'Falcon',
+                              'Parrot', 'Parrot'],
+                   'Max Speed': [380., 370., 24., 26.]})
+df.groupby("Animal")[['Max Speed']].apply(lambda x: x)
+在1.4.2下结果：
+       Max Speed
+    0      380.0
+    1      370.0
+    2       24.0
+    3       26.0
 
 
-
-
+在2.0.3下结果
+              Max Speed
+    Animal
+    Falcon 0      380.0
+           1      370.0
+    Parrot 2       24.0
+           3       26.0
+       
+    通过 df.groupby 指定参数 group_keys=False 可将结果与1.4.2兼容
+```

@@ -42,8 +42,8 @@ jupyter notebook 绘图中文显示乱码:
 conda包管理:
     查看python环境:
         conda info --env: 所有查看python环境,前面有个'*'的代表当前环境
-    创建一个名为py36Env的环境，指定Python版本是3.6:
-        conda create --name py36Env python=3.6  //这里创建的环境将安装在默认路径下
+    创建一个名为py36Env的环境，指定Python版本 & pip版本:
+        conda create --name py36Env python=3.6 pip=21.1.3 //这里创建的环境将安装在默认路径下  
             //指定环境的路径: conda create -p D:/myEnvPath/envs/py36Env python=3.6 
     删除py36环境:
         conda remove --name py36Env --all
@@ -91,6 +91,8 @@ conda包管理:
             conda install --revision [revision number]
             eg: conda install --revision 2
           
+          
+   
 从cmd进入base环境:
     执行: activate
 
@@ -114,11 +116,14 @@ conda包管理:
     下载whl包: 
         # 下载指定的包及相关依赖whl, 会按照执行环境的平台&py版本进行下载
         pip download PKG_NAME
+        # 下载 requirements.txt中的所有依赖, 到指定目录
+        pip download -d $DOWNLOAD_DIR -r requirements.txt
         
         # 可以指定平台和py版本.  指定平台时需要同时指定--only-binary参数
         pip3 download --only-binary=:all: --python-version=3.7  cx-Oracle==6.4.1
         可以指定多个--platform, 其取值可用: manylinux1_x86_64, linux_x86_64, any, win_amd64
-        
+                -- https://github.com/pypa/manylinux
+                
         # 使用docker下载包
         docker run -it centos7-miniconda
         pip3 download pandas==1.4.2
@@ -128,6 +133,7 @@ conda包管理:
         
         # 从包含存档的本地平面目录安装(并且不扫描索引), 参数: --find-links
         python -m pip install --no-index --find-links=/offline_pkgs -r requirements_offline.txt
+        # pip3 install --no-index --find-links=. .\casymda-0.2.29-py3-none-any.whl
         
     问题:
         安装python包时报错:
@@ -141,7 +147,15 @@ conda包管理:
             conda config --set channel_priority flexible
             # 重新尝试安装
             conda install xxx
-            
+  
+python命令行:  
+通过命令执行测试文件中的某个测试类
+`python -m unittest -v 文件名.类名`
+
+通过命令行执行某个文件的某个类下的某个测试用例
+`python -m unittest -v文件名.类名.方法名`
+
+   
 Jupyter操作:
     命令模式(蓝框) & 编辑模式(绿框):
         Esc: 切到命令模式

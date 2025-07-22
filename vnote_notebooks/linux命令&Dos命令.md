@@ -264,17 +264,28 @@ linux查看.so文件的命令:
 查看系统版本:
     cat /proc/version
     
-杀死进程: kill, pkill, killall
+杀死进程: 
+```
+linux: kill, pkill, killall
     通过进程号杀进程: kill
     通过进程名杀进程: pkill, killall
     列出信号名: kill -l
         杀进程一般使用信号9(SIGKILL): kill -s KILL 256 (kill -9 256)
     eg: 杀掉所有ap进程: killall ap_proc
-    
+
     找到某进程并kill它:(如jupyter-notebook)
         ### !!! 'grep -v grep'表示去除包含grep的进程行
         ps -ef | grep jupyter-notebook | grep -v grep| awk '{print $2}' | xargs kill >/dev/null 2>&1 & 
         
+
+windows: tasklist & taskkill
+查找指定进程: tasklist | findstr "python"
+
+终止进程: taskkill /f /t /im python.exe
+/f 表示强制终止进程。
+/t 表示结束此进程和其子进程。
+/im 用来指定进程的影映像名称（有 .exe 后缀）
+```
 
 使用dd命令从文件中获取指定的块[startByte, endByte): --位置从0开始计
     dd if=inFileName of=outFileName ibs=1 obs=1 skip=startByte seek=0 count=endByte-startByte
@@ -766,7 +777,7 @@ umask设置权限掩码:
     
 windows命令:
     cmd历史命令快捷键: F7
-
+```
     windows下类似grep的命令: findstr -- 在文件中寻找字符串
         findstr [/B] [/E] [/L] [/R] [/S] [/I] [/X] [/V] [/N] [/M] [/O] [/P] [/F:file]
                 [/C:string] [/G:file] [/D:dir list] [/A:color attributes] [/OFF[LINE]]
@@ -814,8 +825,10 @@ windows命令:
             findstr /s /i "backup" *.* 
         使用正则匹配:
             conda list | findstr /R ".*(tensorflow|pytorch).*"
-        
+```
+
 bat:
+```
     ::延时5秒
     choice /t 5 /d y /n >null
     
@@ -839,15 +852,18 @@ bat:
 
     进入批处理所在目录: cd %~dp0 或  cd /D %~dp0 (/D表示盘符D)
         %~dp0表示当前批处理文件所在目录,以'/'结尾的.
-                
+```
+
 C运行符优先级:
+```
     sizeof("haha") == 5
     a % b != 0 <==> a & (b != 0)
     *pData->value <==> *(pData->value)
-    
+```
     
     
 excel用法:
+```
     通过两个页签中的行建立关联:
     用小表过滤大表:
         VLOOKUP(lookup_value, table_array, col_index_num, range_lookup)
@@ -862,3 +878,4 @@ excel用法:
         
     超链接:
         在单元格输入 =HYPERLINK(XXX, YYY)
+```

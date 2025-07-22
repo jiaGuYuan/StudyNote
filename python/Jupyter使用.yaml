@@ -1,3 +1,17 @@
+为conda中的虚拟环境安装jupyter
+```
+conda activate myEnvName
+
+# 安装ipykernel
+conda install ipykernel  
+
+# 将环境写入notebook的kernel中
+python -m ipykernel install --user --name myEnvName --display-name myEnvName 
+
+# 打开notebook
+jupyter notebook --notebook-dir="D:/myProject/JupyterWKS"
+```
+
 修改Jupyter启动目录:
     1. 创建配置文件 jupyter notebook --generate-config
         默认配置文件位置"C:/Users/Administrator/.jupyter/jupyter_notebook_config.py"

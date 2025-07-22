@@ -1,3 +1,6 @@
+# WSL 安装
+[wsl安装](https://zhuanlan.zhihu.com/p/466001838)
+
 # WSL+Qt环境配置
 
 参考： [https://blog.csdn.net/xuanwolanxue/article/details/108636640](https://blog.csdn.net/xuanwolanxue/article/details/108636640)

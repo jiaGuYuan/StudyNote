@@ -91,6 +91,21 @@ git push --delete origin debug
     5. git push
 ```
 
+## git cherry-pick
+用于将某个(或多个)特定的提交（commit）应用到当前分支(会生成新的提交)，而无需合并整个分支。
+`git cherry-pick`常用选项
+* -n(--no-commit)：应用更改但不自动提交（可手动修改后提交）
+* -e(--edit)：允许修改提交信息
+* -x：在提交信息里追加来源提交的哈希（推荐用于追踪来源）
+* --abort：取消 cherry-pick 操作（发生冲突时使用）
+* --continue：解决冲突后继续 cherry-pick
+
+单个提交: `git cherry-pick <commit-hash>`
+多个提交：`git cherry-pick A B C`（依次应用 A、B、C）
+连续的提交范围：`git cherry-pick A^..B`（依次应用[A，B)中的所有提交，左闭右开）
+
+
+
 ## 暂存stash
 ```
 git stash save "暂存当前分支,先去xxx分支完成xxxx"
